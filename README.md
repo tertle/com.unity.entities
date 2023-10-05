@@ -3,6 +3,7 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 
 ## Changes
 - SystemState.BeforeOnUpdate.Complete() removed to stop sync points in fixed updated. Replaced with CompleteWorldDependencySystem.
+- Stop NullReferenceException in ArchetypeWindow when leaving play mode.
 
 # About Entities
 The Entities package provides a modern Entity Component System (ECS) implementation with a basic set of systems and components made for Unity.

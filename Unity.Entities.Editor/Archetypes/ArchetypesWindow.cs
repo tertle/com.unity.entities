@@ -55,8 +55,8 @@ namespace Unity.Entities.Editor
         {
             m_ArchetypesMemoryData.Dispose();
             m_ArchetypesStableHash.Dispose();
-            m_Recorder.Dispose();
-            m_UpdateTimer.Reset();
+            m_Recorder?.Dispose();
+            m_UpdateTimer?.Reset();
         }
 
         protected override void OnUpdate()
