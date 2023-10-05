@@ -187,6 +187,15 @@ namespace Unity.Scenes
                 if (!m_ValidSceneMask.MatchesIgnoreFilter(sceneEntity))
                     throw new InvalidOperationException("entity should have been removed from tracker already");
 
+#if UNITY_EDITOR
+                if (UnityEditor.EditorApplication.isPlaying
+                    && !CustomBakingSettings.PlayModeClosedSubSceneBaking
+                    && SceneSystem.IsSceneLoaded(World.Unmanaged, sceneEntity))
+                {
+                    continue;
+                }
+#endif
+
                 // Unload any previous state
                 SceneSystem.UnloadSceneSectionMetaEntitiesOnly(World.Unmanaged, sceneEntity, false);
 
@@ -385,4 +394,3 @@ namespace Unity.Scenes
 #endif
 
 }
-
