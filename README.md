@@ -6,6 +6,7 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 - Stop NullReferenceException in ArchetypeWindow.
 - Stop NullReferenceException in HierarchyWindow.
 - Added a toggle in Preferences -> Entities to stop Closed SubScenes that have been Loaded to no longer bake on changes during play mode.
+- Fixed FixedRateCatchUpManager breaking RewindAllocator when running 3+ times.
 
 # About Entities
 The Entities package provides a modern Entity Component System (ECS) implementation with a basic set of systems and components made for Unity.
