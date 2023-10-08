@@ -3,7 +3,8 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 
 ## Changes
 - SystemState.BeforeOnUpdate.Complete() removed to stop sync points in fixed updated. Replaced with CompleteWorldDependencySystem.
-- Stop NullReferenceException in ArchetypeWindow when leaving play mode.
+- Stop NullReferenceException in ArchetypeWindow.
+- Stop NullReferenceException in HierarchyWindow.
 - Added a toggle in Preferences -> Entities to stop Closed SubScenes that have been Loaded to no longer bake on changes during play mode.
 
 # About Entities

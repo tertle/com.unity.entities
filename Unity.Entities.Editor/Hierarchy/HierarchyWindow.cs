@@ -110,12 +110,16 @@ namespace Unity.Entities.Editor
 
         protected override void OnCleanup()
         {
-            m_HierarchySettings.UseAdvanceSearchSettingChanged -= OnUseAdvanceSearchSettingChanged;
+            if (m_HierarchySettings != null)
+            {
+                m_HierarchySettings.UseAdvanceSearchSettingChanged -= OnUseAdvanceSearchSettingChanged;
+            }
+
             EditorApplication.update -= OnBackgroundUpdate;
             Selection.selectionChanged -= OnGlobalSelectionChanged;
             dataModeController.dataModeChanged -= OnDataModeChanged;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            m_Hierarchy.Dispose();
+            m_Hierarchy?.Dispose();
         }
 
         void OnBecameVisible()
