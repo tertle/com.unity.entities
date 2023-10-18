@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Entities.Editor;
+using Unity.Entities.UI;
 using Unity.Properties;
 
 namespace Unity.Entities
@@ -93,12 +94,26 @@ namespace Unity.Entities
                 else if (typeof(ISharedComponentData).IsAssignableFrom(type))
                     Property = CreateInstance(typeof(SharedComponentProperty<>));
                 else if (typeof(IBufferElementData).IsAssignableFrom(type))
-                    Property = CreateInstance(typeof(DynamicBufferProperty<>));
+                {
+                    if (BufferHasInspector<TComponent>())
+                        Property = CreateInstance(typeof(CustomDynamicBufferProperty<>));
+                    else
+                        Property = CreateInstance(typeof(DynamicBufferProperty<>));
+                }
                 else if (typeof(UnityEngine.Object).IsAssignableFrom(type))
                     Property = CreateInstance(typeof(ManagedComponentProperty<>));
                 else
                     throw new InvalidOperationException();
             }
+        }
+
+        private static bool BufferHasInspector<TComponent>()
+        {
+            var type = typeof(DynamicBuffer<>);
+            var genericType = type.MakeGenericType(typeof(TComponent));
+            var method = typeof(InspectorRegistry).GetMethod(nameof(InspectorRegistry.GetPropertyDrawer))!;
+            var genericMethod = method.MakeGenericMethod(genericType);
+            return genericMethod.Invoke(null, null) != null;
         }
 
         abstract class ComponentProperty<TComponent> : Property<EntityContainer, TComponent>, IComponentProperty
@@ -295,6 +310,30 @@ namespace Unity.Entities
             protected override void DoSetValue(ref EntityContainer container, DynamicBufferContainer<TElement> value)
             {
                 // Nothing to do here, the container already proxies the data.
+            }
+        }
+
+        class CustomDynamicBufferProperty<TElement> : ComponentProperty<DynamicBuffer<TElement>>
+            where TElement : unmanaged, IBufferElementData
+        {
+            public override string Name => SanitizedPropertyName(Properties.TypeUtility.GetTypeDisplayName(typeof(TElement)));
+            protected override bool IsZeroSize { get; } = TypeManager.IsZeroSized(TypeManager.GetTypeIndex<TElement>());
+            public override ComponentPropertyType Type { get; } = ComponentPropertyType.Buffer;
+
+            public override bool IsReadOnly => true;
+
+            public CustomDynamicBufferProperty(TypeIndex typeIndex, bool isReadOnly) : base(typeIndex, isReadOnly)
+            {
+            }
+
+            protected override DynamicBuffer<TElement> DoGetValue(ref EntityContainer container)
+            {
+                var entityManager = container.World.EntityManager;
+                return entityManager.GetBuffer<TElement>(container.Entity);
+            }
+
+            protected override void DoSetValue(ref EntityContainer container, DynamicBuffer<TElement> value)
+            {
             }
         }
 
