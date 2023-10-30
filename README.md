@@ -8,6 +8,7 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 - Added a toggle in Preferences -> Entities to stop Closed SubScenes that have been Loaded to no longer bake on changes during play mode.
 - Fixed FixedRateCatchUpManager breaking RewindAllocator when running 3+ times.
 - Added support for PropertyInspector<DynamicBuffer<T>>.
+- GetEntity no longer forces LinkedEntityGroup and TransformUsageFlags.Dynamic on prefabs that don't have children.
 
 # About Entities
 The Entities package provides a modern Entity Component System (ECS) implementation with a basic set of systems and components made for Unity.
