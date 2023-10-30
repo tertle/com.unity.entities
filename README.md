@@ -9,6 +9,7 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 - Fixed FixedRateCatchUpManager breaking RewindAllocator when running 3+ times.
 - Added support for PropertyInspector<DynamicBuffer<T>>.
 - GetEntity no longer forces LinkedEntityGroup and TransformUsageFlags.Dynamic on prefabs that don't have children.
+- Fixed WithNone when IEnableable not adding dependency to system.
 
 # About Entities
 The Entities package provides a modern Entity Component System (ECS) implementation with a basic set of systems and components made for Unity.
