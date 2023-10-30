@@ -475,7 +475,7 @@ namespace Unity.Entities
         private ComponentType* CalculateRequiredComponentsFromQuery(ref UnsafeScratchAllocator allocator, ArchetypeQuery* queries, int queryCount, out int outRequiredComponentsCount)
         {
             // Populate and sort a combined array of required component types and their access modes from the first ArchetypeQuery
-            var maxIntersectionCount = queries[0].AllCount + queries[0].DisabledCount + queries[0].PresentCount;
+            var maxIntersectionCount = queries[0].AllCount + queries[0].DisabledCount + queries[0].PresentCount + queries[0].NoneCount;
             // The first required component is always Entity.
             var outRequiredComponents = (ComponentType*)allocator.Allocate<ComponentType>(maxIntersectionCount+1);
             outRequiredComponents[0] = ComponentType.ReadWrite<Entity>();
@@ -510,6 +510,27 @@ namespace Unity.Entities
                     AccessModeType = (ComponentType.AccessMode)queries[0].PresentAccessMode[j],
                 };
             }
+
+            var k = 0;
+            for (int j = 0; j < queries[0].NoneCount; ++j)
+            {
+                var type = new ComponentType
+                {
+                    TypeIndex = queries[0].None[j],
+                    AccessModeType = ComponentType.AccessMode.Exclude,
+                };
+
+                if (!type.IsEnableable)
+                {
+                    continue;
+                }
+
+                intersectionComponents[k + queries[0].AllCount + queries[0].DisabledCount + queries[0].PresentCount] = type;
+                k++;
+            }
+
+            maxIntersectionCount -= queries[0].NoneCount - k;
+
             NativeSortExtension.Sort(intersectionComponents, maxIntersectionCount);
 
             // For each additional ArchetypeQuery, create the same sorted array of component types, and reduce the
@@ -524,7 +545,7 @@ namespace Unity.Entities
             var intersectionCount = maxIntersectionCount;
             for (int i = 1; i < queryCount; ++i)
             {
-                int queryRequiredCount = queries[i].AllCount + queries[i].DisabledCount + queries[i].PresentCount;
+                int queryRequiredCount = queries[i].AllCount + queries[i].DisabledCount + queries[i].PresentCount + queries[i].NoneCount;
                 for (int j = 0; j < queries[i].AllCount; ++j)
                 {
                     queryRequiredTypes[j] = new ComponentType
@@ -549,6 +570,27 @@ namespace Unity.Entities
                         AccessModeType = (ComponentType.AccessMode)queries[i].PresentAccessMode[j],
                     };
                 }
+
+                k = 0;
+                for (int j = 0; j < queries[i].NoneCount; ++j)
+                {
+                    var type = new ComponentType
+                    {
+                        TypeIndex = queries[i].None[j],
+                        AccessModeType = ComponentType.AccessMode.Exclude,
+                    };
+
+                    if (!type.IsEnableable)
+                    {
+                        continue;
+                    }
+
+                    queryRequiredTypes[k + queries[i].AllCount + queries[i].DisabledCount + queries[i].PresentCount] = type;
+                    k++;
+                }
+
+                queryRequiredCount -= queries[i].NoneCount - k;
+
                 NativeSortExtension.Sort(queryRequiredTypes, queryRequiredCount);
                 intersectionCount = IntersectSortedComponentIndexArrays(intersectionComponents, intersectionCount,
                     queryRequiredTypes, queryRequiredCount, intersectionComponents);
