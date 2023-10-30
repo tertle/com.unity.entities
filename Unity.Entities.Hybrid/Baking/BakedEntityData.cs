@@ -1182,33 +1182,42 @@ namespace Unity.Entities
             CreateEntityForGameObject(prefab, entity, 0, 0);
             _GameObjectToEntity[instanceId] = entity;
 
+            var hasChildren = prefab.transform.childCount > 0;
+
             // Make sure prefab root is dynamic
             var counters = new TransformUsageFlagCounters();
-            counters.Add(TransformUsageFlags.Dynamic);
+            if (hasChildren)
+            {
+                counters.Add(TransformUsageFlags.Dynamic);
+            }
+
             _ReferencedEntities.Add(entity, counters);
 
             // Now register the Prefab for lazy baking
             _AdditionalGameObjectsToBake.Add(instanceId);
 
-            // Add all children
-            var linkedEntityGroupArray = new NativeArray<LinkedEntityGroupBakingData>(count, Allocator.Temp);
-
-            // Assign self to first position in linked entity group
-            linkedEntityGroupArray[0] = new LinkedEntityGroupBakingData {Value = entity};
-            for(int i = 1; i < count; i++)
+            if (hasChildren)
             {
-                var childGameObject = allTransforms[i].gameObject;
-                var childEntity = entities[i];
-                CreateEntityForGameObject(childGameObject, childEntity, 0, 0);
+                // Add all children
+                var linkedEntityGroupArray = new NativeArray<LinkedEntityGroupBakingData>(count, Allocator.Temp);
 
-                _GameObjectToEntity[childGameObject.GetInstanceID()] = childEntity;
+                // Assign self to first position in linked entity group
+                linkedEntityGroupArray[0] = new LinkedEntityGroupBakingData { Value = entity };
+                for (int i = 1; i < count; i++)
+                {
+                    var childGameObject = allTransforms[i].gameObject;
+                    var childEntity = entities[i];
+                    CreateEntityForGameObject(childGameObject, childEntity, 0, 0);
 
-                linkedEntityGroupArray[i] = new LinkedEntityGroupBakingData {Value = childEntity};
+                    _GameObjectToEntity[childGameObject.GetInstanceID()] = childEntity;
+
+                    linkedEntityGroupArray[i] = new LinkedEntityGroupBakingData { Value = childEntity };
+                }
+
+                var buffer = _EntityManager.AddBuffer<LinkedEntityGroupBakingData>(entity);
+                buffer.AddRange(linkedEntityGroupArray);
+                linkedEntityGroupArray.Dispose();
             }
-
-            var buffer = _EntityManager.AddBuffer<LinkedEntityGroupBakingData>(entity);
-            buffer.AddRange(linkedEntityGroupArray);
-            linkedEntityGroupArray.Dispose();
 
             return entity;
         }
