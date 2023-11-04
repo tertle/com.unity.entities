@@ -12,6 +12,7 @@ This fork provides performance optimizations, quick fixes, and improvements to t
 - SystemState.BeforeOnUpdate.Complete() removed to stop sync points in fixed updated. Replaced with CompleteWorldDependencySystem.
 - GetEntity no longer forces LinkedEntityGroup and TransformUsageFlags.Dynamic on prefabs that don't have children.
 - Fixed WithNone when IEnableable not adding dependency to system.
+- Added readonly to relevant DynamicBuffer and LocalTransform methods to stop 'struct value always copied before invocation' warnings.
 
 ### Added
 - A toggle in Preferences -> Entities to stop Closed SubScenes that have been Loaded to no longer bake on changes during play mode.
