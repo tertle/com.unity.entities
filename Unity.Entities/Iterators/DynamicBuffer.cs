@@ -76,7 +76,7 @@ namespace Unity.Entities
         /// </example>
         public int Length
         {
-            get
+            readonly get
             {
                 CheckReadAccess();
                 return m_Buffer->Length;
@@ -100,7 +100,7 @@ namespace Unity.Entities
         /// </remarks>
         public int Capacity
         {
-            get
+            readonly get
             {
                 CheckReadAccess();
                 return m_Buffer->Capacity;
@@ -124,12 +124,12 @@ namespace Unity.Entities
         /// Reports whether container is empty.
         /// </summary>
         /// <value>True if this container empty.</value>
-        public bool IsEmpty => !IsCreated || Length == 0;
+        public readonly bool IsEmpty => !IsCreated || Length == 0;
 
         /// <summary>
         /// Whether the memory for this dynamic buffer has been allocated.
         /// </summary>
-        public bool IsCreated
+        public readonly bool IsCreated
         {
             get
             {
@@ -138,14 +138,14 @@ namespace Unity.Entities
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS"), Conditional("UNITY_DOTS_DEBUG")]
-        void CheckBounds(int index)
+        readonly void CheckBounds(int index)
         {
             if ((uint)index >= (uint)Length)
                 throw new IndexOutOfRangeException($"Index {index} is out of range in DynamicBuffer of '{Length}' Length.");
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        void CheckReadAccess()
+        readonly void CheckReadAccess()
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(m_Safety0);
@@ -154,7 +154,7 @@ namespace Unity.Entities
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        void CheckWriteAccess()
+        readonly void CheckWriteAccess()
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(m_Safety0);
@@ -163,7 +163,7 @@ namespace Unity.Entities
         }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
-        void CheckWriteAccessAndInvalidateArrayAliases()
+        readonly void CheckWriteAccessAndInvalidateArrayAliases()
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(m_Safety0);
@@ -180,7 +180,7 @@ namespace Unity.Entities
         /// <param name="index">The zero-based index.</param>
         public T this[int index]
         {
-            get
+            readonly get
             {
                 CheckReadAccess();
                 CheckBounds(index);
@@ -515,7 +515,7 @@ namespace Unity.Entities
         /// <returns>A dynamic buffer of the reinterpreted type.</returns>
         /// <exception cref="InvalidOperationException">If the reinterpreted type is a different
         /// size than the original.</exception>
-        public DynamicBuffer<U> Reinterpret<U>() where U : unmanaged
+        public readonly DynamicBuffer<U> Reinterpret<U>() where U : unmanaged
         {
             AssertReinterpretSizesMatch<U>();
             // NOTE: We're forwarding the internal capacity along to this aliased, type-punned buffer.
@@ -538,7 +538,7 @@ namespace Unity.Entities
         /// <example>
         /// <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.asnativearray"/>
         /// </example>
-        public NativeArray<T> AsNativeArray()
+        public readonly NativeArray<T> AsNativeArray()
         {
             CheckReadAccess();
 
@@ -559,14 +559,14 @@ namespace Unity.Entities
         /// <code source="../../DocCodeSamples.Tests/DynamicBufferExamples.cs" language="csharp" region="dynamicbuffer.getenumerator"/>
         /// </example>
         /// <returns>The enumerator.</returns>
-        public NativeArray<T>.Enumerator GetEnumerator()
+        public readonly NativeArray<T>.Enumerator GetEnumerator()
         {
             var array = AsNativeArray();
             return new NativeArray<T>.Enumerator(ref array);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() { throw new NotImplementedException(); }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() { throw new NotImplementedException(); }
+        readonly IEnumerator IEnumerable.GetEnumerator() { throw new NotImplementedException(); }
+        readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() { throw new NotImplementedException(); }
 
         /// <summary>
         /// Copies the buffer into a new native array.
@@ -577,7 +577,7 @@ namespace Unity.Entities
         /// <param name="allocator">The type of memory allocation to use when creating the
         /// native array.</param>
         /// <returns>A native array containing copies of the buffer elements.</returns>
-        public NativeArray<T> ToNativeArray(AllocatorManager.AllocatorHandle allocator)
+        public readonly NativeArray<T> ToNativeArray(AllocatorManager.AllocatorHandle allocator)
         {
             return CollectionHelper.CreateNativeArray<T>(AsNativeArray(), allocator);
         }
