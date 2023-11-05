@@ -85,6 +85,24 @@ namespace Unity.Entities
         public Archetype* CleanupResidueArchetype;
         public Archetype* MetaChunkArchetype;
 
+        public Archetype* VirtualChunk0Archetype;
+        public Archetype* VirtualChunk1Archetype;
+        public Archetype* VirtualChunk2Archetype;
+        public Archetype* VirtualChunk3Archetype;
+        public Archetype* VirtualChunk4Archetype;
+        public Archetype* VirtualChunk5Archetype;
+        public Archetype* VirtualChunk6Archetype;
+        public Archetype* VirtualChunk7Archetype;
+
+        public ref Archetype* GetVirtualChunkArchetype(int index)
+        {
+            fixed (Archetype* ptr = &this)
+            {
+                Archetype** v0 = &ptr->VirtualChunk0Archetype;
+                return ref v0[index];
+            }
+        }
+
         public EntityRemapUtility.EntityPatchInfo* ScalarEntityPatches;
         public EntityRemapUtility.BufferEntityPatchInfo* BufferEntityPatches;
 

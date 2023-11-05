@@ -448,6 +448,8 @@ namespace Unity.Entities
         ComponentType m_ChunkHeaderComponentType;
         ComponentType m_EntityComponentType;
         ComponentType m_SimulateComponentType;
+        ComponentType m_VirtualChunkDataComponentType;
+
 
         TypeManager.TypeInfo* m_TypeInfos;
         TypeManager.EntityOffsetInfo* m_EntityOffsetInfos;
@@ -707,6 +709,8 @@ namespace Unity.Entities
             entities->m_ChunkHeaderComponentType = ComponentType.ReadWrite<ChunkHeader>();
             entities->m_EntityComponentType = ComponentType.ReadWrite<Entity>();
             entities->m_SimulateComponentType = ComponentType.ReadWrite<Simulate>();
+            entities->m_VirtualChunkDataComponentType = ComponentType.ReadWrite<VirtualChunkData>();
+
             entities->InitializeTypeManagerPointers();
 
             entities->m_ChunkListChangesTracker = new ChunkListChanges();
@@ -750,6 +754,7 @@ namespace Unity.Entities
         }
 
         public TypeIndex ChunkComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
+        public TypeIndex VirtualComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
 
         public static void Destroy(EntityComponentStore* entityComponentStore)
         {
@@ -2512,6 +2517,10 @@ namespace Unity.Entities
                     mask |= 1 << (vc - 1);
                 }
                 dstArchetype->VirtualChunkMask = (byte)mask;
+            }
+            else
+            {
+                dstArchetype->VirtualChunkMask = 0;
             }
 
             if (dstArchetype->NumManagedComponents > 0)

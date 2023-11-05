@@ -3,6 +3,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 
 #if ENABLE_UNITY_CHUNK_METADATA_ACCESSOR_COUNTERS
 using Unity.Profiling;
@@ -255,6 +256,22 @@ namespace Unity.Entities
             }
         }
 
+        internal ref ChunkIndex VirtualChunk(int index)
+        {
+            unsafe
+            {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                if (index is < 0 or >= 8)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+#endif
+                var ptr = ((byte*)GetPtr()) + Chunk.kVirtualChunkOffset;
+                return ref UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize);
+            }
+
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(ChunkIndex other)
         {
@@ -297,30 +314,31 @@ namespace Unity.Entities
         public const int kSerializedHeaderSize = 40;
 
         public const int kVirtualChunkOffset = 64;
+        public const int kVirtualChunkSize = 4;
 
-        [FieldOffset(kVirtualChunkOffset+0)]
-        public ArchetypeChunk* Virtual0;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*0)]
+        public ChunkIndex Virtual0;
 
-        [FieldOffset(kVirtualChunkOffset+8)]
-        public ArchetypeChunk* Virtual1;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*1)]
+        public ChunkIndex Virtual1;
 
-        [FieldOffset(kVirtualChunkOffset+16)]
-        public ArchetypeChunk* Virtual2;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*2)]
+        public ChunkIndex Virtual2;
 
-        [FieldOffset(kVirtualChunkOffset+24)]
-        public ArchetypeChunk* Virtual3;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*3)]
+        public ChunkIndex Virtual3;
 
-        [FieldOffset(kVirtualChunkOffset+32)]
-        public ArchetypeChunk* Virtual4;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*4)]
+        public ChunkIndex Virtual4;
 
-        [FieldOffset(kVirtualChunkOffset+40)]
-        public ArchetypeChunk* Virtual5;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*5)]
+        public ChunkIndex Virtual5;
 
-        [FieldOffset(kVirtualChunkOffset+48)]
-        public ArchetypeChunk* Virtual6;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*6)]
+        public ChunkIndex Virtual6;
 
-        [FieldOffset(kVirtualChunkOffset+56)]
-        public ArchetypeChunk* Virtual7;
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*7)]
+        public ChunkIndex Virtual7;
 
         // Chunk header END
 

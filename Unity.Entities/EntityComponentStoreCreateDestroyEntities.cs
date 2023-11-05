@@ -175,6 +175,8 @@ namespace Unity.Entities
 
             if (archetype->MetaChunkArchetype != null)
                 CreateMetaEntityForChunk(newChunk);
+            if (archetype->VirtualChunkMask != 0)
+                CreateVirtualChunksForChunk(newChunk);
 
             return newChunk;
         }
@@ -223,6 +225,29 @@ namespace Unity.Entities
                 var chunkHeader = (ChunkHeader*)GetComponentDataWithTypeRW(metaEntity, m_ChunkHeaderType, GlobalSystemVersion);
 
                 chunkHeader->ArchetypeChunk = new ArchetypeChunk(chunk, entityComponentStore);
+            }
+        }
+
+        internal void CreateVirtualChunksForChunk(ChunkIndex chunk)
+        {
+            fixed(EntityComponentStore* entityComponentStore = &this)
+            {
+                Archetype* archetype = entityComponentStore->GetArchetype(chunk);
+                var sharedIndices = stackalloc int[0];
+
+
+                var mask = (uint)archetype->VirtualChunkMask;
+                while (mask != 0)
+                {
+                    var index = math.tzcnt(mask);
+                    UnityEngine.Debug.Log($"Creating virtual chunk at {index}");
+
+                    var virtualArchetype = archetype->GetVirtualChunkArchetype(index);
+                    chunk.VirtualChunk(index) = GetCleanChunkNoMetaChunk(virtualArchetype, sharedIndices);
+
+                    var shifted = (uint)(1 << index);
+                    mask ^= shifted;
+                }
             }
         }
 
