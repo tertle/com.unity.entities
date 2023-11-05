@@ -109,6 +109,8 @@ namespace Unity.Entities
         /// </summary>
         public bool IsChunkSerializable => TypeIndex.IsChunkSerializable;
 
+        internal bool IsVirtualComponent => TypeIndex.IsVirtualComponent;
+
         /// <summary>
         /// Returns a <see cref="ComponentType"/> with <see cref="AccessMode.ReadWrite"/> based on the generic type T.
         /// </summary>
@@ -270,7 +272,7 @@ namespace Unity.Entities
         /// <param name="type">The type</param>
         /// <returns>The virtual component type</returns>
         [ExcludeFromBurstCompatTesting("Takes a managed Type")]
-        public static ComponentType VirtualComponent(Type type)
+        internal static ComponentType VirtualComponent(Type type)
         {
             var typeIndex = TypeManager.MakeVirtualComponentTypeIndex(TypeManager.GetTypeIndex(type));
             return FromTypeIndex(typeIndex);
@@ -282,7 +284,7 @@ namespace Unity.Entities
         /// <typeparam name="T">The type</typeparam>
         /// <returns>The chunk component type</returns>
         [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(Entity) })]
-        public static ComponentType VirtualComponent<T>()
+        internal static ComponentType VirtualComponent<T>()
         {
             var typeIndex = TypeManager.MakeVirtualComponentTypeIndex(TypeManager.GetTypeIndex<T>());
             return FromTypeIndex(typeIndex);

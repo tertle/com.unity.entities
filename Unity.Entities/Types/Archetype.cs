@@ -74,6 +74,7 @@ namespace Unity.Entities
         public short FirstTagComponent;
         public short FirstSharedComponent;
         public short FirstChunkComponent;
+        public short FirstVirtualComponent;
 
         public ArchetypeFlags Flags;
 
@@ -110,7 +111,8 @@ namespace Unity.Entities
         public int NumManagedComponents => FirstTagComponent - FirstManagedComponent;
         public int NumTagComponents => FirstSharedComponent - FirstTagComponent;
         public int NumSharedComponents => FirstChunkComponent - FirstSharedComponent;
-        public int NumChunkComponents => TypesCount - FirstChunkComponent;
+        public int NumChunkComponents => FirstVirtualComponent - FirstChunkComponent;
+        public int NumVirtualComponents => TypesCount - FirstVirtualComponent;
         public int NonZeroSizedTypesCount => FirstTagComponent;
 
         // These help when iterating specific component types

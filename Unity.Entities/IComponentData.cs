@@ -320,14 +320,22 @@ namespace Unity.Entities
 
     public class VirtualChunkAttribute : Attribute
     {
-        public string Group;
+        // public string Group;
+        //
+        // public VirtualChunkAttribute(string group)
+        // {
+        //     this.Group = group;
+        // }
 
-        public VirtualChunkAttribute(string group)
+        public byte Group;
+
+        public VirtualChunkAttribute(byte group)
         {
-            this.Group = group;
+            Group = group;
         }
     }
 
+    // TODO we use this in future
     public class VirtualChunkGroupAttribute : Attribute
     {
         public string GroupName;
@@ -335,17 +343,16 @@ namespace Unity.Entities
 
         public VirtualChunkGroupAttribute(string groupName, byte group)
         {
-            this.GroupName = groupName;
-            this.Group = group;
+            GroupName = groupName;
+            Group = group;
         }
     }
 
-    // TODO internal
-    public struct VirtualChunk : IComponentData
+    struct VirtualChunk : IComponentData
     {
     }
 
-    public struct VirtualChunkData : IComponentData
+    struct VirtualChunkData : IComponentData
     {
     }
 }

@@ -18,7 +18,8 @@ namespace Unity.Entities
         HybridComponent = CompanionComponent,
         Tag = 1 << 5,
         Buffer = 1 << 6,
-        All = Component | SharedComponent | ChunkComponent | CompanionComponent | Tag | Buffer
+        VirtualComponent = 1 << 7,
+        All = Component | SharedComponent | ChunkComponent | CompanionComponent | Tag | Buffer | VirtualComponent
     }
 
     interface IComponentProperty : IProperty<EntityContainer>
@@ -84,6 +85,10 @@ namespace Unity.Entities
 #else
                         Property = CreateInstance(typeof(StructChunkComponentProperty<>));
 #endif
+                    else if (TypeManager.IsVirtualComponent(TypeIndex))
+                    {
+                        Property = CreateInstance(typeof(VirtualComponentProperty<>));
+                    }
 #if !UNITY_DISABLE_MANAGED_COMPONENTS
                     else if (TypeManager.IsManagedComponent(TypeIndex))
                         Property = CreateInstance(typeof(ClassComponentProperty<>));
@@ -290,6 +295,31 @@ namespace Unity.Entities
             }
         }
 #endif
+
+        // TODO long term this won't be required as normal component will handle it
+        class VirtualComponentProperty<TComponent> : ComponentProperty<TComponent>
+            where TComponent : unmanaged, IComponentData
+        {
+            protected override bool IsZeroSize { get; } = true;//TypeManager.IsZeroSized(TypeManager.GetTypeIndex<TComponent>());
+            public override ComponentPropertyType Type => IsZeroSize ? ComponentPropertyType.Tag : ComponentPropertyType.VirtualComponent;
+
+            public VirtualComponentProperty(TypeIndex typeIndex, bool isReadOnly) : base(typeIndex, isReadOnly)
+            {
+            }
+
+            protected override TComponent DoGetValue(ref EntityContainer container)
+            {
+                return default;
+                // var entityManager = container.World.EntityManager;
+                // return entityManager.GetChunkComponentData<TComponent>(container.Entity);
+            }
+
+            protected override void DoSetValue(ref EntityContainer container, TComponent value)
+            {
+                // var entityManager = container.World.EntityManager;
+                // entityManager.SetChunkComponentData(entityManager.GetChunk(container.Entity), value);
+            }
+        }
 
         class DynamicBufferProperty<TElement> : ComponentProperty<DynamicBufferContainer<TElement>>
             where TElement : unmanaged, IBufferElementData
