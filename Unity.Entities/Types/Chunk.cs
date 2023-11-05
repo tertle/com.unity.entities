@@ -72,7 +72,7 @@ namespace Unity.Entities
         public static implicit operator int(ChunkIndex index) => index.Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
+        internal readonly unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool MatchesFilter(MatchingArchetype* match, ref EntityQueryFilter filter)
@@ -256,7 +256,7 @@ namespace Unity.Entities
             }
         }
 
-        internal ref ChunkIndex VirtualChunk(int index)
+        internal readonly ChunkIndex GetVirtualChunk(int index)
         {
             unsafe
             {
@@ -267,9 +267,23 @@ namespace Unity.Entities
                 }
 #endif
                 var ptr = ((byte*)GetPtr()) + Chunk.kVirtualChunkOffset;
-                return ref UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize);
+                return UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize);
             }
+        }
 
+        internal void SetVirtualChunk(int index, ChunkIndex chunk)
+        {
+            unsafe
+            {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                if (index is < 0 or >= 8)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+#endif
+                var ptr = ((byte*)GetPtr()) + Chunk.kVirtualChunkOffset;
+                UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize) = chunk;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -331,7 +331,7 @@ namespace Unity.Entities
 
         public VirtualChunkAttribute(byte group)
         {
-            Group = group;
+            Group = group > 8 ? (byte)8 : group;
         }
     }
 

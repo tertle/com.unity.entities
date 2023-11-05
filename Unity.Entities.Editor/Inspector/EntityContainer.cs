@@ -296,11 +296,10 @@ namespace Unity.Entities
         }
 #endif
 
-        // TODO long term this won't be required as normal component will handle it
         class VirtualComponentProperty<TComponent> : ComponentProperty<TComponent>
             where TComponent : unmanaged, IComponentData
         {
-            protected override bool IsZeroSize { get; } = true;//TypeManager.IsZeroSized(TypeManager.GetTypeIndex<TComponent>());
+            protected override bool IsZeroSize { get; } = TypeManager.IsZeroSized(TypeManager.GetTypeIndex<TComponent>());
             public override ComponentPropertyType Type => IsZeroSize ? ComponentPropertyType.Tag : ComponentPropertyType.VirtualComponent;
 
             public VirtualComponentProperty(TypeIndex typeIndex, bool isReadOnly) : base(typeIndex, isReadOnly)
@@ -309,15 +308,14 @@ namespace Unity.Entities
 
             protected override TComponent DoGetValue(ref EntityContainer container)
             {
-                return default;
-                // var entityManager = container.World.EntityManager;
-                // return entityManager.GetChunkComponentData<TComponent>(container.Entity);
+                var entityManager = container.World.EntityManager;
+                return entityManager.GetComponentData<TComponent>(container.Entity);
             }
 
             protected override void DoSetValue(ref EntityContainer container, TComponent value)
             {
-                // var entityManager = container.World.EntityManager;
-                // entityManager.SetChunkComponentData(entityManager.GetChunk(container.Entity), value);
+                var entityManager = container.World.EntityManager;
+                entityManager.SetComponentData(container.Entity, value);
             }
         }
 

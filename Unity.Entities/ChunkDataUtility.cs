@@ -181,6 +181,8 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, ref LookupCache lookupCache)
         {
+            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+
             if (Hint.Unlikely(lookupCache.Archetype != archetype))
                 lookupCache.Update(archetype, typeIndex);
             if (Hint.Unlikely(lookupCache.IndexInArchetype == -1))
@@ -192,6 +194,8 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion, ref LookupCache lookupCache)
         {
+            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+
             if (Hint.Unlikely(lookupCache.Archetype != archetype))
                 lookupCache.Update(archetype, typeIndex);
             if (Hint.Unlikely(lookupCache.IndexInArchetype == -1))
@@ -204,6 +208,8 @@ namespace Unity.Entities
 
         public static byte* GetComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex)
         {
+            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+
             var indexInTypeArray = GetIndexInTypeArray(archetype, typeIndex);
 
             var offset = archetype->Offsets[indexInTypeArray];
@@ -214,6 +220,8 @@ namespace Unity.Entities
 
         public static byte* GetComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion)
         {
+            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+
             var indexInTypeArray = GetIndexInTypeArray(archetype, typeIndex);
 
             var offset = archetype->Offsets[indexInTypeArray];
@@ -838,7 +846,9 @@ namespace Unity.Entities
                     if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentIndex))
                     {
                         entityComponentStore->RemoveSharedComponentReference_Unmanaged(sharedComponentIndex);
-                    } else {
+                    }
+                    else
+                    {
                         entityComponentStore->ManagedChangesTracker.RemoveReference(sharedComponentIndex);
                     }
                 }
@@ -954,7 +964,11 @@ namespace Unity.Entities
                 for (int i = 0; i < fillCount; i++)
                 {
                     var entity = fillEntities[i];
-                    entityComponentStore->SetEntityInChunk(entity, new EntityInChunk { Chunk = chunk, IndexInChunk = startIndex + i });
+                    entityComponentStore->SetEntityInChunk(entity, new EntityInChunk
+                    {
+                        Chunk = chunk,
+                        IndexInChunk = startIndex + i
+                    });
                 }
             }
             else
@@ -1013,13 +1027,17 @@ namespace Unity.Entities
                             if (EntityComponentStore.IsUnmanagedSharedComponentIndex(srcSharedComponentDataIndex))
                             {
                                 entityComponentStore->RemoveSharedComponentReference_Unmanaged(srcSharedComponentDataIndex);
-                            } else {
+                            }
+                            else
+                            {
                                 entityComponentStore->ManagedChangesTracker.RemoveReference(srcSharedComponentDataIndex);
                             }
                             if (EntityComponentStore.IsUnmanagedSharedComponentIndex(dstSharedComponentDataIndex))
                             {
                                 entityComponentStore->AddSharedComponentReference_Unmanaged(dstSharedComponentDataIndex);
-                            } else {
+                            }
+                            else
+                            {
                                 entityComponentStore->ManagedChangesTracker.AddReference(dstSharedComponentDataIndex);
                             }
                         }
@@ -1033,7 +1051,9 @@ namespace Unity.Entities
                         if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentDataIndex))
                         {
                             entityComponentStore->RemoveSharedComponentReference_Unmanaged(sharedComponentDataIndex);
-                        } else {
+                        }
+                        else
+                        {
                             entityComponentStore->ManagedChangesTracker.RemoveReference(sharedComponentDataIndex);
                         }
                         o++;
@@ -1044,7 +1064,9 @@ namespace Unity.Entities
                         if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentDataIndex))
                         {
                             entityComponentStore->AddSharedComponentReference_Unmanaged(sharedComponentDataIndex);
-                        } else {
+                        }
+                        else
+                        {
                             entityComponentStore->ManagedChangesTracker.AddReference(sharedComponentDataIndex);
                         }
                         n++;
@@ -1057,7 +1079,9 @@ namespace Unity.Entities
                     if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentDataIndex))
                     {
                         entityComponentStore->AddSharedComponentReference_Unmanaged(sharedComponentDataIndex);
-                    } else {
+                    }
+                    else
+                    {
                         entityComponentStore->ManagedChangesTracker.AddReference(sharedComponentDataIndex);
                     }
                 }
@@ -1068,7 +1092,9 @@ namespace Unity.Entities
                     if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentDataIndex))
                     {
                         entityComponentStore->RemoveSharedComponentReference_Unmanaged(sharedComponentDataIndex);
-                    } else {
+                    }
+                    else
+                    {
                         entityComponentStore->ManagedChangesTracker.RemoveReference(sharedComponentDataIndex);
                     }
                 }
@@ -1258,7 +1284,12 @@ namespace Unity.Entities
 
         public static void Deallocate(Archetype* archetype, ChunkIndex chunk)
         {
-            Deallocate(archetype, new EntityBatchInChunk { Chunk = chunk, StartIndex = 0, Count = chunk.Count });
+            Deallocate(archetype, new EntityBatchInChunk
+            {
+                Chunk = chunk,
+                StartIndex = 0,
+                Count = chunk.Count
+            });
         }
 
         public static void Deallocate(Archetype* archetype, in EntityBatchInChunk batch)
@@ -1306,7 +1337,11 @@ namespace Unity.Entities
             for (int i = 0; i < dstCount; i++)
             {
                 var entity = dstEntities[i];
-                entityComponentStore->SetEntityInChunk(entity, new EntityInChunk { Chunk = dstChunk, IndexInChunk = dstChunkIndex + i });
+                entityComponentStore->SetEntityInChunk(entity, new EntityInChunk
+                {
+                    Chunk = dstChunk,
+                    IndexInChunk = dstChunkIndex + i
+                });
             }
 
             CloneChangeVersions(srcArchetype, srcChunk.ListIndex, dstArchetype, dstChunk.ListIndex, dstValidExistingVersions);
@@ -1326,15 +1361,15 @@ namespace Unity.Entities
 
         static void ReplicateComponents(Archetype* srcArchetype, ChunkIndex srcChunk, int srcIndex, Archetype* dstArchetype, ChunkIndex dstChunk, int dstBaseIndex, int count)
         {
-            var srcBuffer           = srcChunk.Buffer;
-            var dstBuffer           = dstChunk.Buffer;
-            var srcOffsets          = srcArchetype->Offsets;
-            var srcSizeOfs          = srcArchetype->SizeOfs;
+            var srcBuffer = srcChunk.Buffer;
+            var dstBuffer = dstChunk.Buffer;
+            var srcOffsets = srcArchetype->Offsets;
+            var srcSizeOfs = srcArchetype->SizeOfs;
             var srcBufferCapacities = srcArchetype->BufferCapacities;
-            var srcTypes            = srcArchetype->Types;
-            var dstTypes            = dstArchetype->Types;
-            var dstOffsets          = dstArchetype->Offsets;
-            var dstTypeIndex        = 1;
+            var srcTypes = srcArchetype->Types;
+            var dstTypes = dstArchetype->Types;
+            var dstOffsets = dstArchetype->Offsets;
+            var dstTypeIndex = 1;
 
             var nativeComponentsEnd = srcArchetype->NativeComponentsEnd;
             for (var srcTypeIndex = 1; srcTypeIndex != nativeComponentsEnd; srcTypeIndex++)
@@ -1395,8 +1430,8 @@ namespace Unity.Entities
             var entityComponentStore = dstArchetype->EntityComponentStore;
             var srcTypes = srcArchetype->Types;
             var dstTypes = dstArchetype->Types;
-            var srcOffsets          = srcArchetype->Offsets;
-            var dstOffsets          = dstArchetype->Offsets;
+            var srcOffsets = srcArchetype->Offsets;
+            var dstOffsets = dstArchetype->Offsets;
             int componentCount = dstArchetype->NumManagedComponents;
 
             int nonNullManagedComponents = 0;
@@ -1572,7 +1607,9 @@ namespace Unity.Entities
                 if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentIndex))
                 {
                     entityComponentStore->AddSharedComponentReference_Unmanaged(sharedComponentIndex);
-                } else {
+                }
+                else
+                {
                     entityComponentStore->ManagedChangesTracker.AddReference(sharedComponentIndex);
                 }
             }
@@ -1603,7 +1640,9 @@ namespace Unity.Entities
                     if (EntityComponentStore.IsUnmanagedSharedComponentIndex(sharedComponentIndex))
                     {
                         entityComponentStore->AddSharedComponentReference_Unmanaged(sharedComponentIndex);
-                    } else {
+                    }
+                    else
+                    {
                         entityComponentStore->ManagedChangesTracker.AddReference(sharedComponentIndex);
                     }
                 }
@@ -1629,6 +1668,22 @@ namespace Unity.Entities
             }
 
             chunk.Flags = 0;
+        }
+
+        public static void RemapVirtualChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex)
+        {
+            if (!archetype->VirtualChunk)
+            {
+                return;
+            }
+
+            var virtualChunk = TypeManager.GetTypeInfo(typeIndex).VirtualChunk;
+            if (virtualChunk == 0)
+                return;
+
+            var vChunkIndex = virtualChunk - 1;
+            chunk = chunk.GetVirtualChunk(vChunkIndex);
+            archetype = archetype->GetVirtualChunkArchetype(vChunkIndex);
         }
     }
 }

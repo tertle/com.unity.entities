@@ -1014,6 +1014,17 @@ namespace Unity.Entities
             return GetArchetype(chunk);
         }
 
+        public Archetype* GetArchetype(Entity entity, TypeIndex typeIndex)
+        {
+            AssertEntitiesExist(&entity, 1);
+            var chunk = GetChunk(entity);
+            Assert.IsTrue(chunk != ChunkIndex.Null);
+
+            var archetype = GetArchetype(chunk);
+            ChunkDataUtility.RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            return archetype;
+        }
+
         public ChunkIndex GetChunk(Entity entity)
         {
             var entityChunk = m_EntityInChunkByEntity[entity.Index].Chunk;
@@ -1135,7 +1146,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type) != -1;
         }
 
@@ -1144,7 +1155,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             if (Hint.Unlikely(archetype != cache.Archetype))
                 cache.Update(archetype, type);
             return cache.IndexInArchetype != -1;
@@ -1155,7 +1166,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type.TypeIndex);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type.TypeIndex) != -1;
         }
 

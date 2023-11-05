@@ -243,7 +243,8 @@ namespace Unity.Entities
                     UnityEngine.Debug.Log($"Creating virtual chunk at {index}");
 
                     var virtualArchetype = archetype->GetVirtualChunkArchetype(index);
-                    chunk.VirtualChunk(index) = GetCleanChunkNoMetaChunk(virtualArchetype, sharedIndices);
+                    var virtualChunkData = GetCleanChunkNoMetaChunk(virtualArchetype, sharedIndices);
+                    chunk.SetVirtualChunk(index, virtualChunkData);
 
                     var shifted = (uint)(1 << index);
                     mask ^= shifted;
