@@ -296,12 +296,38 @@ namespace Unity.Entities
         //       It is cleared on write to disk, it is a global in memory sequence ID used for comparing chunks.
         public const int kSerializedHeaderSize = 40;
 
+        public const int kVirtualChunkOffset = 64;
+
+        [FieldOffset(kVirtualChunkOffset+0)]
+        public ArchetypeChunk* Virtual0;
+
+        [FieldOffset(kVirtualChunkOffset+8)]
+        public ArchetypeChunk* Virtual1;
+
+        [FieldOffset(kVirtualChunkOffset+16)]
+        public ArchetypeChunk* Virtual2;
+
+        [FieldOffset(kVirtualChunkOffset+24)]
+        public ArchetypeChunk* Virtual3;
+
+        [FieldOffset(kVirtualChunkOffset+32)]
+        public ArchetypeChunk* Virtual4;
+
+        [FieldOffset(kVirtualChunkOffset+40)]
+        public ArchetypeChunk* Virtual5;
+
+        [FieldOffset(kVirtualChunkOffset+48)]
+        public ArchetypeChunk* Virtual6;
+
+        [FieldOffset(kVirtualChunkOffset+56)]
+        public ArchetypeChunk* Virtual7;
+
         // Chunk header END
 
         // Component data buffer
         // This is where the actual chunk data starts.
         // It's declared like this so we can skip the header part of the chunk and just get to the data.
-        public const int kBufferOffset = 64; // (must be cache line aligned)
+        public const int kBufferOffset = 128; // (must be cache line aligned)
         [FieldOffset(kBufferOffset)]
         public fixed byte Buffer[4];
 

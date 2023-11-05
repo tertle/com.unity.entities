@@ -1112,10 +1112,12 @@ namespace Unity.Entities
             var prefabTypeIndex = TypeManager.GetTypeIndex<Prefab>();
             var systemInstanceTypeIndex = TypeManager.GetTypeIndex<SystemInstance>();
             var chunkHeaderTypeIndex = TypeManager.GetTypeIndex<ChunkHeader>();
+            // var virtualChunkDataTypeIndex = TypeManager.GetTypeIndex<VirtualChunkData>();
             var includeDisabledEntities = (options & EntityQueryOptions.IncludeDisabledEntities) != 0;
             var includePrefab = (options & EntityQueryOptions.IncludePrefab) != 0;
             var includeSystems = (options & EntityQueryOptions.IncludeSystems) != 0;
             var includeChunkHeader = (options & EntityQueryOptions.IncludeMetaChunks) != 0;
+            var includeVirtualChunkData = false;
 
             for (var i = 0; i < componentTypesCount; i++)
             {
@@ -1143,6 +1145,8 @@ namespace Unity.Entities
             if (archetype->HasSystemInstanceComponents && !includeSystems)
                 return false;
             if (archetype->HasChunkHeader && !includeChunkHeader)
+                return false;
+            if (archetype->HasVirtualChunkData && !includeVirtualChunkData)
                 return false;
 
             return foundCount == allCount;

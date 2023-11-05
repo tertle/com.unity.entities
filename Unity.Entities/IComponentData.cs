@@ -317,4 +317,35 @@ namespace Unity.Entities
     public struct Simulate : IComponentData, IEnableableComponent
     {
     }
+
+    public class VirtualChunkAttribute : Attribute
+    {
+        public string Group;
+
+        public VirtualChunkAttribute(string group)
+        {
+            this.Group = group;
+        }
+    }
+
+    public class VirtualChunkGroupAttribute : Attribute
+    {
+        public string GroupName;
+        public byte Group;
+
+        public VirtualChunkGroupAttribute(string groupName, byte group)
+        {
+            this.GroupName = groupName;
+            this.Group = group;
+        }
+    }
+
+    // TODO internal
+    public struct VirtualChunk : IComponentData
+    {
+    }
+
+    public struct VirtualChunkData : IComponentData
+    {
+    }
 }

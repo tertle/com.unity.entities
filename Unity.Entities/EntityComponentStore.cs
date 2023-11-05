@@ -442,6 +442,8 @@ namespace Unity.Entities
         TypeIndex m_DisabledType;
         TypeIndex m_EntityType;
         TypeIndex m_SystemInstanceType;
+        TypeIndex m_VirtualChunkType;
+        TypeIndex m_VirtualChunkDataType;
 
         ComponentType m_ChunkHeaderComponentType;
         ComponentType m_EntityComponentType;
@@ -699,6 +701,8 @@ namespace Unity.Entities
             entities->m_DisabledType = TypeManager.GetTypeIndex<Disabled>();
             entities->m_EntityType = TypeManager.GetTypeIndex<Entity>();
             entities->m_SystemInstanceType = TypeManager.GetTypeIndex<SystemInstance>();
+            entities->m_VirtualChunkType = TypeManager.GetTypeIndex<VirtualChunk>();
+            entities->m_VirtualChunkDataType = TypeManager.GetTypeIndex<VirtualChunkData>();
 
             entities->m_ChunkHeaderComponentType = ComponentType.ReadWrite<ChunkHeader>();
             entities->m_EntityComponentType = ComponentType.ReadWrite<Entity>();
@@ -2486,6 +2490,10 @@ namespace Unity.Entities
                     dstArchetype->Flags |= ArchetypeFlags.HasManagedEntityRefs;
                 if (typeInfo.HasWeakAssetRefs)
                     dstArchetype->Flags |= ArchetypeFlags.HasWeakAssetRefs;
+                if (typeIndex == m_VirtualChunkType)
+                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunk;
+                if (typeIndex == m_VirtualChunkDataType)
+                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunkData;
             }
 
             if (dstArchetype->NumManagedComponents > 0)

@@ -20,6 +20,8 @@ namespace Unity.Entities
         HasManagedEntityRefs = 512,
         HasWeakAssetRefs = 1024,
         HasSystemInstanceComponents = 2048,
+        VirtualChunk = 4096, // The parent chunk
+        VirtualChunkData = 8192, // The virtual chunk
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -100,6 +102,8 @@ namespace Unity.Entities
         public bool HasCompanionComponents => (Flags & ArchetypeFlags.HasCompanionComponents) != 0;
         public bool HasWeakAssetRefs => (Flags & ArchetypeFlags.HasWeakAssetRefs) != 0;
         public bool HasSystemInstanceComponents => (Flags & ArchetypeFlags.HasSystemInstanceComponents) != 0;
+        public bool HasVirtualChunk => (Flags & ArchetypeFlags.VirtualChunk) != 0;
+        public bool HasVirtualChunkData => (Flags & ArchetypeFlags.VirtualChunkData) != 0;
 
         public int NumNativeComponentData => FirstBufferComponent - 1;
         public int NumBufferComponents => FirstManagedComponent - FirstBufferComponent;

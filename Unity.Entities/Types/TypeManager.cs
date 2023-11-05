@@ -147,7 +147,7 @@ namespace Unity.Entities
         /// <summary>
         /// The component type <seealso cref="TypeIndex.IsManagedType"/> and inherits from <seealso cref="IComponentData"/>
         /// </summary>
-        public bool IsManagedComponent { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  (Value & (TypeManager.ManagedComponentTypeFlag | TypeManager.ChunkComponentTypeFlag | TypeManager.SharedComponentTypeFlag)) == TypeManager.ManagedComponentTypeFlag; } }
+        public bool IsManagedComponent { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  (Value & (TypeManager.ManagedComponentTypeFlag | TypeManager.ChunkComponentTypeFlag | TypeManager.SharedComponentTypeFlag | TypeManager.VirtualComponentTypeFlag)) == TypeManager.ManagedComponentTypeFlag; } }
 
         /// <summary>
         /// The component type <seealso cref="TypeIndex.IsManagedType"/> and inherits from <seealso cref="ISharedComponentData"/>
@@ -203,6 +203,11 @@ namespace Unity.Entities
         /// The component type is decorated with the <seealso cref="BakingTypeAttribute"/> attribute.
         /// </summary>
         public bool IsBakingOnlyType { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  (Value & TypeManager.BakingOnlyTypeFlag) != 0; } }
+
+        /// <summary>
+        /// The component type is used as a chunk component (a component mapped to a Chunk rather than <seealso cref="Entity"/>)
+        /// </summary>
+        public bool IsVirtualComponent { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return (Value & TypeManager.VirtualComponentTypeFlag) != 0; } }
 
         /// <summary>
         /// Zero-based index for the <seealso cref="Unity.Entities.TypeIndex"/> stored in Value (the type index with no flags).
@@ -543,10 +548,9 @@ namespace Unity.Entities
         public const int EnableableComponentFlag = 1 << 24;
 
         /// <summary>
-        /// Obsolete. Use <see cref="CleanupComponentTypeFlag"/> instead.
+        /// Bitflag set for component types converted into Virtual Components.
         /// </summary>
-        [Obsolete("SystemStateTypeFlag has been renamed to CleanupComponentTypeFlag. SystemStateTypeFlag will be removed in a future package release. (UnityUpgradable) -> CleanupComponentTypeFlag", false)]
-        public const int SystemStateTypeFlag = 1 << 25;
+        public const int VirtualComponentTypeFlag = 1 << 25;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ISystemStateComponentData"/>.
@@ -1292,6 +1296,13 @@ namespace Unity.Entities
         /// <param name="typeIndex">The TypeIndex to use as a chunk component.</param>
         /// <returns>Returns the new TypeIndex.</returns>
         public static TypeIndex MakeChunkComponentTypeIndex(TypeIndex typeIndex) => new TypeIndex{ Value = typeIndex.Value | ChunkComponentTypeFlag | ZeroSizeInChunkTypeFlag };
+
+        /// <summary>
+        /// Creates a new TypeIndex that allows the passed in 'typeindex' to be used as a chunk component.
+        /// </summary>
+        /// <param name="typeIndex">The TypeIndex to use as a chunk component.</param>
+        /// <returns>Returns the new TypeIndex.</returns>
+        public static TypeIndex MakeVirtualComponentTypeIndex(TypeIndex typeIndex) => new TypeIndex{ Value = typeIndex.Value | VirtualComponentTypeFlag | ZeroSizeInChunkTypeFlag };
 
         /// <summary>
         /// Used to determine if a component inherits from another component type

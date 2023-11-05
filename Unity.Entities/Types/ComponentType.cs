@@ -265,6 +265,30 @@ namespace Unity.Entities
         }
 
         /// <summary>
+        /// Returns a <see cref="ComponentType"/> that is a virtual component with <see cref="AccessMode.ReadWrite"/> based on the type.
+        /// </summary>
+        /// <param name="type">The type</param>
+        /// <returns>The virtual component type</returns>
+        [ExcludeFromBurstCompatTesting("Takes a managed Type")]
+        public static ComponentType VirtualComponent(Type type)
+        {
+            var typeIndex = TypeManager.MakeVirtualComponentTypeIndex(TypeManager.GetTypeIndex(type));
+            return FromTypeIndex(typeIndex);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="ComponentType"/> that is a virtual component with <see cref="AccessMode.ReadWrite"/> based on the type.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>The chunk component type</returns>
+        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(Entity) })]
+        public static ComponentType VirtualComponent<T>()
+        {
+            var typeIndex = TypeManager.MakeVirtualComponentTypeIndex(TypeManager.GetTypeIndex<T>());
+            return FromTypeIndex(typeIndex);
+        }
+
+        /// <summary>
         /// Returns a <see cref="ComponentType"/> with <see cref="AccessMode.Exclude"/> based on the type.
         /// </summary>
         /// <param name="type">The type</param>
