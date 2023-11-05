@@ -214,7 +214,6 @@ namespace Unity.Entities
         /// </summary>
         public int Index { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  Value & TypeManager.ClearFlagsMask; } }
 
-
         /// <summary>
         /// Type flags stored in Value
         /// </summary>

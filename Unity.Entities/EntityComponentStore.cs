@@ -2454,7 +2454,7 @@ namespace Unity.Entities
 
             {
                 short i = (short)count;
-                do dstArchetype->FirstVirtualComponent = i;
+                do {dstArchetype->FirstVirtualComponent = i;}
                 while (types[--i].IsVirtual);
                 i++;
                 do dstArchetype->FirstChunkComponent = i;
@@ -2500,7 +2500,19 @@ namespace Unity.Entities
             }
 
             // VirtualChunkData can't have virtual components
-            Assert.IsTrue((dstArchetype->Flags & ArchetypeFlags.VirtualChunkData) == 0 || dstArchetype->NumVirtualComponents == 0);
+            Assert.IsTrue(!dstArchetype->VirtualChunkData || dstArchetype->NumVirtualComponents == 0);
+
+            if (dstArchetype->VirtualChunk)
+            {
+                int mask = 0;
+                for (var it = dstArchetype->FirstVirtualComponent; it < dstArchetype->VirtualComponentsEnd; it++)
+                {
+                    var vc = TypeManager.GetTypeInfo(types[it].TypeIndex).VirtualChunk;
+                    Assert.IsTrue(vc is > 0 and <= 8);
+                    mask |= 1 << (vc - 1);
+                }
+                dstArchetype->VirtualChunkMask = (byte)mask;
+            }
 
             if (dstArchetype->NumManagedComponents > 0)
                 dstArchetype->Flags |= ArchetypeFlags.HasManagedComponents;

@@ -76,6 +76,8 @@ namespace Unity.Entities
         public short FirstChunkComponent;
         public short FirstVirtualComponent;
 
+        public byte VirtualChunkMask;
+
         public ArchetypeFlags Flags;
 
         public Archetype* CopyArchetype; // Removes cleanup components
@@ -103,8 +105,8 @@ namespace Unity.Entities
         public bool HasCompanionComponents => (Flags & ArchetypeFlags.HasCompanionComponents) != 0;
         public bool HasWeakAssetRefs => (Flags & ArchetypeFlags.HasWeakAssetRefs) != 0;
         public bool HasSystemInstanceComponents => (Flags & ArchetypeFlags.HasSystemInstanceComponents) != 0;
-        public bool HasVirtualChunk => (Flags & ArchetypeFlags.VirtualChunk) != 0;
-        public bool HasVirtualChunkData => (Flags & ArchetypeFlags.VirtualChunkData) != 0;
+        public bool VirtualChunk => (Flags & ArchetypeFlags.VirtualChunk) != 0;
+        public bool VirtualChunkData => (Flags & ArchetypeFlags.VirtualChunkData) != 0;
 
         public int NumNativeComponentData => FirstBufferComponent - 1;
         public int NumBufferComponents => FirstManagedComponent - FirstBufferComponent;
@@ -122,7 +124,8 @@ namespace Unity.Entities
         public int ManagedComponentsEnd => FirstTagComponent;
         public int TagComponentsEnd => FirstSharedComponent;
         public int SharedComponentsEnd => FirstChunkComponent;
-        public int ChunkComponentsEnd => TypesCount;
+        public int ChunkComponentsEnd => FirstVirtualComponent;
+        public int VirtualComponentsEnd => TypesCount;
 
         public bool HasChunkComponents => FirstChunkComponent != TypesCount;
 
