@@ -29,11 +29,17 @@ namespace Unity.Entities.Editor
                 }
                 case ComponentPropertyType.Buffer:
                 {
-                    if (PropertyBag.TryGetPropertyBagForValue(ref value, out var valuePropertyBag)
-                        && valuePropertyBag is IListPropertyAccept<TValue> accept)
+                    if (PropertyBag.TryGetPropertyBagForValue(ref value, out var valuePropertyBag))
                     {
-                        // Revisit as a list
-                        accept.Accept(this, property, ref container, ref value);
+                        if (valuePropertyBag is IListPropertyAccept<TValue> accept)
+                        {
+                            // Revisit as a list
+                            accept.Accept(this, property, ref container, ref value);
+                        }
+                        else
+                        {
+                            Result = new ComponentElement<TValue>(componentProperty, m_Context, ref value);
+                        }
                     }
 
                     break;
