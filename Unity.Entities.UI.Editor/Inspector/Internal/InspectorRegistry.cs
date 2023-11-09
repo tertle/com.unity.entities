@@ -21,6 +21,11 @@ namespace Unity.Entities.UI
             return GetInspectorWithConstraints<TValue>(InspectorConstraint.Combine(InspectorConstraint.AssignableTo<IRootInspector>(), constraints));
         }
 
+        public static IInspector<TValue> GetPropertyDrawer<TValue>()
+        {
+            return GetInspectorWithConstraints<TValue>(InspectorConstraint.Combine(InspectorConstraint.AssignableTo<IPropertyDrawer>()));
+        }
+
         /// <summary>
         /// Creates a new instance of a <see cref="PropertyInspector{TValue,TAttribute}"/> that can act as a property drawer
         /// for a given field.
