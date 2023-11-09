@@ -123,34 +123,34 @@ public class SystemContextSystemModule : ISystemModule
 
                 // Singleton
                 case "GetSingleton":
-                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithoutArgument);
                     break;
                 case "GetSingletonEntity":
-                    AddCandidate(CandidateFlags.ReadOnly | CandidateFlags.NoGenericGeneration, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.ReadOnly | CandidateFlags.NoGenericGeneration, CandidateType.SingletonWithoutArgument);
                     break;
                 case "SetSingleton":
-                    AddCandidate(CandidateFlags.None, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithArgument);
                     break;
                 case "GetSingletonRW":
-                    AddCandidate(CandidateFlags.None, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithoutArgument);
                     break;
                 case "TryGetSingletonRW":
-                    AddCandidate(CandidateFlags.None, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithArgument);
                     break;
                 case "TryGetSingletonBuffer":
-                    AddCandidate(CandidateFlags.None, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithArgument);
                     break;
                 case "TryGetSingletonEntity":
-                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithArgument);
                     break;
                 case "GetSingletonBuffer":
-                    AddCandidate(CandidateFlags.None, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithoutArgument);
                     break;
                 case "TryGetSingleton":
-                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithArgument);
                     break;
                 case "HasSingleton":
-                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.Singleton);
+                    AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithoutArgument);
                     break;
 
                 // Aspect

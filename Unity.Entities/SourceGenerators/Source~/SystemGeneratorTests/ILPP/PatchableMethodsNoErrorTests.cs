@@ -47,6 +47,12 @@ namespace Unity.Entities.SourceGenerators
         [DataRow("unsafe void Main(delegate* unmanaged[Thiscall]<int, void> funky)")]
         [DataRow("unsafe void Main(delegate* unmanaged[Cdecl]<int, void> funky)")]
         [DataRow("unsafe void Main(delegate* unmanaged<int, void> funky)")]
+        // Check pointers
+        [DataRow("unsafe void Main(int* arg)")]
+        [DataRow("unsafe void Main(int** arg)")]
+        [DataRow("unsafe void Main(int**[,] arg)")]
+        [DataRow("unsafe void Main(Unity.Entities.Entity* arg)", "namespace Unity.Entities { public struct Entity { } }")]
+        [DataRow("unsafe void Main(Unity.Entities.Entity** arg)", "namespace Unity.Entities { public struct Entity { } }")]
         // Check properties
         [DataRow("int Main", "", "get => 5;")]
         // Check ovveride

@@ -44,13 +44,16 @@ public partial class IfeDescription
                 typeParameterSymbol = SystemDescription.SemanticModel.GetTypeInfo(typeArg).Type;
             }
 
-            var result = TryGetIdiomaticCSharpForEachQueryType(typeSymbol, typeSyntax.GetLocation());
+            var result = TryGetIfeQueryType(typeSymbol, typeSyntax.GetLocation());
 
-            if (result.QueryType == QueryType.Invalid)
-                return false;
-
-            if (result.QueryType == QueryType.ValueTypeComponent)
-                IfeCompilerMessages.SGFE009(SystemDescription, typeSymbol.ToFullName(), Location);
+            switch (result.QueryType)
+            {
+                case QueryType.Invalid:
+                    return false;
+                case QueryType.ValueTypeComponent:
+                    IfeCompilerMessages.SGFE009(SystemDescription, typeSymbol.ToFullName(), Location);
+                    break;
+            }
 
             var queryData = new QueryData
             {
@@ -82,59 +85,75 @@ public partial class IfeDescription
         }
         return true;
 
-        static bool HasTypeParameter(ITypeSymbol typeArgument)
-        {
-            if (typeArgument is INamedTypeSymbol namedTypeSymbol)
-                foreach (var typeArg in namedTypeSymbol.TypeArguments)
-                    if (typeArg is ITypeParameterSymbol || HasTypeParameter(typeArg))
-                        return true;
-
-            return false;
-        }
-
-        (QueryType QueryType, bool IsTypeEnableable) TryGetIdiomaticCSharpForEachQueryType(ITypeSymbol typeSymbol, Location errorLocation)
+        // Example: `foreach (var result in SystemAPI.Query<MyResult>())`
+        // `typeSymbol` refers to the symbol for `MyResult`
+        (QueryType QueryType, bool IsTypeEnableable) TryGetIfeQueryType(ITypeSymbol typeSymbol, Location errorLocation)
         {
             // `typeSymbol` is an error type.  This is usually caused by an ambiguous type.
             // Go ahead and mark the query as invalid and let roslyn report the other error.
             if (typeSymbol is IErrorTypeSymbol)
                 return (QueryType.Invalid, false);
 
+            // `MyResult` is an aspect
             if (typeSymbol.IsAspect())
                 return (QueryType.Aspect, false);
 
+            // `MyResult` is a shared component
             if (typeSymbol.IsSharedComponent())
                 return (typeSymbol.IsUnmanagedType ? QueryType.UnmanagedSharedComponent : QueryType.ManagedSharedComponent, false);
 
+            // `MyResult` implements `IComponentData`
             if (typeSymbol.IsComponent())
             {
+                // `MyResult` is a struct
                 if (typeSymbol.InheritsFromType("System.ValueType"))
                     return (typeSymbol.IsZeroSizedComponent() ? QueryType.TagComponent : QueryType.ValueTypeComponent, typeSymbol.IsEnableableComponent());
-
+                // `MyResult` is a class
                 return(QueryType.ManagedComponent, false);
             }
 
-            var typeArgument = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
-            if (typeArgument is ITypeParameterSymbol)
-            {
-                IfeCompilerMessages.SGFE011(SystemDescription, errorLocation);
-                return (QueryType.Invalid, false);
-            }
-
             bool isQueryTypeEnableable = false;
-            if (typeArgument is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.Arity != 0)
+
+            switch (typeSymbol)
             {
-                // If T is itself generic
-                if (HasTypeParameter(typeArgument))
-                {
-                    IfeCompilerMessages.SGFE010(SystemDescription, errorLocation);
+                // `MyResult` is `T`
+                case ITypeParameterSymbol:
+                    IfeCompilerMessages.SGFE013(SystemDescription, errorLocation);
                     return (QueryType.Invalid, false);
-                }
 
-                // T is not generic
-                var componentType = namedTypeSymbol.TypeArguments[0];
-                isQueryTypeEnableable = componentType.IsEnableableComponent();
+                // `MyResult` is `RefRO<T>`, `RefRW<T>`, `EnabledRefRW<T>`, `EnabledRefRO<T>` or `DynamicBuffer<T>`
+                case INamedTypeSymbol namedTypeSymbol:
+                    // `typeArgument` refers to `T` in `RefRO<T>`, `RefRW<T>`, `EnabledRefRW<T>`, `EnabledRefRO<T>` or `DynamicBuffer<T>`
+                    var typeArgument = namedTypeSymbol.TypeArguments[0];
+
+                    switch (typeArgument)
+                    {
+                        // If `typeArgument` is generic, i.e. not a concrete type
+                        case ITypeParameterSymbol:
+                        {
+                            IfeCompilerMessages.SGFE011(SystemDescription, errorLocation);
+                            return (QueryType.Invalid, false);
+                        }
+                        // If `typeArgument` is a concrete type that expects a generic type, e.g. `MyBufferElement<T>`
+                        case INamedTypeSymbol { Arity: > 0 } _namedTypeSymbol:
+                        {
+                            if (HasTypeParameter(_namedTypeSymbol))
+                            {
+                                IfeCompilerMessages.SGFE010(SystemDescription, errorLocation);
+                                return (QueryType.Invalid, false);
+                            }
+                            // If `typeArgument` is a fully valid type
+                            isQueryTypeEnableable = typeArgument.IsEnableableComponent();
+                            break;
+                        }
+                        case INamedTypeSymbol { Arity: 0 }:
+                            isQueryTypeEnableable = typeArgument.IsEnableableComponent();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException($"Unable to parse {typeArgument.ToFullName()}.");
+                    }
+                    break;
             }
-
             return typeSymbol.Name switch
             {
                 "DynamicBuffer" => (QueryType.DynamicBuffer, false),
@@ -145,6 +164,15 @@ public partial class IfeDescription
                 "UnityEngineComponent" => (QueryType.UnityEngineComponent, false),
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+            static bool HasTypeParameter(INamedTypeSymbol typeArgument)
+            {
+                foreach (var typeArg in typeArgument.TypeArguments)
+                    if (typeArg is ITypeParameterSymbol or INamedTypeSymbol { IsGenericType: true })
+                        return true;
+
+                return false;
+            }
         }
     }
 }

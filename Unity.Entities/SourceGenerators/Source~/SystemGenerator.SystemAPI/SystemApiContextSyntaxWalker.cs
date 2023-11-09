@@ -36,6 +36,7 @@ public partial class SystemApiContextSyntaxWalker : CSharpSyntaxWalker, IModuleS
     private readonly SystemDescription _systemDescription;
     private bool _hasWrittenSyntax;
     private int _numClosingBracketsForNestedSystemApiInvocations;
+    private bool _isWalkingNestedInvocation;
 
     public SystemApiContextSyntaxWalker(SystemDescription systemDescription) : base(SyntaxWalkerDepth.Trivia) =>
         _systemDescription = systemDescription;
@@ -45,6 +46,7 @@ public partial class SystemApiContextSyntaxWalker : CSharpSyntaxWalker, IModuleS
         _writer = writer;
         _hasWrittenSyntax = false;
         _numClosingBracketsForNestedSystemApiInvocations = 0;
+        _isWalkingNestedInvocation = false;
 
         // Begin depth-first traversal of the candidate node
         Visit(candidateSyntax.Node);
@@ -66,6 +68,7 @@ public partial class SystemApiContextSyntaxWalker : CSharpSyntaxWalker, IModuleS
             {
                 case ReplacedWith.InvocationWithMissingArgumentList:
                     _writer.Write(result.Replacement);
+                    _isWalkingNestedInvocation = true;
                     base.VisitArgumentList(node.ArgumentList);
                     _hasWrittenSyntax = true;
                     break;
@@ -75,10 +78,15 @@ public partial class SystemApiContextSyntaxWalker : CSharpSyntaxWalker, IModuleS
                     // Visit the arguments of the current invocation to see whether they involve nested SystemAPI invocations.
                     // If yes, patch them accordingly.
                     if (result.ArgumentThatMightInvolveSystemApiInvocation1 != null)
+                    {
+                        _isWalkingNestedInvocation = true;
                         VisitArgument(result.ArgumentThatMightInvolveSystemApiInvocation1);
+                    }
 
                     if (result.ArgumentThatMightInvolveSystemApiInvocation2 != null)
                     {
+                        _isWalkingNestedInvocation = true;
+
                         _writer.Write(", ");
                         VisitArgument(result.ArgumentThatMightInvolveSystemApiInvocation2);
                     }
@@ -87,8 +95,14 @@ public partial class SystemApiContextSyntaxWalker : CSharpSyntaxWalker, IModuleS
                     _hasWrittenSyntax = true;
                     break;
                 case ReplacedWith.NotReplaced:
-                    // The current node does not require source generation -- it's thus the caller's job to write the current node
-                    _hasWrittenSyntax = false;
+                    if (_isWalkingNestedInvocation)
+                    {
+                        base.VisitInvocationExpression(node);
+                        _hasWrittenSyntax = true;
+                    }
+                    else
+                        // The current node does not require source generation -- it's thus the caller's job to write the current node
+                        _hasWrittenSyntax = false;
                     break;
                 default:
                     _writer.Write(result.Replacement);

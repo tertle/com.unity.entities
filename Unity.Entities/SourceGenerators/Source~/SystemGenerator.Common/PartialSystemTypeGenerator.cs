@@ -20,6 +20,7 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             {
                 var opening = new Stack<(string Value, bool AddIndentAfter)>();
                 var numBracesToClose = 0;
+
                 var parentSyntax = typeSyntax.Parent as MemberDeclarationSyntax;
 
                 while (parentSyntax != null && (
@@ -38,7 +39,8 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
                             opening.Push(($"partial {keyword} {typeName} {constraint}", AddIndentAfter: false));
                             break;
                         case NamespaceDeclarationSyntax parentNameSpaceSyntax:
-                            opening.Push(($"{parentNameSpaceSyntax.Usings}", AddIndentAfter: false));
+                            foreach (var usingDir in parentNameSpaceSyntax.Usings)
+                                opening.Push(($"{usingDir}", AddIndentAfter: false));
                             opening.Push(("{", AddIndentAfter: true));
                             opening.Push(($"namespace {parentNameSpaceSyntax.Name}", AddIndentAfter: false));
                             break;

@@ -92,7 +92,7 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             writer.WriteLine("entityQueryBuilder");
             writer.Indent++;
 
-            var requiredTypes = _archetype.All.Concat(_changeFilterTypes);
+            var requiredTypes = _archetype.All.Concat(_changeFilterTypes).Except(_archetype.Disabled);
             var presentComponentTypes = new List<Query>(capacity: 8);
 
             foreach (var comp in requiredTypes)

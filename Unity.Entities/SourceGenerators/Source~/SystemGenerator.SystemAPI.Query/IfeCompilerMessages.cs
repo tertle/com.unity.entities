@@ -94,4 +94,13 @@ public static class IfeCompilerMessages
             $"Invoking `SystemAPI.Query<{typeArgFullName}>().WithAbsent<{typeArgFullName}>() is not allowed. You cannot ask for a reference to an explicitly excluded component.",
             errorLocation);
     }
+
+    public static void SGFE013(SystemDescription systemDescription, Location errorLocation)
+    {
+        systemDescription.LogError(
+            nameof(SGFE013),
+            ErrorTitle,
+            "Invoking `SystemAPI.Query<T>(), where `T` is generic, is not allowed.",
+            errorLocation);
+    }
 }

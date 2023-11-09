@@ -51,9 +51,10 @@ public partial class SystemApiContextSyntaxWalker
         var isSystemApi = fullName == "global::Unity.Entities.SystemAPI";
         var isManagedApi = fullName == "global::Unity.Entities.SystemAPI.ManagedAPI";
 
-        if (!isSystemApi && !isManagedApi && !(candidateSyntax.Type == CandidateType.Singleton &&
-                                               parentTypeInfo.Is("Unity.Entities.ComponentSystemBase")))
+        if (!isSystemApi && !isManagedApi && !(IsSingleton(candidateSyntax) && parentTypeInfo.Is("Unity.Entities.ComponentSystemBase")))
             return default;
+
+        bool IsSingleton(CandidateSyntax syntax) => syntax.Type is CandidateType.SingletonWithArgument or CandidateType.SingletonWithoutArgument;
 
         switch (nodeSymbol)
         {
@@ -182,7 +183,7 @@ public partial class SystemApiContextSyntaxWalker
                             return default;
 
                         var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
-                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().Single()
+                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().First()
                             .TypeArgumentList.Arguments.Single();
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
@@ -531,7 +532,8 @@ public partial class SystemApiContextSyntaxWalker
                     }
 
                     // Singleton
-                    case CandidateType.Singleton:
+                    case CandidateType.SingletonWithArgument:
+                    case CandidateType.SingletonWithoutArgument:
                     {
                         var queryFieldName = _systemDescription.QueriesAndHandles
                             .GetOrCreateQueryField(
@@ -561,11 +563,18 @@ public partial class SystemApiContextSyntaxWalker
                                                   CandidateFlags.NoGenericGeneration;
                         var memberAccess =
                             noGenericGeneration
-                                ? sn.Identifier.ValueText
-                                : sn.ToString(); // e.g. GetSingletonEntity<T> -> query.GetSingletonEntity (with no generic)
+                                ? sn.Identifier.ValueText // e.g. GetSingletonEntity<T> -> query.GetSingletonEntity (with no generic)
+                                : sn.ToString();
 
-                        return ($"{queryFieldName}.{memberAccess}",
-                            ReplacedWith.InvocationWithMissingArgumentList,
+                        if (candidateSyntax.Type == CandidateType.SingletonWithArgument)
+                        {
+                            return ($"{queryFieldName}.{memberAccess}",
+                                ReplacedWith.InvocationWithMissingArgumentList,
+                                ArgumentThatMightInvolveSystemApiInvocation1: default,
+                                ArgumentThatMightInvolveSystemApiInvocation2: default);
+                        }
+                        return ($"{queryFieldName}.{memberAccess}()",
+                            ReplacedWith.InvocationWithFullArgumentList,
                             ArgumentThatMightInvolveSystemApiInvocation1: default,
                             ArgumentThatMightInvolveSystemApiInvocation2: default);
                     }
@@ -604,7 +613,7 @@ public partial class SystemApiContextSyntaxWalker
                         {
                             var result =
                                 _systemDescription.QueriesAndHandles.GetOrCreateTypeHandleField(typeArgument,
-                                    @readonly);
+                                    @readonly, TypeHandleFieldDescription.TypeHandleSource.Component);
                             if (!_systemDescription.TryGetSystemStateParameterName(candidateSyntax,
                                     out var systemStateExpression))
                                 return default;
@@ -645,7 +654,7 @@ public partial class SystemApiContextSyntaxWalker
                         {
                             var result =
                                 _systemDescription.QueriesAndHandles.GetOrCreateTypeHandleField(typeArgument,
-                                    @readonly);
+                                    @readonly, TypeHandleFieldDescription.TypeHandleSource.BufferElement);
                             if (!_systemDescription.TryGetSystemStateParameterName(candidateSyntax,
                                     out var systemStateExpression))
                                 return default;
@@ -686,7 +695,7 @@ public partial class SystemApiContextSyntaxWalker
                         {
                             var result =
                                 _systemDescription.QueriesAndHandles.GetOrCreateTypeHandleField(typeArgument,
-                                    @readonly);
+                                    @readonly, TypeHandleFieldDescription.TypeHandleSource.SharedComponent);
                             if (!_systemDescription.TryGetSystemStateParameterName(candidateSyntax,
                                     out var systemStateExpression))
                                 return default;
@@ -746,18 +755,14 @@ public partial class SystemApiContextSyntaxWalker
                         if (_systemDescription.SystemType == SystemType.ISystem)
                             SystemApiContextErrors.SGSA0001(_systemDescription, candidateSyntax);
 
-                        else if (isSystemApi &&
-                                 candidateSyntax.Type ==
-                                 CandidateType
-                                     .Singleton) // Enabled you to use type parameters for SystemAPI singletons inside SystemBase
+                        else if (isSystemApi && IsSingleton(candidateSyntax)) // Enabled you to use type parameters for SystemAPI singletons inside SystemBase
                         {
                             var sn = CandidateSyntax.GetSimpleName(candidateSyntax.Node);
-                            var noGenericGeneration = (candidateSyntax.Flags & CandidateFlags.NoGenericGeneration) ==
-                                                      CandidateFlags.NoGenericGeneration;
+                            var noGenericGeneration = (candidateSyntax.Flags & CandidateFlags.NoGenericGeneration) == CandidateFlags.NoGenericGeneration;
                             var memberAccessGeneric =
                                 noGenericGeneration
-                                    ? sn.Identifier.ValueText
-                                    : sn.ToString(); // e.g. GetSingletonEntity<T> -> query.GetSingletonEntity (with no generic)
+                                    ? sn.Identifier.ValueText // e.g. GetSingletonEntity<T> -> query.GetSingletonEntity (with no generic)
+                                    : sn.ToString();
 
                             replacement =
                                 $"global::Unity.Entities.Internal.InternalCompilerInterface.OnlyAllowedInSourceGeneratedCodeGetSingleQuery<{typeArgument.ToFullName()}>(this).{memberAccessGeneric}{invocationExpressionSyntax.ArgumentList.ToFullString()}";

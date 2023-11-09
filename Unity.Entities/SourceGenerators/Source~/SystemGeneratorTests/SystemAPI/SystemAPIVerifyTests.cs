@@ -199,14 +199,14 @@ public unsafe partial struct PartialMethodSystem : ISystem
     }
 
     [TestMethod]
-    public async Task NestedSystemAPIInvocation()
+    public async Task NestedSystemAPIInvocation_Example1()
     {
         const string testSource = @"
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Entities.Tests;
 
-public unsafe partial struct PartialMethodSystem : ISystem
+public unsafe partial struct NestedSystemAPIInvocation_Example1 : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
@@ -219,7 +219,47 @@ public unsafe partial struct PartialMethodSystem : ISystem
     }
 }";
 
-        await VerifyCS.VerifySourceGeneratorAsync(testSource, nameof(NestedSystemAPIInvocation), "Test0__System_19875963020.g.cs");
+        await VerifyCS.VerifySourceGeneratorAsync(testSource, nameof(NestedSystemAPIInvocation_Example1), "Test0__System_19875963020.g.cs");
+    }
+    [TestMethod]
+    public async Task NestedSystemAPIInvocation_Example2()
+    {
+        const string testSource = @"
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Entities.Tests;
+
+public unsafe partial struct NestedSystemAPIInvocation_Example2 : ISystem
+{
+    public void OnUpdate(ref SystemState state)
+    {
+        var foo = SystemAPI.ManagedAPI.GetComponent<EcsTestManagedComponent>(SystemAPI.GetSingletonEntity<EcsTestData>());
+    }
+}";
+
+        await VerifyCS.VerifySourceGeneratorAsync(testSource, nameof(NestedSystemAPIInvocation_Example2), "Test0__System_19875963020.g.cs");
+    }
+
+    [TestMethod]
+    public async Task NestedGetSingletonEntity()
+    {
+        const string testSource = @"
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Entities.Tests;
+
+public unsafe partial struct NestedGetSingletonEntity : ISystem
+{
+    public void OnUpdate(ref SystemState state)
+    {
+        var entityQuery = new EntityQuery();
+        var foo = SystemAPI.GetComponent<EcsTestData>(entityQuery.GetSingletonEntity());
+    }
+}";
+
+        await VerifyCS.VerifySourceGeneratorAsync(testSource, nameof(NestedGetSingletonEntity), "Test0__System_19875963020.g.cs");
     }
 }
+
+
 

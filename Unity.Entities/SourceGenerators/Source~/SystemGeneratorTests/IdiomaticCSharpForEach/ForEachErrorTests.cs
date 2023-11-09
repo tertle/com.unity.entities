@@ -410,4 +410,24 @@ public class ForEachErrorTests
         var expected = VerifyCS.CompilerError(nameof(IfeCompilerMessages.SGFE012)).WithLocation(0);
         await VerifyCS.VerifySourceGeneratorAsync(source, expected);
     }
+
+    [TestMethod]
+    public async Task SGFE013_QueryingGenericType()
+    {
+        const string source = @"
+            using Unity.Entities;
+
+            public interface IMyInterface : IComponentData
+            {
+            }
+            public abstract partial class GenericQueryTest<T> : SystemBase where T : struct, IMyInterface
+            {
+                protected override void OnUpdate()
+                {
+                    foreach (var _ in SystemAPI.Query<{|#0:T|}>()) { }
+                }
+            }";
+        var expected = VerifyCS.CompilerError(nameof(IfeCompilerMessages.SGFE013)).WithLocation(0);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expected);
+    }
 }

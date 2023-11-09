@@ -1,5 +1,8 @@
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Unity.Entities.SourceGen.Common;
 
@@ -9,6 +12,7 @@ public readonly struct TypeHandleFieldDescription : IEquatable<TypeHandleFieldDe
 {
     public enum TypeHandleSource
     {
+        None,
         Aspect,
         Component,
         SharedComponent,
@@ -70,31 +74,66 @@ public readonly struct TypeHandleFieldDescription : IEquatable<TypeHandleFieldDe
         _ => $"{GeneratedFieldName} = state.GetSharedComponentTypeHandle<{TypeSymbol.ToFullName()}>();"
     };
 
-    public TypeHandleFieldDescription(ITypeSymbol typeSymbol, bool isReadOnly)
+    public TypeHandleFieldDescription(ITypeSymbol typeSymbol, bool isReadOnly, TypeHandleSource forcedTypeHandleSource)
     {
         TypeSymbol = typeSymbol;
         IsReadOnly = isReadOnly;
 
+        var typeParameterSymbol = typeSymbol as ITypeParameterSymbol;
+        var isSpecifiedTypeSymbol = typeParameterSymbol == null;
+
+        Debug.Assert(isSpecifiedTypeSymbol || (!isSpecifiedTypeSymbol && forcedTypeHandleSource != TypeHandleSource.None), "SG-DBG: Unspecified types require a forced type handle source");
+
         var typeSymbolValidIdentifier = TypeSymbol.ToValidIdentifier();
-        if (TypeSymbol.IsAspect())
+        if (isSpecifiedTypeSymbol)
         {
-            GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_AspectTypeHandle";
-            Source = TypeHandleSource.Aspect;
-        }
-        else if (typeSymbol.InheritsFromInterface("Unity.Entities.IBufferElementData"))
-        {
-            GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_BufferTypeHandle";
-            Source = TypeHandleSource.BufferElement;
-        }
-        else if (typeSymbol.IsSharedComponent())
-        {
-            GeneratedFieldName = $"__{typeSymbolValidIdentifier}_SharedComponentTypeHandle";
-            Source = TypeHandleSource.SharedComponent;
+            if (typeSymbol.IsAspect())
+            {
+                GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_AspectTypeHandle";
+                Source = TypeHandleSource.Aspect;
+            }
+            else if (typeSymbol.InheritsFromInterface("Unity.Entities.IBufferElementData"))
+            {
+                GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_BufferTypeHandle";
+                Source = TypeHandleSource.BufferElement;
+            }
+            else if (typeSymbol.IsSharedComponent())
+            {
+                GeneratedFieldName = $"__{typeSymbolValidIdentifier}_SharedComponentTypeHandle";
+                Source = TypeHandleSource.SharedComponent;
+            }
+            else
+            {
+                GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_ComponentTypeHandle";
+                Source = TypeHandleSource.Component;
+            }
         }
         else
         {
-            GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_ComponentTypeHandle";
-            Source = TypeHandleSource.Component;
+            var constraintTypes = typeParameterSymbol.ConstraintTypes;
+            switch (forcedTypeHandleSource)
+            {
+                case TypeHandleSource.Aspect:
+                    Debug.Assert(constraintTypes.Any(t => t.ToFullName() == "global::Unity.Entities.IAspect" || t.IsAspect()), "SG-DBG: Specified aspect types must be aspects");
+                    GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_AspectTypeHandle";
+                    Source = TypeHandleSource.Aspect;
+                    break;
+                case TypeHandleSource.BufferElement:
+                    Debug.Assert(constraintTypes.Any(t => t.ToFullName() == "global::Unity.Entities.IBufferElementData" || t.InheritsFromInterface("Unity.Entities.IBufferElementData")), "SG-DBG: Specified buffer element types must be buffer element types");
+                    GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_BufferTypeHandle";
+                    Source = TypeHandleSource.BufferElement;
+                    break;
+                case TypeHandleSource.SharedComponent:
+                    Debug.Assert(constraintTypes.Any(t => t.ToFullName() == "global::Unity.Entities.ISharedComponentData" || t.IsSharedComponent()), "SG-DBG: Specified shared component types must be shared component types");
+                    GeneratedFieldName = $"__{typeSymbolValidIdentifier}_SharedComponentTypeHandle";
+                    Source = TypeHandleSource.SharedComponent;
+                    break;
+                default:
+                    Debug.Assert(constraintTypes.Any(t => t.ToFullName() == "global::Unity.Entities.IComponentData" || t.IsComponent()), "SG-DBG: Specified component types must be component types");
+                    GeneratedFieldName = $"__{typeSymbolValidIdentifier}_{(IsReadOnly ? "RO" : "RW")}_ComponentTypeHandle";
+                    Source = TypeHandleSource.Component;
+                    break;
+            }
         }
     }
 

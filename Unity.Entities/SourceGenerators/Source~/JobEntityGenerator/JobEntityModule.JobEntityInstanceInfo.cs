@@ -150,7 +150,10 @@ public partial class JobEntityModule
             {
                 var argument = invocationExpression.ArgumentList.Arguments[argumentIndex];
                 if (argument.NameColon == null)
-                    jobDataArgumentIndex = argumentIndex;
+                    if (argumentIndex == 0)
+                        jobDataArgumentIndex = argumentIndex;
+                    else
+                        continue;
                 else if (argument.NameColon.Name.Identifier.ValueText == "jobData")
                     jobDataArgumentIndex = argumentIndex;
             }
