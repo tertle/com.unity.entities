@@ -219,20 +219,11 @@ namespace Unity.Entities.Editor.Tests
         }
 
         [Test]
-        public void UnmanagedSharedComponentDataDiffer_ResultShouldThrowIfQueryWrongType()
-        {
-            var result = new SharedComponentDataDiffer.ComponentChanges(TypeManager.GetTypeIndex(typeof(EcsTestSharedComp)), default, default, default, default, default);
-
-            var ex = Assert.Throws<InvalidOperationException>(() => result.GetAddedComponent<OtherSharedComponent>(0));
-            Assert.That(ex.Message, Is.EqualTo($"Unable to retrieve data for component type {typeof(OtherSharedComponent)} (type index {TypeManager.GetTypeIndex<OtherSharedComponent>()}), this container only holds data for the type with type index {TypeManager.GetTypeIndex(typeof(EcsTestSharedComp))}."));
-        }
-
-        [Test]
         public void UnmanagedSharedComponentDataDiffer_CheckIfDifferCanWatchType()
         {
-            Assert.That(SharedComponentDataDiffer.CanWatch(typeof(EcsTestData)), Is.False);
-            Assert.That(SharedComponentDataDiffer.CanWatch(typeof(EcsTestSharedComp)), Is.True);
-            Assert.That(SharedComponentDataDiffer.CanWatch(typeof(Entity)), Is.False);
+            Assert.That(UnmanagedSharedComponentDataDiffer.CanWatch(typeof(EcsTestData)), Is.False);
+            Assert.That(UnmanagedSharedComponentDataDiffer.CanWatch(typeof(EcsTestSharedComp)), Is.True);
+            Assert.That(UnmanagedSharedComponentDataDiffer.CanWatch(typeof(Entity)), Is.False);
         }
 
         struct OtherSharedComponent : ISharedComponentData

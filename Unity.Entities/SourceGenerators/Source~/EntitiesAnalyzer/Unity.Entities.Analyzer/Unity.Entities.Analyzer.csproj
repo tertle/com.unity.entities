@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Unity.Entities.SourceGen.Common.csproj" />
-    <ProjectReference Include="..\..\SystemGenerator.Common\Unity.Entities.SourceGen.SystemGenerator.Common.csproj" />
+    <ProjectReference Include="..\..\Common\Common.csproj" />
+    <ProjectReference Include="..\..\SystemGenerator.Common\SystemGenerator.Common.csproj" />
   </ItemGroup>
 
   <Target Name="CustomAfterBuild" AfterTargets="Build">

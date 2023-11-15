@@ -23,7 +23,8 @@ namespace Unity.Entities.Analyzer
             EntitiesDiagnostics.ID_EA0007,
             EntitiesDiagnostics.ID_EA0008,
             EntitiesDiagnostics.ID_EA0009,
-            EntitiesDiagnostics.ID_EA0010);
+            EntitiesDiagnostics.ID_EA0010,
+            EntitiesDiagnostics.ID_EA0016);
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -40,14 +41,29 @@ namespace Unity.Entities.Analyzer
                             createChangedDocument: c => MakeNonReadonlyReference(context.Document, variableDeclaration, c),
                             equivalenceKey: "NonReadonlyReference"),
                         diagnostic);
+                    break;
+                    case ParameterSyntax parameterSyntax:
+                    {
+                        if (diagnostic.Id == EntitiesDiagnostics.ID_EA0009)
+                        {
+                            context.RegisterCodeFix(
+                                CodeAction.Create(title: "Use non-readonly reference",
+                                    createChangedDocument: c =>
+                                        MakeNonReadonlyReference(context.Document, parameterSyntax, c),
+                                    equivalenceKey: "NonReadonlyReferenceParameter"),
+                                diagnostic);
+                        }
+                        else if (diagnostic.Id == EntitiesDiagnostics.ID_EA0016)
+                        {
+                            context.RegisterCodeFix(
+                                CodeAction.Create(title: "Add ref keyword",
+                                    createChangedDocument: c => AddRef(context.Document, parameterSyntax, c),
+                                    equivalenceKey: "AddRef"),
+                                diagnostic);
+                        }
+
                         break;
-                    case ParameterSyntax parameterSyntax when diagnostic.Id == EntitiesDiagnostics.ID_EA0009:
-                    context.RegisterCodeFix(
-                        CodeAction.Create(title: "Use non-readonly reference",
-                            createChangedDocument: c => MakeNonReadonlyReference(context.Document, parameterSyntax, c),
-                            equivalenceKey: "NonReadonlyReferenceParameter"),
-                        diagnostic);
-                        break;
+                    }
                     case TypeDeclarationSyntax typeDeclarationSyntax:
                     {
                         if (diagnostic.Id == EntitiesDiagnostics.ID_EA0007 || diagnostic.Id == EntitiesDiagnostics.ID_EA0008)
@@ -137,6 +153,16 @@ namespace Unity.Entities.Analyzer
         {
             var partialModifier = SyntaxFactory.Token(SyntaxKind.PartialKeyword).WithTrailingTrivia(SyntaxFactory.Space);
             var modifiedSyntax = typeDeclarationSyntax.WithoutLeadingTrivia().AddModifiers(partialModifier).WithTriviaFrom(typeDeclarationSyntax);
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            Debug.Assert(oldRoot != null, nameof(oldRoot) + " != null");
+            var newRoot = oldRoot.ReplaceNode(typeDeclarationSyntax, modifiedSyntax);
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        static async Task<Document> AddRef(Document document, ParameterSyntax typeDeclarationSyntax, CancellationToken cancellationToken)
+        {
+            var refModifier = SyntaxFactory.Token(SyntaxKind.RefKeyword).WithTrailingTrivia(SyntaxFactory.Space);
+            var modifiedSyntax = typeDeclarationSyntax.WithoutLeadingTrivia().AddModifiers(refModifier).WithTriviaFrom(typeDeclarationSyntax);
             var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             Debug.Assert(oldRoot != null, nameof(oldRoot) + " != null");
             var newRoot = oldRoot.ReplaceNode(typeDeclarationSyntax, modifiedSyntax);

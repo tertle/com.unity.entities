@@ -102,5 +102,11 @@ namespace Unity.Entities.Analyzer
             = new DiagnosticDescriptor(ID_EA0015, "'Job' is the start of a chain, and cannot be used on its own",
                 "'Job' is the start of a chain, and cannot be used on its own",
                 "Type", DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+        public const string ID_EA0016 = "EA0016";
+        public static readonly DiagnosticDescriptor k_Ea0016Descriptor
+            = new DiagnosticDescriptor(ID_EA0016, "SystemState must be passed by ref",
+                "SystemState must be passed by ref",
+                "Type", DiagnosticSeverity.Warning, isEnabledByDefault: true);
     }
 }

@@ -89,11 +89,6 @@ public partial class IfeDescription
         // `typeSymbol` refers to the symbol for `MyResult`
         (QueryType QueryType, bool IsTypeEnableable) TryGetIfeQueryType(ITypeSymbol typeSymbol, Location errorLocation)
         {
-            // `typeSymbol` is an error type.  This is usually caused by an ambiguous type.
-            // Go ahead and mark the query as invalid and let roslyn report the other error.
-            if (typeSymbol is IErrorTypeSymbol)
-                return (QueryType.Invalid, false);
-
             // `MyResult` is an aspect
             if (typeSymbol.IsAspect())
                 return (QueryType.Aspect, false);
@@ -116,6 +111,11 @@ public partial class IfeDescription
 
             switch (typeSymbol)
             {
+                // `MyResult` is an error type.  This is usually caused by an ambiguous type.
+                // Go ahead and mark the query as invalid and let roslyn report the other error.
+                case IErrorTypeSymbol:
+                    return (QueryType.Invalid, false);
+
                 // `MyResult` is `T`
                 case ITypeParameterSymbol:
                     IfeCompilerMessages.SGFE013(SystemDescription, errorLocation);

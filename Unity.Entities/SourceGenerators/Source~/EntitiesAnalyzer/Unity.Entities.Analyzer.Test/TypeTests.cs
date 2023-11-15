@@ -121,5 +121,24 @@ namespace Unity.Entities.Analyzer
                 struct TestJob : IJobEntity {}";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task RefSystemState()
+        {
+            const string test = @"
+                using Unity.Entities;
+                class C
+                {
+                    void Foo({|#0:SystemState|} state) {}
+                }";
+            const string fixedSource = @"
+                using Unity.Entities;
+                class C
+                {
+                    void Foo(ref SystemState state) {}
+                }";
+            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0016Descriptor).WithLocation(0).WithArguments("RefSystemState", "global::TestSystem");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
     }
 }
