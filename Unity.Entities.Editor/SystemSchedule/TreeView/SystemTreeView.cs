@@ -90,11 +90,13 @@ namespace Unity.Entities.Editor
                     minWidth = 645f
                 }
             };
+#if !UNITY_2023_3_OR_NEWER
             m_SystemListView.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (evt.button == (int)MouseButton.LeftMouse)
                     Selection.activeObject = null;
             });
+#endif
 
             m_SystemListView.onSelectionChange += OnSelectionChanged;
 

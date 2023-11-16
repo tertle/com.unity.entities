@@ -168,6 +168,7 @@ namespace Unity.Entities.Editor
             m_LoadingElement.SetVisibility(false);
             m_MessageElement.SetVisibility(false);
 
+#if !UNITY_2023_3_OR_NEWER
             HierarchyMultiColumnListView.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (evt.button == (int) MouseButton.LeftMouse)
@@ -176,6 +177,7 @@ namespace Unity.Entities.Editor
                     Selection.activeObject = null;
                 }
             });
+#endif
 
             listViewInnerScrollView.StretchToParentSize();
 
