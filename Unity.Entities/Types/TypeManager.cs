@@ -814,7 +814,7 @@ namespace Unity.Entities
                             int alignmentInBytes, int maximumChunkCapacity, int writeGroupCount, int writeGroupStartIndex,
                             bool hasBlobRefs, int blobAssetRefOffsetCount, int blobAssetRefOffsetStartIndex,
                             int weakAssetRefOffsetCount, int weakAssetRefOffsetStartIndex,
-                            int unityObjectRefOffsetCount, int unityObjectRefOffsetStartIndex, int typeSize, int virtualChunk)
+                            int unityObjectRefOffsetCount, int unityObjectRefOffsetStartIndex, int typeSize)
             {
                 TypeIndex = new TypeIndex() { Value = typeIndex };
                 Category = category;
@@ -837,7 +837,6 @@ namespace Unity.Entities
                 UnityObjectRefOffsetCount = unityObjectRefOffsetCount;
                 UnityObjectRefOffsetStartIndex = unityObjectRefOffsetStartIndex;
                 TypeSize = typeSize;
-                VirtualChunk = virtualChunk;
             }
 
             /// <summary>
@@ -928,8 +927,6 @@ namespace Unity.Entities
             /// Blittable size of the component type.
             /// </summary>
             public   readonly int           TypeSize;
-
-            public   readonly int           VirtualChunk;
 
             /// <summary>
             /// Alignment of this type in a chunk.  Normally the same as AlignmentInBytes, but that
@@ -1600,7 +1597,7 @@ namespace Unity.Entities
                 new TypeInfo(0, TypeCategory.ComponentData, 0, -1,
                     0, 0, -1, 0, 0, 0,
                     TypeManager.MaximumChunkCapacity, 0, -1, false, 0,
-                    -1, 0, -1, 0, -1, 0, 0),
+                    -1, 0, -1, 0, -1, 0),
                 "null", 0);
 
             // Push Entity TypeInfo
@@ -1620,7 +1617,7 @@ namespace Unity.Entities
                     0, entityStableTypeHash, -1, UnsafeUtility.SizeOf<Entity>(),
                     UnsafeUtility.SizeOf<Entity>(), CalculateAlignmentInChunk(sizeof(Entity)),
                     TypeManager.MaximumChunkCapacity, 0, -1, false, 0,
-                    -1, 0, -1, 0, -1, UnsafeUtility.SizeOf<Entity>(), 0),
+                    -1, 0, -1, 0, -1, UnsafeUtility.SizeOf<Entity>()),
                 "Unity.Entities.Entity", 0);
 
             SharedTypeIndex<Entity>.Ref.Data = entityTypeIndex;
@@ -3114,14 +3111,6 @@ namespace Unity.Entities
             bool hasBlobReferences = false;
             bool hasWeakAssetReferences = false;
 
-            int virtualChunk = 0;
-
-            var virtualChunkAttribute = (VirtualChunkAttribute)type.GetCustomAttribute(typeof(VirtualChunkAttribute));
-            if (virtualChunkAttribute != null)
-            {
-                virtualChunk = virtualChunkAttribute.Group > 8 ? 8 : virtualChunkAttribute.Group;
-            }
-
             if (typeof(IComponentData).IsAssignableFrom(type) && !isManaged)
             {
                 CheckIsAllowedAsComponentData(type, nameof(IComponentData), caches.AllowedComponentCache);
@@ -3314,7 +3303,7 @@ namespace Unity.Entities
                 elementSize > 0 ? elementSize : sizeInChunk, alignmentInBytes,
                 maxChunkCapacity, writeGroupCount, writeGroupIndex,
                 hasBlobReferences, blobAssetRefOffsetCount, blobAssetRefOffsetIndex,
-                weakAssetRefOffsetCount, weakAssetRefOffsetIndex, unityObjectRefOffsetCount, unityObjectRefOffsetIndex, valueTypeSize, virtualChunk);
+                weakAssetRefOffsetCount, weakAssetRefOffsetIndex, unityObjectRefOffsetCount, unityObjectRefOffsetIndex, valueTypeSize);
         }
 
         private struct SharedTypeIndex

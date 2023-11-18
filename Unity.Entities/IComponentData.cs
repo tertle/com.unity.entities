@@ -335,41 +335,11 @@ namespace Unity.Entities
     {
     }
 
-    public class VirtualChunkAttribute : Attribute
-    {
-        // public string Group;
-        //
-        // public VirtualChunkAttribute(string group)
-        // {
-        //     this.Group = group;
-        // }
-
-        public byte Group;
-
-        public VirtualChunkAttribute(byte group)
-        {
-            Group = group > 8 ? (byte)8 : group;
-        }
-    }
-
-    // TODO we use this in future
-    public class VirtualChunkGroupAttribute : Attribute
-    {
-        public string GroupName;
-        public byte Group;
-
-        public VirtualChunkGroupAttribute(string groupName, byte group)
-        {
-            GroupName = groupName;
-            Group = group;
-        }
-    }
-
-    struct VirtualChunk : IComponentData
+    public struct DynamicChunk : IComponentData
     {
     }
 
-    struct VirtualChunkData : IComponentData
+    struct DynamicChunkData : IComponentData
     {
     }
 }

@@ -21,8 +21,8 @@ namespace Unity.Entities
         HasWeakAssetRefs = 1024,
         HasSystemInstanceComponents = 2048,
         HasUnityObjectRefs = 4096,
-        VirtualChunk = 8192, // The parent chunk
-        VirtualChunkData = 16384, // The virtual chunk
+        DynamicChunk = 8192, // The parent chunk
+        DynamicChunkData = 16384, // The virtual chunk
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -77,8 +77,6 @@ namespace Unity.Entities
         public short FirstChunkComponent;
         public short FirstVirtualComponent;
 
-        public byte VirtualChunkMask;
-
         public ArchetypeFlags Flags;
 
         public Archetype* CopyArchetype; // Removes cleanup components
@@ -86,20 +84,13 @@ namespace Unity.Entities
         public Archetype* CleanupResidueArchetype;
         public Archetype* MetaChunkArchetype;
 
-        public Archetype* VirtualChunk0Archetype;
-        public Archetype* VirtualChunk1Archetype;
-        public Archetype* VirtualChunk2Archetype;
-        public Archetype* VirtualChunk3Archetype;
-        public Archetype* VirtualChunk4Archetype;
-        public Archetype* VirtualChunk5Archetype;
-        public Archetype* VirtualChunk6Archetype;
-        public Archetype* VirtualChunk7Archetype;
+        public Archetype** VirtualChunkArchetype;
 
         public ref Archetype* GetVirtualChunkArchetype(int index)
         {
             fixed (Archetype* ptr = &this)
             {
-                Archetype** v0 = &ptr->VirtualChunk0Archetype;
+                Archetype** v0 = ptr->VirtualChunkArchetype;
                 return ref v0[index];
             }
         }
@@ -125,8 +116,8 @@ namespace Unity.Entities
         public bool HasWeakAssetRefs => (Flags & ArchetypeFlags.HasWeakAssetRefs) != 0;
         public bool HasUnityObjectRefs => (Flags & ArchetypeFlags.HasUnityObjectRefs) != 0;
         public bool HasSystemInstanceComponents => (Flags & ArchetypeFlags.HasSystemInstanceComponents) != 0;
-        public bool VirtualChunk => (Flags & ArchetypeFlags.VirtualChunk) != 0;
-        public bool VirtualChunkData => (Flags & ArchetypeFlags.VirtualChunkData) != 0;
+        public bool DynamicChunk => (Flags & ArchetypeFlags.DynamicChunk) != 0;
+        public bool DynamicChunkData => (Flags & ArchetypeFlags.DynamicChunkData) != 0;
 
         public int NumNativeComponentData => FirstBufferComponent - 1;
         public int NumBufferComponents => FirstManagedComponent - FirstBufferComponent;

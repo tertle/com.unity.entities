@@ -788,13 +788,13 @@ namespace Unity.Entities
             entities->m_DisabledType = TypeManager.GetTypeIndex<Disabled>();
             entities->m_EntityType = TypeManager.GetTypeIndex<Entity>();
             entities->m_SystemInstanceType = TypeManager.GetTypeIndex<SystemInstance>();
-            entities->m_VirtualChunkType = TypeManager.GetTypeIndex<VirtualChunk>();
-            entities->m_VirtualChunkDataType = TypeManager.GetTypeIndex<VirtualChunkData>();
+            entities->m_VirtualChunkType = TypeManager.GetTypeIndex<DynamicChunk>();
+            entities->m_VirtualChunkDataType = TypeManager.GetTypeIndex<DynamicChunkData>();
 
             entities->m_ChunkHeaderComponentType = ComponentType.ReadWrite<ChunkHeader>();
             entities->m_EntityComponentType = ComponentType.ReadWrite<Entity>();
             entities->m_SimulateComponentType = ComponentType.ReadWrite<Simulate>();
-            entities->m_VirtualChunkDataComponentType = ComponentType.ReadWrite<VirtualChunkData>();
+            entities->m_VirtualChunkDataComponentType = ComponentType.ReadWrite<DynamicChunkData>();
             entities->InitializeTypeManagerPointers();
 
             entities->m_ChunkListChangesTracker = new ChunkListChanges();
@@ -2621,7 +2621,7 @@ namespace Unity.Entities
 
         internal static int GetComponentArraySize(int componentSize, int entityCount) => CollectionHelper.Align(componentSize * entityCount, CollectionHelper.CacheLineSize);
 
-        static int CalculateSpaceRequirement(ushort* componentSizes, int componentCount, int entityCount)
+        internal static int CalculateSpaceRequirement(ushort* componentSizes, int componentCount, int entityCount)
         {
             int size = 0;
             for (int i = 0; i < componentCount; ++i)
@@ -2629,7 +2629,7 @@ namespace Unity.Entities
             return size;
         }
 
-        static int CalculateChunkCapacity(int bufferSize, ushort* componentSizes, int count)
+        internal static int CalculateChunkCapacity(int bufferSize, ushort* componentSizes, int count)
         {
             int totalSize = 0;
             for (int i = 0; i < count; ++i)
@@ -2769,29 +2769,29 @@ namespace Unity.Entities
                 if (typeInfo.HasUnityObjectRefs)
                     dstArchetype->Flags |= ArchetypeFlags.HasUnityObjectRefs;
                 if (typeIndex == m_VirtualChunkType)
-                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunk;
+                    dstArchetype->Flags |= ArchetypeFlags.DynamicChunk;
                 if (typeIndex == m_VirtualChunkDataType)
-                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunkData;
+                    dstArchetype->Flags |= ArchetypeFlags.DynamicChunkData;
             }
 
             // VirtualChunkData can't have virtual components
-            Assert.IsTrue(!dstArchetype->VirtualChunkData || dstArchetype->NumVirtualComponents == 0);
+            Assert.IsTrue(!dstArchetype->DynamicChunkData || dstArchetype->NumVirtualComponents == 0);
 
-            if (dstArchetype->VirtualChunk)
-            {
-                int mask = 0;
-                for (var it = dstArchetype->FirstVirtualComponent; it < dstArchetype->VirtualComponentsEnd; it++)
-                {
-                    var vc = TypeManager.GetTypeInfo(types[it].TypeIndex).VirtualChunk;
-                    Assert.IsTrue(vc is > 0 and <= 8);
-                    mask |= 1 << (vc - 1);
-                }
-                dstArchetype->VirtualChunkMask = (byte)mask;
-            }
-            else
-            {
-                dstArchetype->VirtualChunkMask = 0;
-            }
+            // if (dstArchetype->VirtualChunk)
+            // {
+            //     int mask = 0;
+            //     for (var it = dstArchetype->FirstVirtualComponent; it < dstArchetype->VirtualComponentsEnd; it++)
+            //     {
+            //         var vc = TypeManager.GetTypeInfo(types[it].TypeIndex).VirtualChunk;
+            //         Assert.IsTrue(vc is > 0 and <= 8);
+            //         mask |= 1 << (vc - 1);
+            //     }
+            //     dstArchetype->VirtualChunkMask = (byte)mask;
+            // }
+            // else
+            // {
+            //     dstArchetype->VirtualChunkMask = 0;
+            // }
 
             if (dstArchetype->NumManagedComponents > 0)
                 dstArchetype->Flags |= ArchetypeFlags.HasManagedComponents;

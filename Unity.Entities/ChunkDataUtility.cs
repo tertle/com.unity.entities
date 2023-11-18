@@ -1673,7 +1673,7 @@ namespace Unity.Entities
 
         public static void RemapVirtualChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex)
         {
-            if (!archetype->VirtualChunk)
+            if (!archetype->DynamicChunk)
             {
                 return;
             }
