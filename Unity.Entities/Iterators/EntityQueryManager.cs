@@ -901,7 +901,8 @@ namespace Unity.Entities
                 if (query->RequiredComponents[component].AccessModeType != ComponentType.AccessMode.Exclude)
                 {
                     typeComponentIndex = ChunkDataUtility.GetNextIndexInTypeArray(archetype, query->RequiredComponents[component].TypeIndex, typeComponentIndex);
-                    Assert.AreNotEqual(-1, typeComponentIndex);
+                    // Assert.AreNotEqual(-1, typeComponentIndex);
+                    // -1 now means virtual
                     typeIndexInArchetypeArray[component] = typeComponentIndex;
                 }
                 else
@@ -1112,14 +1113,21 @@ namespace Unity.Entities
             var prefabTypeIndex = TypeManager.GetTypeIndex<Prefab>();
             var systemInstanceTypeIndex = TypeManager.GetTypeIndex<SystemInstance>();
             var chunkHeaderTypeIndex = TypeManager.GetTypeIndex<ChunkHeader>();
+            // var virtualChunkDataTypeIndex = TypeManager.GetTypeIndex<VirtualChunkData>();
             var includeDisabledEntities = (options & EntityQueryOptions.IncludeDisabledEntities) != 0;
             var includePrefab = (options & EntityQueryOptions.IncludePrefab) != 0;
             var includeSystems = (options & EntityQueryOptions.IncludeSystems) != 0;
             var includeChunkHeader = (options & EntityQueryOptions.IncludeMetaChunks) != 0;
+            var includeVirtualChunkData = false;
 
             for (var i = 0; i < componentTypesCount; i++)
             {
                 var componentTypeIndex = componentTypes[i].TypeIndex;
+                if (componentTypeIndex.IsVirtualComponent)
+                {
+                    componentTypeIndex = TypeManager.GetTypeInfo(componentTypeIndex.Index).TypeIndex;
+                }
+
                 for (var j = 0; j < allCount; j++)
                 {
                     var allTypeIndex = allTypes[j];
@@ -1143,6 +1151,8 @@ namespace Unity.Entities
             if (archetype->HasSystemInstanceComponents && !includeSystems)
                 return false;
             if (archetype->HasChunkHeader && !includeChunkHeader)
+                return false;
+            if (archetype->VirtualChunkData && !includeVirtualChunkData)
                 return false;
 
             return foundCount == allCount;

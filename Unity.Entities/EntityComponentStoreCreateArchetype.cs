@@ -80,6 +80,7 @@ namespace Unity.Entities
             {
                 types[0] = new ComponentTypeInArchetype(m_EntityComponentType);
                 int metaArchetypeTypeCount = 1;
+
                 for (int i = 1; i < count; ++i)
                 {
                     var t = inTypesSorted[i];
@@ -98,6 +99,37 @@ namespace Unity.Entities
                 {
                     SortingUtilities.InsertSorted(types, metaArchetypeTypeCount++, m_ChunkHeaderComponentType);
                     srcArchetype->MetaChunkArchetype = GetOrCreateArchetype(types, metaArchetypeTypeCount);
+                }
+
+                // TODO we can probably speed this up quite a bit
+                for (var vc = 1; vc <= 8; vc++)
+                {
+                    types[0] = new ComponentTypeInArchetype(m_EntityComponentType);
+                    int virtualArchetypeTypeCount = 1;
+
+                    for (int i = 1; i < count; ++i)
+                    {
+                        var t = inTypesSorted[i];
+                        if (!t.IsVirtual)
+                            continue;
+
+                        var typeInfo = TypeManager.GetTypeInfo(t.TypeIndex);
+                        if (typeInfo.VirtualChunk != vc)
+                            continue;
+
+                        var typeToInsert = new ComponentType
+                        {
+                            TypeIndex = VirtualComponentToNormalTypeIndex(t.TypeIndex)
+                        };
+                        SortingUtilities.InsertSorted(types, virtualArchetypeTypeCount++, typeToInsert);
+                    }
+
+                    if (virtualArchetypeTypeCount > 1)
+                    {
+                        SortingUtilities.InsertSorted(types, virtualArchetypeTypeCount++, m_VirtualChunkDataComponentType);
+                        srcArchetype->GetVirtualChunkArchetype(vc - 1) = GetOrCreateArchetype(types, virtualArchetypeTypeCount);
+                        UnityEngine.Debug.Log($"Created virtual chunk meta at {vc-1}");
+                    }
                 }
             }
 

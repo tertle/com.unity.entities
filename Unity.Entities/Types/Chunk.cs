@@ -3,6 +3,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 
 #if ENABLE_UNITY_CHUNK_METADATA_ACCESSOR_COUNTERS
 using Unity.Profiling;
@@ -71,7 +72,7 @@ namespace Unity.Entities
         public static implicit operator int(ChunkIndex index) => index.Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
+        internal readonly unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool MatchesFilter(MatchingArchetype* match, ref EntityQueryFilter filter)
@@ -255,6 +256,36 @@ namespace Unity.Entities
             }
         }
 
+        internal readonly ChunkIndex GetVirtualChunk(int index)
+        {
+            unsafe
+            {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                if (index is < 0 or >= 8)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+#endif
+                var ptr = ((byte*)GetPtr()) + Chunk.kVirtualChunkOffset;
+                return UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize);
+            }
+        }
+
+        internal void SetVirtualChunk(int index, ChunkIndex chunk)
+        {
+            unsafe
+            {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                if (index is < 0 or >= 8)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+#endif
+                var ptr = ((byte*)GetPtr()) + Chunk.kVirtualChunkOffset;
+                UnsafeUtility.AsRef<ChunkIndex>(ptr + index * Chunk.kVirtualChunkSize) = chunk;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(ChunkIndex other)
         {
@@ -296,12 +327,39 @@ namespace Unity.Entities
         //       It is cleared on write to disk, it is a global in memory sequence ID used for comparing chunks.
         public const int kSerializedHeaderSize = 40;
 
+        public const int kVirtualChunkOffset = 64;
+        public const int kVirtualChunkSize = 4;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*0)]
+        public ChunkIndex Virtual0;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*1)]
+        public ChunkIndex Virtual1;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*2)]
+        public ChunkIndex Virtual2;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*3)]
+        public ChunkIndex Virtual3;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*4)]
+        public ChunkIndex Virtual4;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*5)]
+        public ChunkIndex Virtual5;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*6)]
+        public ChunkIndex Virtual6;
+
+        [FieldOffset(kVirtualChunkOffset+kVirtualChunkSize*7)]
+        public ChunkIndex Virtual7;
+
         // Chunk header END
 
         // Component data buffer
         // This is where the actual chunk data starts.
         // It's declared like this so we can skip the header part of the chunk and just get to the data.
-        public const int kBufferOffset = 64; // (must be cache line aligned)
+        public const int kBufferOffset = 128; // (must be cache line aligned)
         [FieldOffset(kBufferOffset)]
         public fixed byte Buffer[4];
 
