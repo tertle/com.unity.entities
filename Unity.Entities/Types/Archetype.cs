@@ -118,8 +118,8 @@ namespace Unity.Entities
         public bool HasWeakAssetRefs => (Flags & ArchetypeFlags.HasWeakAssetRefs) != 0;
         public bool HasUnityObjectRefs => (Flags & ArchetypeFlags.HasUnityObjectRefs) != 0;
         public bool HasSystemInstanceComponents => (Flags & ArchetypeFlags.HasSystemInstanceComponents) != 0;
-        public bool DynamicChunk => (Flags & ArchetypeFlags.DynamicChunk) != 0;
-        public bool DynamicChunkData => (Flags & ArchetypeFlags.DynamicChunkData) != 0;
+        public bool HasDynamicChunk => (Flags & ArchetypeFlags.DynamicChunk) != 0;
+        public bool HasDynamicChunkData => (Flags & ArchetypeFlags.DynamicChunkData) != 0;
 
         public int NumNativeComponentData => FirstBufferComponent - 1;
         public int NumBufferComponents => FirstManagedComponent - FirstBufferComponent;

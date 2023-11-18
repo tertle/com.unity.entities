@@ -2660,9 +2660,16 @@ namespace Unity.Entities
                 throw new ArgumentException($"Component Data sizes may not be larger than {short.MaxValue}");
         }
 
-        internal Archetype* CreateArchetype(ComponentTypeInArchetype* types, int count)
+        internal Archetype* CreateArchetype(ComponentTypeInArchetype* types, int count, bool isDynamicData)
         {
-            AssertArchetypeComponents(types, count);
+            if (isDynamicData)
+            {
+                AssertArchetypeComponentsDynamic(types, count);
+            }
+            else
+            {
+                AssertArchetypeComponents(types, count);
+            }
 
             // Compute how many IComponentData types store Entities and need to be patched.
             // Types can have more than one entity, which means that this count is not necessarily
@@ -2775,7 +2782,9 @@ namespace Unity.Entities
             }
 
             // VirtualChunkData can't have virtual components
-            Assert.IsTrue(!dstArchetype->DynamicChunkData || dstArchetype->NumVirtualComponents == 0);
+            Assert.IsTrue(!dstArchetype->HasDynamicChunkData || dstArchetype->NumVirtualComponents == 0);
+
+            Assert.IsTrue(isDynamicData == dstArchetype->HasDynamicChunkData);
 
             // if (dstArchetype->VirtualChunk)
             // {

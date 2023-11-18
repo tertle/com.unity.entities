@@ -1673,7 +1673,7 @@ namespace Unity.Entities
 
         public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex)
         {
-            if (!archetype->DynamicChunk)
+            if (!archetype->HasDynamicChunk)
             {
                 return;
             }
@@ -1687,13 +1687,18 @@ namespace Unity.Entities
             var ti = typeIndex.Index;
 
             for (var i = 0; i != typeCount; i++)
+            {
                 if (ti == types[i].TypeIndex.Index)
                 {
                     index = i;
                     break;
                 }
+            }
+            if (index == -1)
+            {
+                return;
+            }
 
-            Assert.IsFalse(index == -1);
             var chunkIndex = archetype->DynamicTypes[index];
 
             chunk = chunk.GetDynamicChunk(chunkIndex);
@@ -1702,7 +1707,7 @@ namespace Unity.Entities
 
         public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex, ref LookupCache cache)
         {
-            if (!archetype->DynamicChunk)
+            if (!archetype->HasDynamicChunk)
             {
                 return;
             }

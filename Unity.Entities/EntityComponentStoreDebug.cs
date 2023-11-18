@@ -272,6 +272,29 @@ namespace Unity.Entities
             }
         }
 
+
+        [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS"), Conditional("UNITY_DOTS_DEBUG")]
+        void AssertArchetypeComponentsDynamic(ComponentTypeInArchetype* types, int count)
+        {
+            if (count < 1)
+                throw new ArgumentException($"Invalid component count");
+
+            // NOTE: LookUpCache / ComponentLookup uses short for the IndexInArchetype cache
+            if (count >= short.MaxValue)
+                throw new ArgumentException($"Archetypes can have a maximum of {short.MaxValue} components.");
+
+            for (var i = 1; i < count; i++)
+            {
+                if (types[i - 1].TypeIndex == types[i].TypeIndex)
+                    throw new ArgumentException(
+                        $"It is not allowed to have two components of the same type on the same entity. ({types[i - 1]} and {types[i]})");
+
+                var SizeInChunk = GetTypeInfo(types[i].TypeIndex).SizeInChunk;
+                if (SizeInChunk > ushort.MaxValue)
+                    throw new ArgumentException($"IComponentData {types[i]} is too large. SizeOf may not be larger than {ushort.MaxValue}");
+            }
+        }
+
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS"), Conditional("UNITY_DOTS_DEBUG")]
         public void AssertCanCreateArchetype(ComponentType* componentTypes, int componentTypeCount)
         {

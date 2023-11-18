@@ -660,9 +660,10 @@ namespace Unity.Entities
         {
             CheckMoreThan1024Components(count);
 
-            var sizes = stackalloc ushort[count];
+            var sizes = stackalloc ushort[count+1];
+            sizes[0] = (ushort)EntityComponentStore->GetTypeInfo(ComponentType.ReadWrite<Entity>().TypeIndex).SizeInChunk;
+
             int maxSize = 0;
-            int maxCapacity = TypeManager.MaximumChunkCapacity;
 
             var tmp = stackalloc ComponentTypeInArchetype[count];
 
@@ -684,38 +685,36 @@ namespace Unity.Entities
                     break;
                 }
 
-                sizes[i] = (ushort)cType.SizeInChunk;
-                // sizes[i] = (ushort)Unity.Entities.EntityComponentStore.GetComponentArraySize(sizes[i], 1);
-                maxSize = math.max(sizes[i], maxSize);
+                sizes[i+1] = (ushort)cType.SizeInChunk;
+                maxSize = math.max(sizes[i+1], maxSize);
             }
 
-            // TODO
-            // maxCapacity = math.min(maxCapacity, cType.MaximumChunkCapacity);
+            var maxSizes =  stackalloc ushort[2];
+            maxSizes[0] = (ushort)EntityComponentStore->GetTypeInfo(ComponentType.ReadWrite<Entity>().TypeIndex).SizeInChunk;
+            maxSizes[1] = (ushort)maxSize;
 
             var chunkDataSize = Chunk.kChunkBufferSize;
+            int maxCapacity = TypeManager.MaximumChunkCapacity;
+            maxCapacity = math.min(maxCapacity, Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, maxSizes, 2));
+
             var countLoop = firstIndexOfZero;
 
             for (var i = 0; i < countLoop; i++)
             {
-                var c = Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, sizes, i + 1);
-
-                if (c < maxCapacity)
+                if (Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, sizes, i + 2) < maxCapacity) // +2 because of entity at 0
                 {
-                    (sizes[i], sizes[countLoop - 1]) = (sizes[countLoop - 1], sizes[i]);
+                    (sizes[i+1], sizes[countLoop - 1+1]) = (sizes[countLoop - 1+1], sizes[i+1]); // +1 because of entity at 0
                     (tmp[i], tmp[countLoop - 1]) = (tmp[countLoop - 1], tmp[i]);
                     i--;
                     countLoop--;
                 }
-                // else
-                // {
-                //     tmp[i] = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(tmp[i].TypeIndex)));
-                // }
             }
 
             for (var i = countLoop; i < firstIndexOfZero; i++)
             {
                 tmp[i] = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(tmp[i].TypeIndex)));
             }
+
 
             dst[0] = new ComponentTypeInArchetype(ComponentType.ReadWrite<Entity>());
             bool hasSimulate = false;

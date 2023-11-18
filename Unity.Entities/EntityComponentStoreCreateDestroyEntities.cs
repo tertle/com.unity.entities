@@ -175,7 +175,7 @@ namespace Unity.Entities
 
             if (archetype->MetaChunkArchetype != null)
                 CreateMetaEntityForChunk(newChunk);
-            if (archetype->DynamicChunk)
+            if (archetype->HasDynamicChunk)
                 CreateDynamicChunksForChunk(newChunk);
 
             return newChunk;

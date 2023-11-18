@@ -1134,7 +1134,7 @@ namespace Unity.Entities
             var includeChunkHeader = (options & EntityQueryOptions.IncludeMetaChunks) != 0;
 
             // Never include virtual chunks in a query
-            if (archetype->DynamicChunkData)
+            if (archetype->HasDynamicChunkData)
             {
                 return false;
             }
