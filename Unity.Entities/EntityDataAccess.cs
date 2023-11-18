@@ -600,9 +600,22 @@ namespace Unity.Entities
 
             ComponentTypeInArchetype* typesInArchetype = stackalloc ComponentTypeInArchetype[count + 2];
 
-            var cachedComponentCount = FillSortedArchetypeArray(typesInArchetype, types, count, addSimulateComponentIfMissing);
+            var virtualChunk = HasVirtualChunkType(types, count);
+            var cachedComponentCount = FillSortedArchetypeArray(typesInArchetype, types, count, addSimulateComponentIfMissing, virtualChunk);
 
             return CreateArchetype_Sorted(typesInArchetype, cachedComponentCount);
+        }
+
+        internal bool HasVirtualChunkType(ComponentType* types, int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                if (types[i] == ComponentType.ReadWrite<VirtualChunk>())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal EntityArchetype CreateArchetype_Sorted(ComponentTypeInArchetype* typesInArchetype, int cachedComponentCount)
@@ -621,15 +634,25 @@ namespace Unity.Entities
             return entityArchetype;
         }
 
-        internal static int FillSortedArchetypeArray(ComponentTypeInArchetype* dst, ComponentType* requiredComponents, int count, bool addSimulateComponentIfMissing)
+        internal static int FillSortedArchetypeArray(ComponentTypeInArchetype* dst, ComponentType* requiredComponents, int count, bool addSimulateComponentIfMissing, bool isVirtualChunk)
         {
             CheckMoreThan1024Components(count);
             dst[0] = new ComponentTypeInArchetype(ComponentType.ReadWrite<Entity>());
             bool hasSimulate = false;
             for (var i = 0; i < count; ++i)
             {
-                hasSimulate |= (requiredComponents[i] == ComponentType.ReadWrite<Simulate>());
-                SortingUtilities.InsertSorted(dst, i + 1, requiredComponents[i]);
+                var component = requiredComponents[i];
+                hasSimulate |= (component == ComponentType.ReadWrite<Simulate>());
+
+                if (isVirtualChunk)
+                {
+                    if (TypeManager.GetTypeInfo(component.TypeIndex).VirtualChunk != 0)
+                    {
+                        component = ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(component.TypeIndex));
+                    }
+                }
+
+                SortingUtilities.InsertSorted(dst, i + 1, component);
             }
             if (!hasSimulate && addSimulateComponentIfMissing)
             {

@@ -72,6 +72,7 @@ namespace Unity.Entities.Editor
                 case ComponentPropertyType.CompanionComponent: return "(Companion)";
                 case ComponentPropertyType.Buffer: return "(Buffer)";
                 case ComponentPropertyType.None:
+                case ComponentPropertyType.VirtualComponent: return "(Virtual)";
                 case ComponentPropertyType.All:
                 default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -85,6 +86,7 @@ namespace Unity.Entities.Editor
                 case ComponentPropertyType.Tag: return UssClasses.Inspector.ComponentTypes.Tag;
                 case ComponentPropertyType.SharedComponent: return UssClasses.Inspector.ComponentTypes.SharedComponent;
                 case ComponentPropertyType.ChunkComponent: return UssClasses.Inspector.ComponentTypes.ChunkComponent;
+                case ComponentPropertyType.VirtualComponent: return UssClasses.Inspector.ComponentTypes.VirtualComponent;
                 case ComponentPropertyType.CompanionComponent: return UssClasses.Inspector.ComponentTypes.ManagedComponent;
                 case ComponentPropertyType.Buffer: return UssClasses.Inspector.ComponentTypes.BufferComponent;
                 case ComponentPropertyType.None:

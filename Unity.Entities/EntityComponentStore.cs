@@ -449,10 +449,13 @@ namespace Unity.Entities
         TypeIndex m_DisabledType;
         TypeIndex m_EntityType;
         TypeIndex m_SystemInstanceType;
+        TypeIndex m_VirtualChunkType;
+        TypeIndex m_VirtualChunkDataType;
 
         ComponentType m_ChunkHeaderComponentType;
         ComponentType m_EntityComponentType;
         ComponentType m_SimulateComponentType;
+        ComponentType m_VirtualChunkDataComponentType;
 
         TypeManager.TypeInfo* m_TypeInfos;
         TypeManager.EntityOffsetInfo* m_EntityOffsetInfos;
@@ -785,10 +788,13 @@ namespace Unity.Entities
             entities->m_DisabledType = TypeManager.GetTypeIndex<Disabled>();
             entities->m_EntityType = TypeManager.GetTypeIndex<Entity>();
             entities->m_SystemInstanceType = TypeManager.GetTypeIndex<SystemInstance>();
+            entities->m_VirtualChunkType = TypeManager.GetTypeIndex<VirtualChunk>();
+            entities->m_VirtualChunkDataType = TypeManager.GetTypeIndex<VirtualChunkData>();
 
             entities->m_ChunkHeaderComponentType = ComponentType.ReadWrite<ChunkHeader>();
             entities->m_EntityComponentType = ComponentType.ReadWrite<Entity>();
             entities->m_SimulateComponentType = ComponentType.ReadWrite<Simulate>();
+            entities->m_VirtualChunkDataComponentType = ComponentType.ReadWrite<VirtualChunkData>();
             entities->InitializeTypeManagerPointers();
 
             entities->m_ChunkListChangesTracker = new ChunkListChanges();
@@ -832,6 +838,7 @@ namespace Unity.Entities
         }
 
         public TypeIndex ChunkComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
+        public TypeIndex VirtualComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
 
         public static void Destroy(EntityComponentStore* entityComponentStore)
         {
@@ -1169,6 +1176,17 @@ namespace Unity.Entities
             return GetArchetype(chunk);
         }
 
+        public Archetype* GetArchetype(Entity entity, TypeIndex typeIndex)
+        {
+            AssertEntitiesExist(&entity, 1);
+            var chunk = GetChunk(entity);
+            Assert.IsTrue(chunk != ChunkIndex.Null);
+
+            var archetype = GetArchetype(chunk);
+            ChunkDataUtility.RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            return archetype;
+        }
+
         public ChunkIndex GetChunk(Entity entity)
         {
 #if !ENTITY_STORE_V1
@@ -1308,7 +1326,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type) != -1;
         }
 
@@ -1317,7 +1335,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             if (Hint.Unlikely(archetype != cache.Archetype))
                 cache.Update(archetype, type);
             return cache.IndexInArchetype != -1;
@@ -1328,7 +1346,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type.TypeIndex);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type.TypeIndex) != -1;
         }
 
@@ -2709,6 +2727,9 @@ namespace Unity.Entities
 
             {
                 short i = (short)count;
+                do {dstArchetype->FirstVirtualComponent = i;}
+                while (types[--i].IsVirtual);
+                i++;
                 do dstArchetype->FirstChunkComponent = i;
                 while (types[--i].IsChunkComponent);
                 i++;
@@ -2747,6 +2768,29 @@ namespace Unity.Entities
                     dstArchetype->Flags |= ArchetypeFlags.HasWeakAssetRefs;
                 if (typeInfo.HasUnityObjectRefs)
                     dstArchetype->Flags |= ArchetypeFlags.HasUnityObjectRefs;
+                if (typeIndex == m_VirtualChunkType)
+                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunk;
+                if (typeIndex == m_VirtualChunkDataType)
+                    dstArchetype->Flags |= ArchetypeFlags.VirtualChunkData;
+            }
+
+            // VirtualChunkData can't have virtual components
+            Assert.IsTrue(!dstArchetype->VirtualChunkData || dstArchetype->NumVirtualComponents == 0);
+
+            if (dstArchetype->VirtualChunk)
+            {
+                int mask = 0;
+                for (var it = dstArchetype->FirstVirtualComponent; it < dstArchetype->VirtualComponentsEnd; it++)
+                {
+                    var vc = TypeManager.GetTypeInfo(types[it].TypeIndex).VirtualChunk;
+                    Assert.IsTrue(vc is > 0 and <= 8);
+                    mask |= 1 << (vc - 1);
+                }
+                dstArchetype->VirtualChunkMask = (byte)mask;
+            }
+            else
+            {
+                dstArchetype->VirtualChunkMask = 0;
             }
 
             if (dstArchetype->NumManagedComponents > 0)

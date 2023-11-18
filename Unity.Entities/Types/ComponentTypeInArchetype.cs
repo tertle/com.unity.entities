@@ -17,6 +17,7 @@ namespace Unity.Entities
         public bool IsManagedComponent => TypeIndex.IsManagedComponent;
         public bool IsBakeOnlyType => TypeIndex.IsBakingOnlyType;
         public bool IsChunkSerializable => TypeIndex.IsChunkSerializable;
+        public bool IsVirtual => TypeIndex.IsVirtualComponent;
 
         public ComponentTypeInArchetype(ComponentType type)
         {
@@ -53,6 +54,7 @@ namespace Unity.Entities
         //11. Chunk ICleanupComponentData
         //12. Chunk Dynamic buffer components (IBufferElementData)
         //13. Chunk cleanup dynamic buffer components (ICleanupBufferElementData)
+        //14. Virtual Components
 
         public static bool operator<(ComponentTypeInArchetype lhs, ComponentTypeInArchetype rhs)
         {

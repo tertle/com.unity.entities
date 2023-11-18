@@ -916,7 +916,8 @@ namespace Unity.Entities
                 if (query->RequiredComponents[component].AccessModeType != ComponentType.AccessMode.Exclude)
                 {
                     typeComponentIndex = ChunkDataUtility.GetNextIndexInTypeArray(archetype, query->RequiredComponents[component].TypeIndex, typeComponentIndex);
-                    Assert.AreNotEqual(-1, typeComponentIndex);
+                    // Assert.AreNotEqual(-1, typeComponentIndex);
+                    // -1 now means virtual
                     typeIndexInArchetypeArray[component] = typeComponentIndex;
                 }
                 else
@@ -1132,9 +1133,20 @@ namespace Unity.Entities
             var includeSystems = (options & EntityQueryOptions.IncludeSystems) != 0;
             var includeChunkHeader = (options & EntityQueryOptions.IncludeMetaChunks) != 0;
 
+            // Never include virtual chunks in a query
+            if (archetype->VirtualChunkData)
+            {
+                return false;
+            }
+
             for (var i = 0; i < componentTypesCount; i++)
             {
                 var componentTypeIndex = componentTypes[i].TypeIndex;
+                if (componentTypeIndex.IsVirtualComponent)
+                {
+                    componentTypeIndex = TypeManager.GetTypeInfo(componentTypeIndex.Index).TypeIndex;
+                }
+
                 for (var j = 0; j < allCount; j++)
                 {
                     var allTypeIndex = allTypes[j];
