@@ -182,7 +182,7 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, ref LookupCache lookupCache)
         {
-            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
 
             if (Hint.Unlikely(lookupCache.Archetype != archetype))
                 lookupCache.Update(archetype, typeIndex);
@@ -195,7 +195,7 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion, ref LookupCache lookupCache)
         {
-            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
 
             if (Hint.Unlikely(lookupCache.Archetype != archetype))
                 lookupCache.Update(archetype, typeIndex);
@@ -209,7 +209,7 @@ namespace Unity.Entities
 
         public static byte* GetComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex)
         {
-            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
 
             var indexInTypeArray = GetIndexInTypeArray(archetype, typeIndex);
 
@@ -221,7 +221,7 @@ namespace Unity.Entities
 
         public static byte* GetComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion)
         {
-            RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
 
             var indexInTypeArray = GetIndexInTypeArray(archetype, typeIndex);
 
@@ -1671,20 +1671,62 @@ namespace Unity.Entities
             chunk.Flags = 0;
         }
 
-        public static void RemapVirtualChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex)
+        public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex)
         {
             if (!archetype->DynamicChunk)
             {
                 return;
             }
 
-            var virtualChunk = TypeManager.GetTypeInfo(typeIndex).VirtualChunk;
-            if (virtualChunk == 0)
-                return;
+            var types = archetype->Types;
+            var typeCount = archetype->TypesCount;
 
-            var vChunkIndex = virtualChunk - 1;
-            chunk = chunk.GetVirtualChunk(vChunkIndex);
-            archetype = archetype->GetVirtualChunkArchetype(vChunkIndex);
+            // TODO we're going to want to cache this
+            var index = -1;
+
+            var ti = typeIndex.Index;
+
+            for (var i = 0; i != typeCount; i++)
+                if (ti == types[i].TypeIndex.Index)
+                {
+                    index = i;
+                    break;
+                }
+
+            Assert.IsFalse(index == -1);
+            var chunkIndex = archetype->DynamicTypes[index];
+
+            chunk = chunk.GetDynamicChunk(chunkIndex);
+            archetype = archetype->GetVirtualChunkArchetype(chunkIndex);
+        }
+
+        public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex, ref LookupCache cache)
+        {
+            if (!archetype->DynamicChunk)
+            {
+                return;
+            }
+
+            var types = archetype->Types;
+            var typeCount = archetype->TypesCount;
+
+            // TODO we're going to want to cache this
+            var index = -1;
+
+            var ti = typeIndex.Index;
+
+            for (var i = 0; i != typeCount; i++)
+                if (ti == types[i].TypeIndex.Index)
+                {
+                    index = i;
+                    break;
+                }
+
+            Assert.IsFalse(index == -1);
+            var chunkIndex = archetype->DynamicTypes[index];
+
+            chunk = chunk.GetDynamicChunk(chunkIndex);
+            archetype = archetype->GetVirtualChunkArchetype(chunkIndex);
         }
     }
 }

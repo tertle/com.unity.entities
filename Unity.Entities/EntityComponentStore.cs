@@ -1183,7 +1183,7 @@ namespace Unity.Entities
             Assert.IsTrue(chunk != ChunkIndex.Null);
 
             var archetype = GetArchetype(chunk);
-            ChunkDataUtility.RemapVirtualChunk(ref chunk, ref archetype, typeIndex);
+            ChunkDataUtility.RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
             return archetype;
         }
 

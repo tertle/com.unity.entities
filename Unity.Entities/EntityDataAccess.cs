@@ -659,64 +659,74 @@ namespace Unity.Entities
         internal int FillSortedArchetypeArrayDynamic(ComponentTypeInArchetype* dst, ComponentType* requiredComponents, int count, bool addSimulateComponentIfMissing)
         {
             CheckMoreThan1024Components(count);
-            dst[0] = new ComponentTypeInArchetype(ComponentType.ReadWrite<Entity>());
-            bool hasSimulate = false;
 
             var sizes = stackalloc ushort[count];
             int maxSize = 0;
             int maxCapacity = TypeManager.MaximumChunkCapacity;
 
-            for (var i = 0; i < count; i++)
-            {
-                var index = requiredComponents[i].TypeIndex;
-                ref readonly var cType = ref EntityComponentStore->GetTypeInfo(requiredComponents[i].TypeIndex);
-                if (index.IsChunkComponent || index.IsSharedComponentType || index.IsZeroSized)
-                {
-                    sizes[i] = 0;
-                }
-                else
-                {
-                    sizes[i] = (ushort)cType.SizeInChunk;
-                    sizes[i] = (ushort)Unity.Entities.EntityComponentStore.GetComponentArraySize(sizes[i], 1);
-                    maxSize = math.max(sizes[i], maxSize);
-                }
+            var tmp = stackalloc ComponentTypeInArchetype[count];
 
-                maxCapacity = math.min(maxCapacity, cType.MaximumChunkCapacity);
+            for (var i = 0; i < count; ++i)
+            {
+                var component = requiredComponents[i];
+                SortingUtilities.InsertSorted(tmp, i, component);
             }
 
+            var firstIndexOfZero = count;
+
+            for (var i = 0; i < count; i++)
+            {
+                var index = tmp[i].TypeIndex;
+                ref readonly var cType = ref EntityComponentStore->GetTypeInfo(tmp[i].TypeIndex);
+                if (index.IsChunkComponent || index.IsSharedComponentType || index.IsZeroSized)
+                {
+                    firstIndexOfZero = i;
+                    break;
+                }
+
+                sizes[i] = (ushort)cType.SizeInChunk;
+                // sizes[i] = (ushort)Unity.Entities.EntityComponentStore.GetComponentArraySize(sizes[i], 1);
+                maxSize = math.max(sizes[i], maxSize);
+            }
+
+            // TODO
+            // maxCapacity = math.min(maxCapacity, cType.MaximumChunkCapacity);
+
             var chunkDataSize = Chunk.kChunkBufferSize;
-            var countLoop = count;
+            var countLoop = firstIndexOfZero;
 
             for (var i = 0; i < countLoop; i++)
             {
-                if (Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, sizes, i+1) < maxCapacity)
+                var c = Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, sizes, i + 1);
+
+                if (c < maxCapacity)
                 {
                     (sizes[i], sizes[countLoop - 1]) = (sizes[countLoop - 1], sizes[i]);
-                    (requiredComponents[i], requiredComponents[countLoop - 1]) = (requiredComponents[countLoop - 1], requiredComponents[i]);
+                    (tmp[i], tmp[countLoop - 1]) = (tmp[countLoop - 1], tmp[i]);
                     i--;
                     countLoop--;
                 }
+                // else
+                // {
+                //     tmp[i] = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(tmp[i].TypeIndex)));
+                // }
             }
 
-            for (var i = 0; i < countLoop; ++i)
+            for (var i = countLoop; i < firstIndexOfZero; i++)
             {
-                var component = requiredComponents[i];
+                tmp[i] = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(tmp[i].TypeIndex)));
+            }
+
+            dst[0] = new ComponentTypeInArchetype(ComponentType.ReadWrite<Entity>());
+            bool hasSimulate = false;
+
+            for (var i = 0; i < count; ++i)
+            {
+                var component = tmp[i].ToComponentType();
                 hasSimulate |= (component == ComponentType.ReadWrite<Simulate>());
                 SortingUtilities.InsertSorted(dst, i + 1, component);
             }
 
-            for (var i = countLoop; i < count; ++i)
-            {
-                var component = requiredComponents[i];
-                hasSimulate |= (component == ComponentType.ReadWrite<Simulate>());
-
-                if (sizes[i] != 0)
-                {
-                    component = ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(component.TypeIndex));
-                }
-
-                SortingUtilities.InsertSorted(dst, i + 1, component);
-            }
             if (!hasSimulate && addSimulateComponentIfMissing)
             {
                 SortingUtilities.InsertSorted(dst, count + 1, ComponentType.ReadWrite<Simulate>());

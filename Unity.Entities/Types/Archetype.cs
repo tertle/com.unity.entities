@@ -85,6 +85,8 @@ namespace Unity.Entities
         public Archetype* MetaChunkArchetype;
 
         public Archetype** VirtualChunkArchetype;
+        public int ChunkCount;
+        public ushort* DynamicTypes; // Array with TypeCount elements
 
         public ref Archetype* GetVirtualChunkArchetype(int index)
         {

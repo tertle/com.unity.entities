@@ -175,8 +175,8 @@ namespace Unity.Entities
 
             if (archetype->MetaChunkArchetype != null)
                 CreateMetaEntityForChunk(newChunk);
-            if (archetype->VirtualChunkMask != 0)
-                CreateVirtualChunksForChunk(newChunk);
+            if (archetype->DynamicChunk)
+                CreateDynamicChunksForChunk(newChunk);
 
             return newChunk;
         }
@@ -228,26 +228,23 @@ namespace Unity.Entities
             }
         }
 
-        internal void CreateVirtualChunksForChunk(ChunkIndex chunk)
+        internal void CreateDynamicChunksForChunk(ChunkIndex chunk)
         {
             fixed(EntityComponentStore* entityComponentStore = &this)
             {
                 Archetype* archetype = entityComponentStore->GetArchetype(chunk);
                 var sharedIndices = stackalloc int[0];
 
+                var ptr = chunk.GetPtr();
 
-                var mask = (uint)archetype->VirtualChunkMask;
-                while (mask != 0)
+                ChunkAllocate<ChunkIndex>(&ptr->DynamicChunks, archetype->ChunkCount);
+                ptr->DynamicChunks[0] = chunk;
+
+                for(var i = 1; i < archetype->ChunkCount; i++)
                 {
-                    var index = math.tzcnt(mask);
-                    UnityEngine.Debug.Log($"Creating virtual chunk at {index}");
-
-                    var virtualArchetype = archetype->GetVirtualChunkArchetype(index);
-                    var virtualChunkData = GetCleanChunkNoMetaChunk(virtualArchetype, sharedIndices);
-                    chunk.SetVirtualChunk(index, virtualChunkData);
-
-                    var shifted = (uint)(1 << index);
-                    mask ^= shifted;
+                    var dynamicArchetype = archetype->GetVirtualChunkArchetype(i);
+                    var linkedChunk = GetCleanChunkNoMetaChunk(dynamicArchetype, sharedIndices);
+                    ptr->DynamicChunks[i] = linkedChunk;
                 }
             }
         }

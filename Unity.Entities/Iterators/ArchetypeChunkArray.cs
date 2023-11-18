@@ -2558,7 +2558,6 @@ namespace Unity.Entities
         internal uint m_GlobalSystemVersion;
         internal readonly byte m_IsReadOnly;
         internal readonly byte m_IsZeroSized;
-        internal readonly byte m_Virtual;
         /// <summary>The global system version for which this handle is valid.</summary>
         /// <remarks>Attempting to use this type handle with a different
         /// system version indicates that the handle is no longer valid; use the <see cref="Update(Unity.Entities.SystemBase)"/>
@@ -2575,10 +2574,6 @@ namespace Unity.Entities
         /// Reports whether this type will consume chunk space when used in an archetype.
         /// </summary>
         internal readonly bool IsZeroSized => m_IsZeroSized == 1;
-
-        internal readonly bool IsVirtual => m_Virtual != 0;
-
-        internal readonly int VirtualIndex => m_Virtual - 1;
 
 
 #pragma warning disable 0414
@@ -2603,7 +2598,6 @@ namespace Unity.Entities
             m_TypeIndex = typeIndex;
             m_SizeInChunk = typeInfo.SizeInChunk;
             m_IsZeroSized = typeInfo.IsZeroSized ? (byte)1u : (byte)0u;
-            m_Virtual = (byte)typeInfo.VirtualChunk;
             m_GlobalSystemVersion = globalSystemVersion;
             m_IsReadOnly = isReadOnly ? (byte)1u : (byte)0u;
             m_LookupCache = new LookupCache();
