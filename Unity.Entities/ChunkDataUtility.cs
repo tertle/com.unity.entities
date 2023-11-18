@@ -118,6 +118,29 @@ namespace Unity.Entities
             typeLookupCache = -1;
         }
 
+        public static void GetDynamicIndexInTypeArray(Archetype* archetype, TypeIndex typeIndex, ref short typeLookupCache)
+        {
+            var types = archetype->Types;
+            var typeCount = archetype->TypesCount;
+
+            var ti = typeIndex.Index;
+
+            if (typeLookupCache >= 0 && typeLookupCache < typeCount && types[typeLookupCache].TypeIndex.Index == ti)
+                return;
+
+            for (var i = 0; i != typeCount; i++)
+            {
+                // because we could be looking for virtual components
+                if (ti != types[i].TypeIndex.Index)
+                    continue;
+
+                typeLookupCache = (short)i;
+                return;
+            }
+
+            typeLookupCache = -1;
+        }
+
         public static void SetSharedComponentDataIndex(Entity entity, Archetype* archetype, in SharedComponentValues sharedComponentValues, TypeIndex typeIndex)
         {
             var entityComponentStore = archetype->EntityComponentStore;
@@ -152,8 +175,7 @@ namespace Unity.Entities
         // If you'd like a null pointer in this case instead, use GetOptionalComponentDataWithTypeRO()
         public static byte* GetComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, ref LookupCache lookupCache)
         {
-            if (Hint.Unlikely(lookupCache.Archetype != archetype))
-                lookupCache.Update(archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex, ref lookupCache);
 
             return chunk.Buffer + (lookupCache.ComponentOffset + lookupCache.ComponentSizeOf * baseEntityIndex);
         }
@@ -162,8 +184,7 @@ namespace Unity.Entities
         // If you'd like a null pointer in this case instead, use GetOptionalComponentDataWithTypeRW()
         public static byte* GetComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion, ref LookupCache lookupCache)
         {
-            if (Hint.Unlikely(lookupCache.Archetype != archetype))
-                lookupCache.Update(archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex, ref lookupCache);
 
             // Write Component to Chunk. ChangeVersion:Yes OrderVersion:No
             archetype->Chunks.SetChangeVersion(lookupCache.IndexInArchetype, chunk.ListIndex, globalSystemVersion);
@@ -182,10 +203,8 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRO(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, ref LookupCache lookupCache)
         {
-            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex, ref lookupCache);
 
-            if (Hint.Unlikely(lookupCache.Archetype != archetype))
-                lookupCache.Update(archetype, typeIndex);
             if (Hint.Unlikely(lookupCache.IndexInArchetype == -1))
                 return null;
 
@@ -195,10 +214,8 @@ namespace Unity.Entities
         // This variant returns null if the component is not present.
         public static byte* GetOptionalComponentDataWithTypeRW(ChunkIndex chunk, Archetype* archetype, int baseEntityIndex, TypeIndex typeIndex, uint globalSystemVersion, ref LookupCache lookupCache)
         {
-            RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
+            RemapDynamicChunk(ref chunk, ref archetype, typeIndex, ref lookupCache);
 
-            if (Hint.Unlikely(lookupCache.Archetype != archetype))
-                lookupCache.Update(archetype, typeIndex);
             if (Hint.Unlikely(lookupCache.IndexInArchetype == -1))
                 return null;
 
@@ -1705,33 +1722,25 @@ namespace Unity.Entities
             archetype = archetype->GetVirtualChunkArchetype(chunkIndex);
         }
 
-        public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex, ref LookupCache cache)
+        public static void RemapDynamicChunk(ref ChunkIndex chunk, ref Archetype* archetype, TypeIndex typeIndex, ref LookupCache lookupCache)
         {
             if (!archetype->HasDynamicChunk)
             {
-                return;
+                if (Hint.Unlikely(lookupCache.Archetype != archetype))
+                    lookupCache.Update(archetype, typeIndex);
             }
+            else
+            {
+                if (Hint.Unlikely(lookupCache.DynamicArchetype != archetype))
+                    lookupCache.UpdateDynamic(archetype, typeIndex);
 
-            var types = archetype->Types;
-            var typeCount = archetype->TypesCount;
+                if (Hint.Unlikely(lookupCache.DynamicIndexInArchetype == -1))
+                    return;
 
-            // TODO we're going to want to cache this
-            var index = -1;
-
-            var ti = typeIndex.Index;
-
-            for (var i = 0; i != typeCount; i++)
-                if (ti == types[i].TypeIndex.Index)
-                {
-                    index = i;
-                    break;
-                }
-
-            Assert.IsFalse(index == -1);
-            var chunkIndex = archetype->DynamicTypes[index];
-
-            chunk = chunk.GetDynamicChunk(chunkIndex);
-            archetype = archetype->GetVirtualChunkArchetype(chunkIndex);
+                var chunkIndex = archetype->DynamicTypes[lookupCache.DynamicIndexInArchetype]; // TODO could cache this as well?
+                chunk = chunk.GetDynamicChunk(chunkIndex);
+                archetype = archetype->GetVirtualChunkArchetype(chunkIndex);
+            }
         }
     }
 }

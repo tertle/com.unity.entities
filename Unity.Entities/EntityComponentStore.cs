@@ -3202,6 +3202,10 @@ namespace Unity.Entities
         public ushort     ComponentSizeOf;
         public short      IndexInArchetype;
 
+        [NativeDisableUnsafePtrRestriction]
+        public Archetype* DynamicArchetype;
+        public short      DynamicIndexInArchetype;
+
         // This method will *always* update the cache.
         // It should only be called if it's already been determined that the cache is stale.
         // It is safe to call if the archetype does not contain the type.
@@ -3211,6 +3215,21 @@ namespace Unity.Entities
             ComponentOffset = IndexInArchetype == -1 ? 0 : archetype->Offsets[IndexInArchetype];
             ComponentSizeOf = IndexInArchetype == -1 ? (ushort)0 : archetype->SizeOfs[IndexInArchetype];
             Archetype = archetype;
+        }
+
+        public void UpdateDynamic(Archetype* dynamicArchetype, TypeIndex typeIndex)
+        {
+            ChunkDataUtility.GetDynamicIndexInTypeArray(dynamicArchetype, typeIndex, ref DynamicIndexInArchetype);
+            DynamicArchetype = dynamicArchetype;
+
+            if (!Hint.Unlikely(DynamicIndexInArchetype != -1))
+            {
+                IndexInArchetype = -1;
+                return;
+            }
+
+            var chunkIndex = dynamicArchetype->DynamicTypes[DynamicIndexInArchetype];
+            Update(dynamicArchetype->GetVirtualChunkArchetype(chunkIndex), typeIndex);
         }
     }
 }

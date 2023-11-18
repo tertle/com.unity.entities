@@ -915,7 +915,11 @@ namespace Unity.Entities
             {
                 if (query->RequiredComponents[component].AccessModeType != ComponentType.AccessMode.Exclude)
                 {
-                    typeComponentIndex = ChunkDataUtility.GetNextIndexInTypeArray(archetype, query->RequiredComponents[component].TypeIndex, typeComponentIndex);
+                    if (Hint.Likely(typeComponentIndex != -1))
+                    {
+                        typeComponentIndex = ChunkDataUtility.GetNextIndexInTypeArray(archetype, query->RequiredComponents[component].TypeIndex, typeComponentIndex);
+                    }
+
                     // Assert.AreNotEqual(-1, typeComponentIndex);
                     // -1 now means virtual
                     typeIndexInArchetypeArray[component] = typeComponentIndex;
