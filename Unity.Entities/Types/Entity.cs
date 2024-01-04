@@ -16,12 +16,12 @@ namespace Unity.Entities
     ///
     /// The <see cref="EntityManager"/> class manages entities and they exist within a <see cref="World"/>. An
     /// Entity struct refers to an entity, but isn't a reference. Rather, the Entity struct contains an
-    /// <see cref="Index"/> that you can use to access entity data, and a <see cref="Version"/> that you can 
-    /// use to check whether the Index is still valid. Note that you must pass the Index or Version values to  
+    /// <see cref="Index"/> that you can use to access entity data, and a <see cref="Version"/> that you can
+    /// use to check whether the Index is still valid. Note that you must pass the Index or Version values to
     /// relevant API methods, rather than accessing them directly.
     ///
-    /// To add or remove components, access components, or to destroy the entity, pass an Entity struct to methods of 
-    /// the <see cref="EntityManager"/>, the <see cref="EntityCommandBuffer"/>, or the <see cref="ComponentSystemBase"/>. 
+    /// To add or remove components, access components, or to destroy the entity, pass an Entity struct to methods of
+    /// the <see cref="EntityManager"/>, the <see cref="EntityCommandBuffer"/>, or the <see cref="ComponentSystemBase"/>.
     /// </remarks>
     [DebuggerTypeProxy(typeof(EntityDebugProxy))]
     [DebuggerDisplay("{EntityDebugProxy.GetDebugName(Index, Version)}")]
@@ -109,7 +109,7 @@ namespace Unity.Entities
         /// </summary>
         /// <param name="entity">The other Entity.</param>
         /// <returns>True, if the Entity instances have the same Index and Version.</returns>
-        public bool Equals(Entity entity)
+        public readonly bool Equals(Entity entity)
         {
             return entity.Index == Index && entity.Version == Version;
         }
@@ -118,7 +118,7 @@ namespace Unity.Entities
         /// Provides a debugging string.
         /// </summary>
         /// <returns>A string containing the entity index and generational version.</returns>
-        public override string ToString()
+        public readonly override string ToString()
         {
             return Equals(Null) ? "Entity.Null" : $"Entity({Index}:{Version})";
         }
@@ -128,7 +128,7 @@ namespace Unity.Entities
         /// </summary>
         /// <returns>A string containing the entity index and generational version.</returns>
         [GenerateTestsForBurstCompatibility]
-        public FixedString64Bytes ToFixedString()
+        public readonly FixedString64Bytes ToFixedString()
         {
             if (Equals(Null))
                 return (FixedString64Bytes)"Entity.Null";

@@ -23,24 +23,24 @@ namespace Unity.Entities
     [NativeContainer]
     [DebuggerDisplay("Length = {Length}, Capacity = {Capacity}, IsCreated = {IsCreated}")]
     [DebuggerTypeProxy(typeof(DynamicBufferDebugView<>))]
-    public unsafe struct DynamicBuffer<T> : IQueryTypeParameter, IEnumerable<T>, INativeList<T> where T : unmanaged
+    public readonly unsafe struct DynamicBuffer<T> : IQueryTypeParameter, IEnumerable<T>, INativeList<T> where T : unmanaged
     {
         [NativeDisableUnsafePtrRestriction]
         [NoAlias]
-        BufferHeader* m_Buffer;
+        readonly BufferHeader* m_Buffer;
 
         // Stores original internal capacity of the buffer header, so heap excess can be removed entirely when trimming.
-        private int m_InternalCapacity;
+        private readonly int m_InternalCapacity;
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        internal AtomicSafetyHandle m_Safety0;
-        internal AtomicSafetyHandle m_Safety1;
-        internal int m_SafetyReadOnlyCount;
-        internal int m_SafetyReadWriteCount;
+        internal readonly AtomicSafetyHandle m_Safety0;
+        internal readonly AtomicSafetyHandle m_Safety1;
+        internal readonly int m_SafetyReadOnlyCount;
+        internal readonly int m_SafetyReadWriteCount;
 
-        internal byte m_IsReadOnly;
-        internal byte m_useMemoryInitPattern;
-        internal byte m_memoryInitPattern;
+        internal readonly byte m_IsReadOnly;
+        internal readonly byte m_useMemoryInitPattern;
+        internal readonly byte m_memoryInitPattern;
 #endif
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
