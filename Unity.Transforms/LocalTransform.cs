@@ -191,26 +191,26 @@ namespace Unity.Transforms
         /// Gets the right vector of unit length.
         /// </summary>
         /// <returns>The right vector.</returns>
-        public float3 Right() => TransformDirection(math.right());
+        public readonly float3 Right() => TransformDirection(math.right());
 
         /// <summary>
         /// Gets the up vector of unit length.
         /// </summary>
         /// <returns>The up vector.</returns>
-        public float3 Up() => TransformDirection(math.up());
+        public readonly float3 Up() => TransformDirection(math.up());
 
         /// <summary>
         /// Gets the forward vector of unit length.
         /// </summary>
         /// <returns>The forward vector.</returns>
-        public float3 Forward() => TransformDirection(math.forward());
+        public readonly float3 Forward() => TransformDirection(math.forward());
 
         /// <summary>
         /// Transforms a point by this transform.
         /// </summary>
         /// <param name="point">The point to be transformed.</param>
         /// <returns>The point after transformation.</returns>
-        public float3 TransformPoint(float3 point) => Position + math.rotate(Rotation, point) * Scale;
+        public readonly float3 TransformPoint(float3 point) => Position + math.rotate(Rotation, point) * Scale;
 
         /// <summary>
         /// Transforms a point by the inverse of this transform.
@@ -220,42 +220,42 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="point">The point to be transformed.</param>
         /// <returns>The point after transformation.</returns>
-        public float3 InverseTransformPoint(float3 point) => math.rotate(math.conjugate(Rotation), point - Position) / Scale;
+        public readonly float3 InverseTransformPoint(float3 point) => math.rotate(math.conjugate(Rotation), point - Position) / Scale;
 
         /// <summary>
         /// Transforms a direction by this transform.
         /// </summary>
         /// <param name="direction">The direction to be transformed.</param>
         /// <returns>The direction after transformation.</returns>
-        public float3 TransformDirection(float3 direction) => math.rotate(Rotation, direction);
+        public readonly float3 TransformDirection(float3 direction) => math.rotate(Rotation, direction);
 
         /// <summary>
         /// Transforms a direction by the inverse of this transform.
         /// </summary>
         /// <param name="direction">The direction to be transformed.</param>
         /// <returns>The direction after transformation.</returns>
-        public float3 InverseTransformDirection(float3 direction) => math.rotate(math.conjugate(Rotation), direction);
+        public readonly float3 InverseTransformDirection(float3 direction) => math.rotate(math.conjugate(Rotation), direction);
 
         /// <summary>
         /// Transforms a rotation by this transform.
         /// </summary>
         /// <param name="rotation">The rotation to be transformed.</param>
         /// <returns>The rotation after transformation.</returns>
-        public quaternion TransformRotation(quaternion rotation) => math.mul(Rotation, rotation);
+        public readonly quaternion TransformRotation(quaternion rotation) => math.mul(Rotation, rotation);
 
         /// <summary>
         /// Transforms a rotation by the inverse of this transform.
         /// </summary>
         /// <param name="rotation">The rotation to be transformed.</param>
         /// <returns>The rotation after transformation.</returns>
-        public quaternion InverseTransformRotation(quaternion rotation) => math.mul(math.conjugate(Rotation), rotation);
+        public readonly quaternion InverseTransformRotation(quaternion rotation) => math.mul(math.conjugate(Rotation), rotation);
 
         /// <summary>
         /// Transforms a scale by this transform.
         /// </summary>
         /// <param name="scale">The scale to be transformed.</param>
         /// <returns>The scale after transformation.</returns>
-        public float TransformScale(float scale) => scale * Scale;
+        public readonly float TransformScale(float scale) => scale * Scale;
 
         /// <summary>
         /// Transforms a scale by the inverse of this transform.
@@ -265,14 +265,14 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="scale">The scale to be transformed.</param>
         /// <returns>The scale after transformation.</returns>
-        public float InverseTransformScale(float scale) => scale / Scale;
+        public readonly float InverseTransformScale(float scale) => scale / Scale;
 
         /// <summary>
         /// Transforms a Transform by this transform.
         /// </summary>
         /// <param name="transformData">The Transform to be transformed.</param>
         /// <returns>The Transform after transformation.</returns>
-        public LocalTransform TransformTransform(in LocalTransform transformData) => new()
+        public readonly LocalTransform TransformTransform(in LocalTransform transformData) => new()
         {
             Position = TransformPoint(transformData.Position),
             Scale = TransformScale(transformData.Scale),
@@ -284,7 +284,7 @@ namespace Unity.Transforms
         /// </summary>
         /// <param name="transformData">The <see cref="LocalTransform"/> to be transformed.</param>
         /// <returns>The <see cref="LocalTransform"/> after transformation.</returns>
-        public LocalTransform InverseTransformTransform(in LocalTransform transformData) => new()
+        public readonly LocalTransform InverseTransformTransform(in LocalTransform transformData) => new()
         {
             Position = InverseTransformPoint(transformData.Position),
             Scale = InverseTransformScale(transformData.Scale),
@@ -298,7 +298,7 @@ namespace Unity.Transforms
         /// This method will throw if the <see cref="Scale"/> field is zero.
         /// </remarks>
         /// <returns>The inverse of the transform.</returns>
-        public LocalTransform Inverse()
+        public readonly LocalTransform Inverse()
         {
             var inverseRotation = math.conjugate(Rotation);
             var inverseScale = 1.0f / Scale;
@@ -314,20 +314,20 @@ namespace Unity.Transforms
         /// Gets the float4x4 equivalent of this transform.
         /// </summary>
         /// <returns>The float4x4 matrix.</returns>
-        public float4x4 ToMatrix() => float4x4.TRS(Position, Rotation, Scale);
+        public readonly float4x4 ToMatrix() => float4x4.TRS(Position, Rotation, Scale);
 
         /// <summary>
         /// Gets the float4x4 equivalent of the inverse of this transform.
         /// </summary>
         /// <returns>The inverse float4x4 matrix.</returns>
-        public float4x4 ToInverseMatrix() => Inverse().ToMatrix();
+        public readonly float4x4 ToInverseMatrix() => Inverse().ToMatrix();
 
         /// <summary>
         /// Gets an identical transform with a new position value.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>The transform.</returns>
-        public LocalTransform WithPosition(float3 position) => new() { Position = position, Scale = Scale, Rotation = Rotation };
+        public readonly LocalTransform WithPosition(float3 position) => new() { Position = position, Scale = Scale, Rotation = Rotation };
 
         /// <summary>
         /// Creates a transform that is identical but with a new position value.
@@ -336,21 +336,21 @@ namespace Unity.Transforms
         /// <param name="y">The y coordinate of the new position.</param>
         /// <param name="z">The z coordinate of the new position.</param>
         /// <returns>The new transform.</returns>
-        public LocalTransform WithPosition(float x, float y, float z) => new() { Position = new float3(x,y,z), Scale = Scale, Rotation = Rotation };
+        public readonly LocalTransform WithPosition(float x, float y, float z) => new() { Position = new float3(x,y,z), Scale = Scale, Rotation = Rotation };
 
         /// <summary>
         /// Gets an identical transform with a new rotation value.
         /// </summary>
         /// <param name="rotation">The rotation.</param>
         /// <returns>The transform.</returns>
-        public LocalTransform WithRotation(quaternion rotation) => new() { Position = Position, Scale = Scale, Rotation = rotation };
+        public readonly LocalTransform WithRotation(quaternion rotation) => new() { Position = Position, Scale = Scale, Rotation = rotation };
 
         /// <summary>
         /// Gets an identical transform with a new scale value.
         /// </summary>
         /// <param name="scale">The scale.</param>
         /// <returns>The T.</returns>
-        public LocalTransform WithScale(float scale) => new() { Position = Position, Scale = scale, Rotation = Rotation };
+        public readonly LocalTransform WithScale(float scale) => new() { Position = Position, Scale = scale, Rotation = Rotation };
 
         /// <summary>
         /// Translates this transform by the specified vector.
@@ -360,7 +360,7 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="translation">The translation vector.</param>
         /// <returns>A new, translated Transform.</returns>
-        public LocalTransform Translate(float3 translation) => new() { Position = Position + translation, Scale = Scale, Rotation = Rotation};
+        public readonly LocalTransform Translate(float3 translation) => new() { Position = Position + translation, Scale = Scale, Rotation = Rotation};
 
         /// <summary>
         /// Scales this transform by the specified factor.
@@ -370,7 +370,7 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="scale">The scaling factor.</param>
         /// <returns>A new, scaled Transform.</returns>
-        public LocalTransform ApplyScale(float scale) => new() { Position = Position, Scale = Scale * scale, Rotation = Rotation};
+        public readonly LocalTransform ApplyScale(float scale) => new() { Position = Position, Scale = Scale * scale, Rotation = Rotation};
 
         /// <summary>
         /// Rotates this Transform by the specified quaternion.
@@ -380,7 +380,7 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="rotation">The rotation quaternion of unit length.</param>
         /// <returns>A new, rotated Transform.</returns>
-        public LocalTransform Rotate(quaternion rotation) => new() { Position = Position, Scale = Scale, Rotation = math.mul(Rotation, rotation)};
+        public readonly LocalTransform Rotate(quaternion rotation) => new() { Position = Position, Scale = Scale, Rotation = math.mul(Rotation, rotation)};
 
         /// <summary>
         /// Rotates this Transform around the X axis.
@@ -390,7 +390,7 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="angle">The X rotation.</param>
         /// <returns>A new, rotated Transform.</returns>
-        public LocalTransform RotateX(float angle) => Rotate(quaternion.RotateX(angle));
+        public readonly LocalTransform RotateX(float angle) => Rotate(quaternion.RotateX(angle));
 
         /// <summary>
         /// Rotates this Transform around the Y axis.
@@ -400,7 +400,7 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="angle">The Y rotation.</param>
         /// <returns>A new, rotated Transform.</returns>
-        public LocalTransform RotateY(float angle) => Rotate(quaternion.RotateY(angle));
+        public readonly LocalTransform RotateY(float angle) => Rotate(quaternion.RotateY(angle));
 
         /// <summary>
         /// Rotates this Transform around the Z axis.
@@ -410,12 +410,12 @@ namespace Unity.Transforms
         /// </remarks>
         /// <param name="angle">The Z rotation.</param>
         /// <returns>A new, rotated Transform.</returns>
-        public LocalTransform RotateZ(float angle) => Rotate(quaternion.RotateZ(angle));
+        public readonly LocalTransform RotateZ(float angle) => Rotate(quaternion.RotateZ(angle));
 
         /// <summary>Checks if a transform has equal position, rotation, and scale to another.</summary>
         /// <param name="other">The TransformData to compare.</param>
         /// <returns>Returns true if the position, rotation, and scale are equal.</returns>
-        public bool Equals(in LocalTransform other)
+        public readonly bool Equals(in LocalTransform other)
         {
             return Position.Equals(other.Position) && Rotation.Equals(other.Rotation) && Scale.Equals(other.Scale);
         }
