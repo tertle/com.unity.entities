@@ -315,7 +315,7 @@ namespace Unity.Scenes.Editor
                 if (_LoadedScenes.Contains(sceneGUID))
                 {
                     if (scene.isLoaded && sceneGUID != default(GUID))
-                        _GUIDToEditScene.Add(sceneGUID, scene);
+                        _GUIDToEditScene[sceneGUID] = scene;
                 }
             }
 
