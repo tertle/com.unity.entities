@@ -815,45 +815,6 @@ namespace Unity.Entities.Tests
         }
 
         [Test]
-        public void EntityCommandBufferDebugView_AddComponentForEntityQuery_CaptureAtRecord_ContainsExpectedData()
-        {
-            var archetype = m_Manager.CreateArchetype(typeof(EcsTestData));
-            int entityCount = 10;
-            using var entities = m_Manager.CreateEntity(archetype, entityCount, World.UpdateAllocator.Handle);
-
-            using var query = m_Manager.CreateEntityQuery(typeof(EcsTestData));
-            using var ecb = new EntityCommandBuffer(World.UpdateAllocator.Handle);
-            ecb.AddComponent<EcsTestData2>(query, EntityQueryCaptureMode.AtRecord);
-            var ecbView = new EntityCommandBuffer.EntityCommandBufferDebugView(ecb);
-
-            var commands = ecbView.Commands;
-            Assert.AreEqual(1, commands.Length);
-
-            var cmdView = commands[0];
-            Assert.AreEqual(ECBCommand.AddComponentForMultipleEntities, cmdView.CommandType);
-            Assert.AreEqual(ecb.MainThreadSortKey, cmdView.SortKey);
-
-            var multiEntityCmdView = cmdView as EntityCommandBuffer.MultipleEntitiesCommandView;
-            Assert.AreEqual(ecb.m_Data->m_Allocator.Handle, multiEntityCmdView.Allocator);
-            Assert.AreEqual(entityCount, multiEntityCmdView.EntitiesCount);
-            Assert.IsTrue(multiEntityCmdView.SkipDeferredEntityLookup);
-            var actualEntities =
-                NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<Entity>(multiEntityCmdView.Entities.Ptr,
-                    entityCount, Allocator.None);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref actualEntities,
-                AtomicSafetyHandle.GetTempMemoryHandle());
-#endif
-            CollectionAssert.AreEquivalent(entities.ToArray(), actualEntities.ToArray());
-
-            var multiEntityComponentCmdView = cmdView as EntityCommandBuffer.MultipleEntitiesComponentCommandView;
-            Assert.AreEqual(TypeManager.GetTypeIndex<EcsTestData2>(), multiEntityComponentCmdView.ComponentTypeIndex);
-            Assert.AreEqual(0, multiEntityComponentCmdView.ComponentSize);
-            Assertions.Assert.IsNull(multiEntityComponentCmdView.ComponentValue);
-            Assert.AreEqual("Add EcsTestData2 Component to 10 Entities",multiEntityCmdView.ToString());
-        }
-
-        [Test]
         public void EntityCommandBufferDebugView_AddComponentTypeForEntityQuery_CaptureAtRecord_ContainsExpectedData()
         {
             var archetype = m_Manager.CreateArchetype(typeof(EcsTestData));

@@ -65,22 +65,6 @@ namespace Unity.Entities
         void OnChunkEnd(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask, bool chunkWasExecuted);
     }
 
-    /// <summary>Obsolete. Use <see cref="EntityIndexInQuery"/> instead.</summary>
-    /// <remarks>**Obsolete.** Use <see cref="EntityIndexInQuery"/> instead.
-    ///
-    /// Specifies that this int parameter is used as a way to get the packed entity index inside the current query.
-    /// Usage: An int parameter found inside the execute method of an IJobEntity.
-    ///
-    /// This is generally way more expensive than <see cref="ChunkIndexInQuery"/> and <see cref="EntityIndexInChunk"/>.
-    /// As it it will schedule a <see cref="EntityQuery.CalculateBaseEntityIndexArrayAsync"/> job to get an offset buffer.
-    /// If you just want a sortkey for your <see cref="EntityCommandBuffer.ParallelWriter"/> simply use <see cref="ChunkIndexInQuery"/>
-    /// as it is different for every thread, which is all a ParallelWriter needs to sort with.
-    /// </remarks>
-    /// <seealso cref="IJobEntity"/>
-    [AttributeUsage(AttributeTargets.Parameter)]
-    [Obsolete("Use EntityIndexInQuery (Removed after Entities 1.0) (UnityUpgradable) -> EntityIndexInQuery", true)]
-    public sealed class EntityInQueryIndex : Attribute {}
-
     /// <summary>
     /// Specifies that this int parameter is used as a way to get the packed entity index inside the current query.
     /// Usage: An int parameter found inside the execute method of an IJobEntity.
@@ -209,29 +193,6 @@ namespace Unity.Entities
         /// </summary>
         /// <param name="types">The component types for which change filtering should be enabled</param>
         public WithChangeFilterAttribute(params Type[] types){}
-    }
-
-    /// <summary>
-    /// Obsolete. Use <see cref="WithOptionsAttribute"/> instead.
-    /// </summary>
-    /// <remarks>**Obsolete.** Use <see cref="WithOptionsAttribute"/> instead.
-    ///
-    /// Specifies that this IJobEntity should include a given EntityQueryOption found as attributes of the IJobEntity</remarks>
-    /// <seealso cref="IJobEntity"/>
-    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
-    [Obsolete("This type has been renamed to WithOptions. (Removed after Entities 1.0) (UnityUpgradable) -> WithOptionsAttribute", true)]
-    public sealed class WithEntityQueryOptionsAttribute : Attribute
-    {
-        /// <summary>
-        /// Specifies that this IJobEntity should include a given EntityQueryOption found as attributes of the IJobEntity
-        /// </summary>
-        /// <param name="option">The query options</param>
-        public WithEntityQueryOptionsAttribute(EntityQueryOptions option){}
-        /// <summary>
-        /// Specifies that this IJobEntity should include a given EntityQueryOption found as attributes of the IJobEntity
-        /// </summary>
-        /// <param name="options">The query options</param>
-        public WithEntityQueryOptionsAttribute(params EntityQueryOptions[] options){}
     }
 
     /// <summary>

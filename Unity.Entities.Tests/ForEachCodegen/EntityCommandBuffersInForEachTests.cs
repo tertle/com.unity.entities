@@ -694,80 +694,6 @@ namespace Unity.Entities.Tests
 #endregion
 
 #region EntityQueryFunctionality
-            public void AddComponentForEntityQuery(PlaybackType playbackType)
-            {
-                var entity = EntityManager.CreateEntity(typeof(EcsTestTag));
-                var entityQuery = EntityManager.CreateEntityQuery(typeof(EcsTestTag));
-
-                switch (playbackType)
-                {
-                    case PlaybackType.Immediate:
-                    {
-                        Entities
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-                            .WithoutBurst()
-#endif
-                            .WithImmediatePlayback()
-                            .ForEach(
-                                (EntityCommandBuffer ecb) =>
-                                {
-                                    ecb.AddComponent(entityQuery, new EcsTestData());
-
-                                    ecb.AddComponent<EcsTestData2>(entityQuery, EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddComponent(entityQuery, ComponentType.ReadOnly<EcsTestData3>(), EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddComponent(entityQuery, new ComponentTypeSet(ComponentType.ReadOnly<EcsTestData4>(), ComponentType.ReadOnly<EcsTestData5>()),
-                                        EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddSharedComponent(entityQuery, new EcsTestSharedComp(), EntityQueryCaptureMode.AtPlayback);
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-                                    ecb.AddComponent(entityQuery, new EcsTestManagedComponent());
-                                    ecb.AddComponentObject(entityQuery, new EcsTestManagedComponent2());
-#endif
-                                })
-                            .Run();
-                        break;
-                    }
-                    case PlaybackType.Deferred:
-                    {
-                        Entities
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-                            .WithoutBurst()
-#endif
-                            .WithDeferredPlaybackSystem<TestEntityCommandBufferSystem>()
-                            .ForEach(
-                                (EntityCommandBuffer ecb) =>
-                                {
-                                    ecb.AddComponent(entityQuery, new EcsTestData());
-
-                                    ecb.AddComponent<EcsTestData2>(entityQuery, EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddComponent(entityQuery, ComponentType.ReadOnly<EcsTestData3>(), EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddComponent(entityQuery, new ComponentTypeSet(ComponentType.ReadOnly<EcsTestData4>(), ComponentType.ReadOnly<EcsTestData5>()),
-                                        EntityQueryCaptureMode.AtPlayback);
-                                    ecb.AddSharedComponent(entityQuery, new EcsTestSharedComp(), EntityQueryCaptureMode.AtPlayback);
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-                                    ecb.AddComponent(entityQuery, new EcsTestManagedComponent());
-                                    ecb.AddComponentObject(entityQuery, new EcsTestManagedComponent2());
-#endif
-                                })
-                            .Run();
-
-                        var testEntityCommandBufferSystem = World.GetExistingSystemManaged<TestEntityCommandBufferSystem>();
-                        testEntityCommandBufferSystem.Update();
-                        break;
-                    }
-                }
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestData>(entity));
-
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestData2>(entity));
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestData3>(entity));
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestData4>(entity));
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestData5>(entity));
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestSharedComp>(entity));
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestManagedComponent>(entity));
-                Assert.IsTrue(EntityManager.HasComponent<EcsTestManagedComponent2>(entity));
-#endif
-            }
-
             public void SetComponentForEntityQuery(PlaybackType playbackType)
             {
                 var entity = EntityManager.CreateEntity(
@@ -1454,7 +1380,6 @@ namespace Unity.Entities.Tests
         [Test] public void DestroyEntities_WithDeferredPlayback([Values] ScheduleType scheduleType) => EntityCommandsInForEachTestSystem.DestroyEntities_WithDeferredPlayback(scheduleType);
         [Test] public void AddSetAppendBuffer_WithImmediatePlayback() => EntityCommandsInForEachTestSystem.AddSetAppendBuffer_WithImmediatePlayback();
         [Test] public void AddSetAppendBuffer_WithDeferredPlayback([Values] ScheduleType scheduleType) => EntityCommandsInForEachTestSystem.AddSetAppendBuffer_WithDeferredPlayback(scheduleType);
-        [Test] public void AddComponentForEntityQuery([Values] PlaybackType playbackType) => EntityCommandsInForEachTestSystem.AddComponentForEntityQuery(playbackType);
         [Test] public void DestroyEntitiesForEntityQuery([Values] PlaybackType playbackType) => EntityCommandsInForEachTestSystem.DestroyEntitiesForEntityQuery(playbackType);
         [Test] public void SetComponentForEntityQuery([Values] PlaybackType playbackType) => EntityCommandsInForEachTestSystem.SetComponentForEntityQuery(playbackType);
         [Test] public void RemoveComponentForEntityQuery([Values] PlaybackType playbackType) => EntityCommandsInForEachTestSystem.RemoveComponentForEntityQuery(playbackType);
