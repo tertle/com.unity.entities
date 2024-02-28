@@ -542,6 +542,11 @@ namespace Unity.Entities
 
             internal Entity GetPrimaryEntityForAuthoringObject(UnityEngine.Object obj)
             {
+                if (obj == null)
+                {
+                    return Entity.Null;
+                }
+
                 var instanceID = obj.GetInstanceID();
                 var access = m_Manager.GetCheckedEntityDataAccess();
                 UpdateCachedEntityGUIDToEntity(access);
