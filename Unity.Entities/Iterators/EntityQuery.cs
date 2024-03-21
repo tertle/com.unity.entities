@@ -1765,6 +1765,20 @@ First chunk: entityCount={matchingChunkCache.ChunkIndices[0].Count}, archetype={
 
             for (int i = 0; i < _QueryData->WriterTypesCount; ++i)
                 anyAdded |= CalculateReaderWriterDependency.AddWriterTypeIndex(_QueryData->WriterTypes[i], ref reading, ref writing);
+
+            for (var i = 0; i < _QueryData->ArchetypeQueryCount; i++)
+            {
+                for (var j = 0; j < _QueryData->ArchetypeQueries[i].AnyCount; j++)
+                {
+                    if (!_QueryData->ArchetypeQueries[i].Any[j].IsEnableable)
+                    {
+                        continue;
+                    }
+
+                    anyAdded |= CalculateReaderWriterDependency.AddReaderTypeIndex(_QueryData->ArchetypeQueries[i].Any[j], ref reading, ref writing);
+                }
+            }
+
             return anyAdded;
         }
 
