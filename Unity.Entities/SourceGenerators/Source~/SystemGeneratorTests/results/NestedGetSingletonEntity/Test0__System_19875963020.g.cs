@@ -13,13 +13,14 @@ public unsafe partial struct NestedGetSingletonEntity : global::Unity.Entities.I
         var entityQuery = new EntityQuery();
         #line 11 "/0/Test0.cs"
         var foo = global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestData>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestData_RO_ComponentLookup, ref state, entityQuery.GetSingletonEntity());
+#line hidden
     }
 
     
     TypeHandle __TypeHandle;
     struct TypeHandle
     {
-        [global::Unity.Collections.ReadOnly] public Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> __Unity_Entities_Tests_EcsTestData_RO_ComponentLookup;
+        [global::Unity.Collections.ReadOnly] public global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> __Unity_Entities_Tests_EcsTestData_RO_ComponentLookup;
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void __AssignHandles(ref global::Unity.Entities.SystemState state)
         {

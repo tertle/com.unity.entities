@@ -149,7 +149,7 @@ sealed class LambdaBodySyntaxReplacer : CSharpSyntaxWalker
             return node;
 
         var lineTrivia = SyntaxFactory.Comment($"#line {originalLineNumber + offsetLineNumber} \"{originalFilePath}\"");
-        return node.WithLeadingTrivia(lineTrivia, SyntaxFactory.CarriageReturnLineFeed);
+        return node.WithLeadingTrivia(lineTrivia, SyntaxFactory.EndOfLine(Environment.NewLine));
     }
 
     static readonly ExpressionSyntax k_LocalThisFieldSyntax = SyntaxFactory.IdentifierName("__this");

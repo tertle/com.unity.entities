@@ -12,14 +12,15 @@ public unsafe partial struct NestedSystemAPIInvocation_Example1 : global::Unity.
     {
         #line 15 "/0/Test0.cs"
 global::Unity.Entities.Internal.InternalCompilerInterface.SetComponentEnabledAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestDataEnableable>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestDataEnableable_RW_ComponentLookup, ref state, entity, !global::Unity.Entities.Internal.InternalCompilerInterface.IsComponentEnabledAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestDataEnableable>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestDataEnableable_RO_ComponentLookup, ref state, entity));
+#line hidden
     }
 
     
     TypeHandle __TypeHandle;
     struct TypeHandle
     {
-        public Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestDataEnableable> __Unity_Entities_Tests_EcsTestDataEnableable_RW_ComponentLookup;
-        [global::Unity.Collections.ReadOnly] public Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestDataEnableable> __Unity_Entities_Tests_EcsTestDataEnableable_RO_ComponentLookup;
+        public global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestDataEnableable> __Unity_Entities_Tests_EcsTestDataEnableable_RW_ComponentLookup;
+        [global::Unity.Collections.ReadOnly] public global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestDataEnableable> __Unity_Entities_Tests_EcsTestDataEnableable_RO_ComponentLookup;
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void __AssignHandles(ref global::Unity.Entities.SystemState state)
         {

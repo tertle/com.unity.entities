@@ -16,10 +16,11 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
         {
             #line 23 "/0/Test0.cs"
             var rotation = global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestData>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestData_RO_ComponentLookup, ref state, entity);
+#line hidden
         }
     }
 
-    #line 23 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
+    #line 24 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
     readonly struct IFE_1641826537_0
     {
         public struct ResolvedChunk
@@ -123,7 +124,7 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
     struct TypeHandle
     {
         public IFE_1641826537_0.TypeHandle __IFE_1641826537_0_TypeHandle;
-        [global::Unity.Collections.ReadOnly] public Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> __Unity_Entities_Tests_EcsTestData_RO_ComponentLookup;
+        [global::Unity.Collections.ReadOnly] public global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> __Unity_Entities_Tests_EcsTestData_RO_ComponentLookup;
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void __AssignHandles(ref global::Unity.Entities.SystemState state)
         {

@@ -17,7 +17,7 @@ public readonly struct ComponentLookupFieldDescription : IEquatable<ComponentLoo
             w.Write("[global::Unity.Collections.ReadOnly] ");
         if (forcePublic)
             w.Write("public ");
-        w.Write($"Unity.Entities.ComponentLookup<{TypeSymbol.ToFullName()}> {GeneratedFieldName};");
+        w.Write($"global::Unity.Entities.ComponentLookup<{TypeSymbol.ToFullName()}> {GeneratedFieldName};");
         w.WriteLine();
     }
 

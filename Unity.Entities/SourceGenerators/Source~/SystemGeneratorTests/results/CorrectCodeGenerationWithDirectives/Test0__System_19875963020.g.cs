@@ -14,9 +14,10 @@ namespace MyNamespace
             foreach (var data in IFE_1641826541_0.Query(__query_1641826541_0, __TypeHandle.__IFE_1641826541_0_TypeHandle, ref state)) 
 #line 20 "/0/Test0.cs"
 {}
+#line hidden
         }
 
-        #line 19 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
+        #line 20 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
         readonly struct IFE_1641826541_0
         {
             public struct ResolvedChunk

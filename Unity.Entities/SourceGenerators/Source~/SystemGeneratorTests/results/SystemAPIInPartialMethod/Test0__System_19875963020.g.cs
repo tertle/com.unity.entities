@@ -11,6 +11,7 @@ public unsafe partial struct PartialMethodSystem : global::Unity.Entities.ISyste
     {
         #line 10 "/0/Test0.cs"
         var tickSingleton2 = __query_1641826531_0.GetSingleton<EcsTestData>();
+#line hidden
     }
 
     

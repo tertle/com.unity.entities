@@ -1,8 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
-using VerifyCS = Unity.Entities.Analyzer.Test.CSharpCodeFixVerifier<
+using VerifyTypeAnalyzer = Unity.Entities.Analyzer.Test.CSharpCodeFixVerifier<
     Unity.Entities.Analyzer.TypeAnalyzer,
+    Unity.Entities.Analyzer.EntitiesCodeFixProvider>;
+
+using VerifySystemStateByRefAnalyzer = Unity.Entities.Analyzer.Test.CSharpCodeFixVerifier<
+    Unity.Entities.Analyzer.SystemStateByRefAnalyzer,
     Unity.Entities.Analyzer.EntitiesCodeFixProvider>;
 
 namespace Unity.Entities.Analyzer
@@ -25,8 +29,8 @@ namespace Unity.Entities.Analyzer
                 {
                     protected override void OnUpdate(){}
                 }";
-            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("SystemBase", "global::TestSystem");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+            var expected = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("SystemBase", "global::TestSystem");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
         [TestMethod]
@@ -38,8 +42,8 @@ namespace Unity.Entities.Analyzer
             const string fixedSource = @"
                 using Unity.Entities;
                 partial struct TestSystem : ISystem{}";
-            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("ISystem", "global::TestSystem");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+            var expected = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("ISystem", "global::TestSystem");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
         [TestMethod]
@@ -51,8 +55,8 @@ namespace Unity.Entities.Analyzer
             var fixedSource = @"
                 using Unity.Entities;
                 partial struct TestAspect : IAspect {}";
-            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("IAspect", "global::TestAspect");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+            var expected = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("IAspect", "global::TestAspect");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
         [TestMethod]
@@ -72,9 +76,9 @@ namespace Unity.Entities.Analyzer
                         partial struct TestAspect : IAspect {}
                     }
                 }";
-            var expectedA = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(0).WithArguments("IAspect", "global::A.B.TestAspect", "global::A");
-            var expectedB = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(1).WithArguments("IAspect", "global::A.B.TestAspect", "global::A.B");
-            await VerifyCS.VerifyCodeFixAsync(test, new[]{expectedA, expectedB}, fixedSource);
+            var expectedA = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(0).WithArguments("IAspect", "global::A.B.TestAspect", "global::A");
+            var expectedB = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(1).WithArguments("IAspect", "global::A.B.TestAspect", "global::A.B");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test, new[]{expectedA, expectedB}, fixedSource);
         }
 
         [TestMethod]
@@ -86,8 +90,8 @@ namespace Unity.Entities.Analyzer
             var fixedSource = @"
                 using Unity.Entities;
                 partial struct TestJob : IJobEntity {}";
-            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("IJobEntity", "global::TestJob");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+            var expected = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0007Descriptor).WithLocation(0).WithArguments("IJobEntity", "global::TestJob");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
         [TestMethod]
@@ -107,9 +111,9 @@ namespace Unity.Entities.Analyzer
                         partial struct TestJob : IJobEntity {}
                     }
                 }";
-            var expectedA = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(0).WithArguments("IJobEntity", "global::A.B.TestJob", "global::A");
-            var expectedB = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(1).WithArguments("IJobEntity", "global::A.B.TestJob", "global::A.B");
-            await VerifyCS.VerifyCodeFixAsync(test,new[]{expectedA, expectedB}, fixedSource);
+            var expectedA = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(0).WithArguments("IJobEntity", "global::A.B.TestJob", "global::A");
+            var expectedB = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0008Descriptor).WithLocation(1).WithArguments("IJobEntity", "global::A.B.TestJob", "global::A.B");
+            await VerifyTypeAnalyzer.VerifyCodeFixAsync(test,new[]{expectedA, expectedB}, fixedSource);
         }
 
         [TestMethod]
@@ -119,7 +123,7 @@ namespace Unity.Entities.Analyzer
                 using Unity.Entities;
                 #pragma warning disable EA0007
                 struct TestJob : IJobEntity {}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyTypeAnalyzer.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -129,7 +133,7 @@ namespace Unity.Entities.Analyzer
                 using Unity.Entities;
                 class C
                 {
-                    void Foo({|#0:SystemState|} state) {}
+                    void Foo({|#0:SystemState state|}) {}
                 }";
             const string fixedSource = @"
                 using Unity.Entities;
@@ -137,8 +141,8 @@ namespace Unity.Entities.Analyzer
                 {
                     void Foo(ref SystemState state) {}
                 }";
-            var expected = VerifyCS.Diagnostic(EntitiesDiagnostics.k_Ea0016Descriptor).WithLocation(0).WithArguments("RefSystemState", "global::TestSystem");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+            var expected = VerifyTypeAnalyzer.Diagnostic(EntitiesDiagnostics.k_Ea0016Descriptor).WithLocation(0).WithArguments("RefSystemState", "global::TestSystem");
+            await VerifySystemStateByRefAnalyzer.VerifyCodeFixAsync(test, expected, fixedSource);
         }
     }
 }

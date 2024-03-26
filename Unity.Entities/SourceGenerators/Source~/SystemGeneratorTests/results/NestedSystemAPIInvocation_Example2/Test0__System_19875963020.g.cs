@@ -11,6 +11,7 @@ public unsafe partial struct NestedSystemAPIInvocation_Example2 : global::Unity.
     {
         #line 10 "/0/Test0.cs"
         var foo = state.EntityManager.GetComponentObject<EcsTestManagedComponent>(__query_1641826531_0.GetSingletonEntity());
+#line hidden
     }
 
     

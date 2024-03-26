@@ -20,10 +20,11 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
             var check1 = global::Unity.Entities.Internal.InternalCompilerInterface.DoesEntityExist(ref __TypeHandle.__EntityStorageInfoLookup, ref state, entity);
             #line 25 "/0/Test0.cs"
             var check2 = storageInfo.Exists(entity);
+#line hidden
         }
     }
 
-    #line 27 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
+    #line 28 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
     readonly struct IFE_1641826537_0
     {
         public struct ResolvedChunk

@@ -25,11 +25,12 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
             {
                 #line 28 "/0/Test0.cs"
                 var rotation = global::Unity.Entities.Internal.InternalCompilerInterface.GetBufferAfterCompletingDependency<global::BufferData>(ref __TypeHandle.__BufferData_RW_BufferLookup, ref state, entity);
+#line hidden
             }
         }
     }
 
-    #line 33 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
+    #line 34 "Temp/GeneratedCode/TestProject/Test0__System_19875963020.g.cs"
     readonly struct IFE_1641826537_0
     {
         public struct ResolvedChunk

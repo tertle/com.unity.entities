@@ -66,13 +66,13 @@ class DataLookupFieldDescription
 
     public FieldDeclarationSyntax ToFieldDeclaration()
     {
-        var accessAttribute = IsReadOnly ? "[Unity.Collections.ReadOnly]" : string.Empty;
+        var accessAttribute = IsReadOnly ? "[global::Unity.Collections.ReadOnly]" : string.Empty;
 
         var dataLookupType = AccessorDataType switch
         {
-            LambdaJobsPatchableMethod.AccessorDataType.ComponentLookup => "Unity.Entities.ComponentLookup",
-            LambdaJobsPatchableMethod.AccessorDataType.BufferLookup => "Unity.Entities.BufferLookup",
-            LambdaJobsPatchableMethod.AccessorDataType.EntityStorageInfoLookup => "Unity.Entities.EntityStorageInfoLookup",
+            LambdaJobsPatchableMethod.AccessorDataType.ComponentLookup => "global::Unity.Entities.ComponentLookup",
+            LambdaJobsPatchableMethod.AccessorDataType.BufferLookup => "global::Unity.Entities.BufferLookup",
+            LambdaJobsPatchableMethod.AccessorDataType.EntityStorageInfoLookup => "global::Unity.Entities.EntityStorageInfoLookup",
             LambdaJobsPatchableMethod.AccessorDataType.AspectLookup => $"{Type.ToFullName()}.Lookup",
             _ => throw new ArgumentOutOfRangeException($"Passed in invalid {nameof(LambdaJobsPatchableMethod.AccessorDataType)} enum")
         };

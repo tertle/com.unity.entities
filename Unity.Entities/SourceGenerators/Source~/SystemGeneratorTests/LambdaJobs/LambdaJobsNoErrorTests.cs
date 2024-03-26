@@ -255,4 +255,52 @@ public class LambdaJobsNoErrorTests
             }";
         await VerifyCS.VerifySourceGeneratorAsync(source);
     }
+
+    [TestMethod]
+    public async Task EntitiesForEach_GetComponentRO_WithStaticSystemAPI()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+            using static Unity.Entities.SystemAPI;
+
+            namespace My.Unity.Namespace
+            {
+                public partial class MyScript : SystemBase
+                {
+                    protected override void OnUpdate()
+                    {
+                        Entities.WithAll<EcsTestData>().ForEach((Entity entity) =>
+                        {
+                            var component = GetComponentRO<EcsTestData>(entity);
+                        }).Run();
+                    }
+                }
+            }";
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
+
+    [TestMethod]
+    public async Task EntitiesForEach_GetComponentRW_WithStaticSystemAPI()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+            using static Unity.Entities.SystemAPI;
+
+            namespace My.Unity.Namespace
+            {
+                public partial class MyScript : SystemBase
+                {
+                    protected override void OnUpdate()
+                    {
+                        Entities.WithAll<EcsTestData>().ForEach((Entity entity) =>
+                        {
+                            var component = GetComponentRW<EcsTestData>(entity);
+                        }).Run();
+                    }
+                }
+            }";
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
 }

@@ -210,6 +210,34 @@ class LambdaJobsPatchableMethod
                         return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}[{entityArgument}]");
                     }
                 }
+            },
+            {
+                "GetComponentRO",
+                new LambdaJobsPatchableMethod
+                {
+                    AccessRights = ComponentAccessRights.ReadOnly,
+                    GeneratePatchedReplacementSyntax = (methodSymbol, rewriter, originalNode) =>
+                    {
+                        var dataAccessField = rewriter.GetOrCreateDataAccessField(
+                            methodSymbol.TypeArguments.First(), true, AccessorDataType.ComponentLookup);
+                        var entityArgument = GetArgumentsInOrder(originalNode, "entity").First();
+                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}[{entityArgument}]");
+                    }
+                }
+            },
+            {
+                "GetComponentRW",
+                new LambdaJobsPatchableMethod
+                {
+                    AccessRights = ComponentAccessRights.ReadWrite,
+                    GeneratePatchedReplacementSyntax = (methodSymbol, rewriter, originalNode) =>
+                    {
+                        var dataAccessField = rewriter.GetOrCreateDataAccessField(
+                            methodSymbol.TypeArguments.First(), false, AccessorDataType.ComponentLookup);
+                        var entityArgument = GetArgumentsInOrder(originalNode, "entity").First();
+                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}[{entityArgument}]");
+                    }
+                }
             }
         };
 }
