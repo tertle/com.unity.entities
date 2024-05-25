@@ -19,7 +19,6 @@ namespace Unity.Entities.Tests
         {
             Immediate,
             Async,
-            AsyncObsolete, // removed after Entities 1.0
         };
 
         ArchetypeChunk[] CreateEntitiesAndReturnChunks(EntityArchetype archetype, int entityCount, Action<Entity> action = null)
@@ -1040,14 +1039,6 @@ namespace Unity.Entities.Tests
                 NativeArray<ArchetypeChunk> chunks;
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        chunks = query.CreateArchetypeChunkArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var chunkList = query.ToArchetypeChunkListAsync(World.UpdateAllocator.ToAllocator,
@@ -1069,14 +1060,6 @@ namespace Unity.Entities.Tests
 
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        chunks = query.CreateArchetypeChunkArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var chunkList = query.ToArchetypeChunkListAsync(World.UpdateAllocator.ToAllocator,
@@ -1116,14 +1099,6 @@ namespace Unity.Entities.Tests
             NativeArray<ArchetypeChunk> chunks;
             switch (jobMode)
             {
-                case EntityQueryJobMode.AsyncObsolete:
-                {
-#pragma warning disable 0618
-                    chunks = query.CreateArchetypeChunkArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                    jobHandle.Complete();
-                    break;
-                }
                 case EntityQueryJobMode.Async:
                 {
                     var chunkList = query.ToArchetypeChunkListAsync(World.UpdateAllocator.ToAllocator,
@@ -1159,14 +1134,6 @@ namespace Unity.Entities.Tests
                 NativeArray<Entity> entities;
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        entities = query.ToEntityArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var entityList = query.ToEntityListAsync(World.UpdateAllocator.ToAllocator,
@@ -1188,14 +1155,6 @@ namespace Unity.Entities.Tests
 
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        entities = query.ToEntityArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var entityList = query.ToEntityListAsync(World.UpdateAllocator.ToAllocator,
@@ -1234,14 +1193,6 @@ namespace Unity.Entities.Tests
             NativeArray<Entity> entities;
             switch (jobMode)
             {
-                case EntityQueryJobMode.AsyncObsolete:
-                {
-#pragma warning disable 0618
-                    entities = query.ToEntityArrayAsync(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                    jobHandle.Complete();
-                    break;
-                }
                 case EntityQueryJobMode.Async:
                 {
                     var entityList = query.ToEntityListAsync(World.UpdateAllocator.ToAllocator,
@@ -1298,14 +1249,6 @@ namespace Unity.Entities.Tests
 
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components = query.ToComponentDataArrayAsync<EcsTestData>(World.UpdateAllocator.ToAllocator, out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
@@ -1326,15 +1269,6 @@ namespace Unity.Entities.Tests
 
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components = query.ToComponentDataArrayAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
-                            out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
@@ -1354,15 +1288,6 @@ namespace Unity.Entities.Tests
 
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components = query.ToComponentDataArrayAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
-                            out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
@@ -1442,15 +1367,6 @@ namespace Unity.Entities.Tests
                 NativeArray<EcsTestData> components;
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components = query.ToComponentDataArrayAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
-                            out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData>(World.UpdateAllocator.ToAllocator,
@@ -1472,15 +1388,6 @@ namespace Unity.Entities.Tests
                 NativeArray<EcsTestData2> components2;
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components2 = query.ToComponentDataArrayAsync<EcsTestData2>(World.UpdateAllocator.ToAllocator,
-                            out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData2>(World.UpdateAllocator.ToAllocator,
@@ -1502,15 +1409,6 @@ namespace Unity.Entities.Tests
                 NativeArray<EcsTestData3> components3;
                 switch (jobMode)
                 {
-                    case EntityQueryJobMode.AsyncObsolete:
-                    {
-#pragma warning disable 0618
-                        components3 = query.ToComponentDataArrayAsync<EcsTestData3>(World.UpdateAllocator.ToAllocator,
-                            out JobHandle jobHandle);
-#pragma warning restore 0618
-                        jobHandle.Complete();
-                        break;
-                    }
                     case EntityQueryJobMode.Async:
                     {
                         var list = query.ToComponentDataListAsync<EcsTestData3>(World.UpdateAllocator.ToAllocator,
@@ -3790,45 +3688,6 @@ namespace Unity.Entities.Tests
         }
 
         [Test]
-        [Obsolete("Remove this test along with CopyFromComponentDataArrayAsync")]
-        [TestRequiresDotsDebugOrCollectionChecks("Test requires entity query safety checks")]
-        public void CopyFromComponentDataArrayAsync_TempMemory_Throws()
-        {
-            var query = m_Manager.CreateEntityQuery(typeof(EcsTestData));
-
-            var components = query.ToComponentDataArray<EcsTestData>(Allocator.Temp);
-
-            Assert.DoesNotThrow(() =>
-            {
-                query.CopyFromComponentDataArray(components);
-            });
-            Assert.Throws<ArgumentException>(() =>
-            {
-                query.CopyFromComponentDataArrayAsync(components, out JobHandle jobhandle);
-            });
-
-            query.Dispose();
-            components.Dispose();
-
-            //create very large Query to test AsyncComplete path
-            var archetype = m_Manager.CreateArchetype(typeof(EcsTestData));
-            m_Manager.CreateEntity(archetype, 100000);
-
-            query = m_Manager.CreateEntityQuery(typeof(EcsTestData));
-            components = query.ToComponentDataArray<EcsTestData>(Allocator.Temp);
-
-
-            Assert.DoesNotThrow(() =>
-            {
-                query.CopyFromComponentDataArray(components);
-            });
-
-            query.Dispose();
-            components.Dispose();
-
-        }
-
-        [Test]
         [TestRequiresDotsDebugOrCollectionChecks("Test requires entity query safety checks")]
         public void CopyFromComponentDataListAsync_TempMemory_Throws()
         {
@@ -3925,14 +3784,6 @@ namespace Unity.Entities.Tests
             var query = EmptySystem.GetEntityQuery(typeof(EcsTestData));
             switch (jobMode)
             {
-                case EntityQueryJobMode.AsyncObsolete:
-                {
-#pragma warning disable 0618
-                    query.CopyFromComponentDataArrayAsync(values, out JobHandle jobHandle);
-#pragma warning restore 0618
-                    jobHandle.Complete();
-                    break;
-                }
                 case EntityQueryJobMode.Async:
                 {
                     var valuesList = new NativeList<EcsTestData>(values.Length, World.UpdateAllocator.ToAllocator);
@@ -3978,14 +3829,6 @@ namespace Unity.Entities.Tests
             m_ManagerDebug.SetGlobalSystemVersion(fakeSystemVersion);
             switch (jobMode)
             {
-                case EntityQueryJobMode.AsyncObsolete:
-                {
-#pragma warning disable 0618
-                    query.CopyFromComponentDataArrayAsync(values, out JobHandle jobHandle);
-#pragma warning restore 0618
-                    jobHandle.Complete();
-                    break;
-                }
                 case EntityQueryJobMode.Async:
                 {
                     var valuesList = new NativeList<EcsTestData>(values.Length, World.UpdateAllocator.ToAllocator);
@@ -4020,15 +3863,6 @@ namespace Unity.Entities.Tests
                 using (var array = new NativeArray<EcsTestData2>(0, Allocator.Persistent))
                 {
                     query.CopyFromComponentDataArray(array);
-                }
-            });
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                using (var array = new NativeArray<EcsTestData2>(0, Allocator.Persistent))
-                {
-#pragma warning disable 0618
-                    query.CopyFromComponentDataArrayAsync(array, out jobHandle);
-#pragma warning restore 0618
                 }
             });
             Assert.Throws<InvalidOperationException>(() =>
@@ -4678,35 +4512,6 @@ namespace Unity.Entities.Tests
                 int actualValue = m_Manager.GetComponentData<EcsTestDataEnableable>(entities[i]).value;
                 FastAssert.AreEqual(expectedValue, actualValue, $"Entity {i} value mismatch");
             }
-        }
-
-        [Test]
-        [Obsolete("Remove this test along with ToEntityArrayAsync")]
-        [TestRequiresDotsDebugOrCollectionChecks("Test requires entity query safety checks")]
-        public void ToEntityArrayAsync_WithEnableableComponents_Throws()
-        {
-            using var query = m_Manager.CreateEntityQuery(typeof(EcsTestDataEnableable));
-            Assert.Throws<InvalidOperationException>(() => query.ToEntityArrayAsync(World.UpdateAllocator.ToAllocator, out var jobhandle));
-        }
-
-        [Test]
-        [Obsolete("Remove this test along with ToEntityArrayAsync")]
-        [TestRequiresDotsDebugOrCollectionChecks("Test requires entity query safety checks")]
-        public void ToComponentDataArrayAsync_WithEnableableComponents_Throws()
-        {
-            using var query = m_Manager.CreateEntityQuery(typeof(EcsTestDataEnableable));
-            Assert.Throws<InvalidOperationException>(() => query.ToComponentDataArrayAsync<EcsTestDataEnableable>(World.UpdateAllocator.ToAllocator, out var jobhandle));
-        }
-
-        [Test]
-        [Obsolete("Remove this test along with ToEntityArrayAsync")]
-        [TestRequiresDotsDebugOrCollectionChecks("Test requires entity query safety checks")]
-        public void CopyFromComponentDataArrayAsync_WithEnableableComponents_Throws()
-        {
-            using var query = m_Manager.CreateEntityQuery(typeof(EcsTestDataEnableable));
-            using var values =
-                CollectionHelper.CreateNativeArray<EcsTestDataEnableable>(1, World.UpdateAllocator.ToAllocator);
-            Assert.Throws<InvalidOperationException>(() => query.CopyFromComponentDataArrayAsync(values, out var jobhandle));
         }
 
         [Test]

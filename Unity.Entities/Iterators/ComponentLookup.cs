@@ -7,13 +7,6 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="ComponentLookup{T}"/> instead.</summary>
-    /// <typeparam name="T">The type of <see cref="IComponentData"/> to access.</typeparam>
-    [Obsolete("This type has been renamed to ComponentLookup<T>. (RemovedAfter Entities 1.0) (UnityUpgradable) -> ComponentLookup<T>", true)]
-    public struct ComponentDataFromEntity<T> where T : unmanaged, IComponentData
-    {
-    }
-
     /// <summary>
     /// A [NativeContainer] that provides access to all instances of components of type T, indexed by <see cref="Entity"/>.
     /// </summary>
