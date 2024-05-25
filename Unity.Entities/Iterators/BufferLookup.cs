@@ -8,13 +8,6 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="BufferLookup{T}"/> instead.</summary>
-    /// <typeparam name="T">The type of <see cref="IBufferElementData"/> to access.</typeparam>
-    [Obsolete("This type has been renamed to BufferLookup<T>. (RemovedAfter Entities 1.0) (UnityUpgradable) -> BufferLookup<T>", true)]
-    public struct BufferFromEntity<T> where T : unmanaged, IBufferElementData
-    {
-    }
-
     /// <summary>
     /// A [NativeContainer] that provides access to all instances of DynamicBuffer components with elements of type T,
     /// indexed by <see cref="Entity"/>.
@@ -150,15 +143,6 @@ namespace Unity.Entities
             var ecs = m_Access->EntityComponentStore;
             return ecs->HasComponent(entity, m_TypeIndex, ref m_Cache);
         }
-        /// <summary> Obsolete. Use <see cref="HasBuffer(Unity.Entities.Entity)"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns>True if the entity has a buffer component of type T, and false if it does not. Also returns false if
-        /// the Entity instance refers to an entity that has been destroyed.</returns>
-        [Obsolete("This method has been renamed to HasBuffer(). (RemovedAfter Entities 1.0)", false)] // Can't use (UnityUpgradable) due to transitive update restriction
-        public bool HasComponent(Entity entity)
-        {
-            return HasBuffer(entity);
-        }
 
         /// <summary>
         /// Reports whether any of IBufferElementData components of the type T, in the chunk containing the
@@ -248,34 +232,6 @@ namespace Unity.Entities
 #endif
             return m_Access->IsComponentEnabled(entity, m_TypeIndex, ref m_Cache);
         }
-
-        /// <summary>Obsolete. Use <see cref="IsBufferEnabled"/> instead.</summary>
-        /// <remarks>**Obsolete.** Use <see cref="IsBufferEnabled"/> instead.
-        ///
-        /// Checks whether the <see cref="IBufferElementData"/> of type T is enabled on the specified <see cref="Entity"/>.
-        /// For the purposes of EntityQuery matching, an entity with a disabled component will behave as if it does not
-        /// have that component. The type T must implement the <see cref="IEnableableComponent"/> interface.
-        /// </remarks>
-        /// <exception cref="ArgumentException">The <see cref="Entity"/> does not exist.</exception>
-        /// <param name="entity">The entity whose component should be checked.</param>
-        /// <seealso cref="SetBufferEnabled"/>
-        [Obsolete("Use SetBufferEnabled (RemovedAfter: Entities pre-1.0) (UnityUpgradeable) -> IsBufferEnabled(*)")]
-        public void IsComponentEnabled(Entity entity) => IsBufferEnabled(entity);
-
-        /// <summary>Obsolete. Use <see cref="SetBufferEnabled"/> instead.</summary>
-        /// <remarks>**Obsolete.** Use <see cref="SetBufferEnabled"/> instead.
-        ///
-        /// Enable or disable the <see cref="IBufferElementData"/> of type T on the specified <see cref="Entity"/>. This operation
-        /// does not cause a structural change (even if it occurs on a worker thread), or affect the value of the component.
-        /// For the purposes of EntityQuery matching, an entity with a disabled component will behave as if it does not
-        /// have that component. The type T must implement the <see cref="IEnableableComponent"/> interface.
-        /// </remarks>
-        /// <exception cref="ArgumentException">The <see cref="Entity"/> does not exist.</exception>
-        /// <param name="entity">The entity whose component should be enabled or disabled.</param>
-        /// <param name="value">True if the specified component should be enabled, or false if it should be disabled.</param>
-        /// <seealso cref="IsBufferEnabled"/>
-        [Obsolete("Use SetBufferEnabled (RemovedAfter: Entities pre-1.0) (UnityUpgradeable) -> SetBufferEnabled(*)")]
-        public void SetComponentEnabled(Entity entity, bool value) => SetBufferEnabled(entity, value);
 
         /// <summary>
         /// Enable or disable the <see cref="IBufferElementData"/> of type T on the specified <see cref="Entity"/>. This operation

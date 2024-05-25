@@ -543,12 +543,6 @@ namespace Unity.Entities
         public const int EnableableComponentFlag = 1 << 24;
 
         /// <summary>
-        /// Obsolete. Use <see cref="CleanupComponentTypeFlag"/> instead.
-        /// </summary>
-        [Obsolete("SystemStateTypeFlag has been renamed to CleanupComponentTypeFlag. SystemStateTypeFlag will be removed in a future package release. (UnityUpgradable) -> CleanupComponentTypeFlag", false)]
-        public const int SystemStateTypeFlag = 1 << 25;
-
-        /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ISystemStateComponentData"/>.
         /// </summary>
         public const int CleanupComponentTypeFlag = 1 << 25;
@@ -578,12 +572,6 @@ namespace Unity.Entities
         /// Bitflag set for component types which allocate 0 bytes in Chunk storage
         /// </summary>
         public const int ZeroSizeInChunkTypeFlag = 1 << 30;
-
-        /// <summary>
-        /// Obsolete. Use <see cref="CleanupSharedComponentTypeFlag"/>instead.
-        /// </summary>
-        [Obsolete("SystemStateSharedComponentTypeFlag has been renamed to CleanupSharedComponentTypeFlag. SystemStateSharedComponentTypeFlag will be removed in a future package release. (UnityUpgradable) -> CleanupSharedComponentTypeFlag", false)]
-        public const int SystemStateSharedComponentTypeFlag = CleanupComponentTypeFlag | SharedComponentTypeFlag;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ICleanupSharedComponentData"/>.
@@ -1208,27 +1196,11 @@ namespace Unity.Entities
         public static bool IsBuffer(TypeIndex typeIndex) => (typeIndex.Value & BufferComponentTypeFlag) != 0;
 
         /// <summary>
-        /// Obsolete. Use <see cref="TypeIndex.IsCleanupComponent"/> instead.
-        /// </summary>
-        /// <param name="typeIndex">TypeIndex for a component</param>
-        /// <returns>Returns if the component is a cleanup component</returns>
-        [Obsolete("IsSystemStateComponent() has been renamed to IsCleanupComponent(). IsSystemStateComponent() will be removed in a future package release. (UnityUpgradable) -> IsCleanupComponent(*)", false)]
-        public static bool IsSystemStateComponent(TypeIndex typeIndex) => typeIndex.IsCleanupComponent;
-
-        /// <summary>
         /// <seealso cref="TypeIndex.IsCleanupComponent"/>
         /// </summary>
         /// <param name="typeIndex">TypeIndex for a component</param>
         /// <returns>Returns if the component is a cleanup component</returns>
         public static bool IsCleanupComponent(TypeIndex typeIndex) => typeIndex.IsCleanupComponent;
-
-        /// <summary>
-        /// Obsolete. Use <see cref="TypeIndex.IsCleanupSharedComponent"/> instead.
-        /// </summary>
-        /// <param name="typeIndex">TypeIndex for a component</param>
-        /// <returns>Returns if the component is a cleanup shared component</returns>
-        [Obsolete("IsSystemStateSharedComponent() has been renamed to IsCleanupSharedComponent(). IsSystemStateSharedComponent() will be removed in a future package release. (UnityUpgradable) -> IsCleanupSharedComponent(*)", false)]
-        public static bool IsSystemStateSharedComponent(TypeIndex typeIndex) => typeIndex.IsCleanupSharedComponent;
 
         /// <summary>
         /// <seealso cref="TypeIndex.IsCleanupSharedComponent"/>
