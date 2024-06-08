@@ -12,7 +12,7 @@ namespace Unity.Entities.Editor
         public static IEnumerable<ComponentViewData> GetComponentDataFromQuery(this EntityQuery query)
         {
             var desc = query.GetEntityQueryDesc();
-            return desc.All.Concat(desc.Any)
+            return desc.All.Concat(desc.Any).Concat(desc.Disabled).Concat(desc.Present).Concat(desc.None).Concat(desc.Absent)
                 .Select(t => new ComponentViewData(t.GetManagedType(), TypeUtility.GetTypeDisplayName(t.GetManagedType()), t.AccessModeType, GetComponentKind(t)))
                 .Concat(desc.None.Select(t => new ComponentViewData(t.GetManagedType(), TypeUtility.GetTypeDisplayName(t.GetManagedType()), ComponentType.AccessMode.Exclude, GetComponentKind(t))))
                 .OrderBy(x => x);
