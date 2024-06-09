@@ -892,6 +892,7 @@ namespace Unity.Entities
             {
                 state->PreviouslyEnabled = false;
                 state->DisableIsExecutingOnUpdate();
+                state->Dependency.Complete();
                 state->BeforeOnUpdate();
                 SystemBaseRegistry.CallOnStopRunning(state);
                 state->AfterOnUpdate();
