@@ -412,9 +412,9 @@ namespace Unity.Entities
                 {
                     var depMgr = m_DependencyManager;
                     NeedToGetDependencyFromSafetyManager = false;
-                    m_JobHandle = depMgr->GetDependency(m_JobDependencyForReadingSystems.Ptr,
+                    m_JobHandle = JobHandle.CombineDependencies(m_JobHandle, depMgr->GetDependency(m_JobDependencyForReadingSystems.Ptr,
                         m_JobDependencyForReadingSystems.Length, m_JobDependencyForWritingSystems.Ptr,
-                        m_JobDependencyForWritingSystems.Length, clearReadFencesAfterCombining:false);
+                        m_JobDependencyForWritingSystems.Length, clearReadFencesAfterCombining:false));
                 }
 
                 return m_JobHandle;
@@ -585,7 +585,6 @@ namespace Unity.Entities
 
             // We need to wait on all previous frame dependencies, otherwise it is possible that we create infinitely long dependency chains
             // without anyone ever waiting on it
-            m_JobHandle.Complete();
             NeedToGetDependencyFromSafetyManager = true;
         }
 
@@ -595,7 +594,7 @@ namespace Unity.Entities
             // If m_JobHandle isn't the default we have scheduled some jobs (and they haven't been sync'd),
             // and need to batch them up or register them.
             // This is a big optimization if we only Run methods on main thread...
-            if (!m_JobHandle.Equals(default(JobHandle)))
+            if (!NeedToGetDependencyFromSafetyManager && !m_JobHandle.Equals(default(JobHandle)))
             {
                 JobHandle.ScheduleBatchedJobs();
                 m_JobHandle = m_DependencyManager->AddDependency(m_JobDependencyForReadingSystems.Ptr,
