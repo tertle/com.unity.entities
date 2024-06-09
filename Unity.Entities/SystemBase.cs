@@ -438,6 +438,7 @@ namespace Unity.Entities
                     var previousGlobalState = new WorldUnmanagedImpl.PreviousSystemGlobalState(ref world, state);
 
                     state->PreviouslyEnabled = false;
+                    state->Dependency.Complete();
                     state->BeforeOnUpdate();
 
                     try
