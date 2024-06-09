@@ -252,6 +252,17 @@ namespace Unity.Entities
         /// </summary>
         public SystemHandle SystemHandle => m_Handle;
 
+        /// <summary> Obsolete. Use <see cref="SystemHandle"/> instead.</summary>
+        [Obsolete("SystemHandle has been renamed to SystemHandle. (UnityUpgradable) -> SystemHandle", true)]
+        public SystemHandle SystemHandleUntyped => m_Handle;
+
+        /// <summary>
+        /// Obsolete. The current Time data for this system's world.
+        /// </summary>
+        /// <remarks> **Obsolete.** Use <see cref="SystemAPI.Time"/> or <see cref="WorldUnmanaged.Time"/> instead.</remarks>
+        [Obsolete("Time has been deprecated as duplicate. Use SystemAPI.Time or WorldUnmanaged.Time instead (RemovedAfter 2023-08-08)", true)]
+        public ref readonly TimeData Time => ref WorldUnmanaged.Time;
+
         [ExcludeFromBurstCompatTesting("Returns managed system")]
         internal ComponentSystemBase ManagedSystem => m_ManagedSystem.IsAllocated ? m_ManagedSystem.Target as ComponentSystemBase : null;
 
@@ -401,9 +412,9 @@ namespace Unity.Entities
                 {
                     var depMgr = m_DependencyManager;
                     NeedToGetDependencyFromSafetyManager = false;
-                    m_JobHandle = depMgr->GetDependency(m_JobDependencyForReadingSystems.Ptr,
+                    m_JobHandle = JobHandle.CombineDependencies(m_JobHandle, depMgr->GetDependency(m_JobDependencyForReadingSystems.Ptr,
                         m_JobDependencyForReadingSystems.Length, m_JobDependencyForWritingSystems.Ptr,
-                        m_JobDependencyForWritingSystems.Length, clearReadFencesAfterCombining:false);
+                        m_JobDependencyForWritingSystems.Length, clearReadFencesAfterCombining:false));
                 }
 
                 return m_JobHandle;
@@ -574,7 +585,6 @@ namespace Unity.Entities
 
             // We need to wait on all previous frame dependencies, otherwise it is possible that we create infinitely long dependency chains
             // without anyone ever waiting on it
-            m_JobHandle.Complete();
             NeedToGetDependencyFromSafetyManager = true;
         }
 
@@ -584,7 +594,7 @@ namespace Unity.Entities
             // If m_JobHandle isn't the default we have scheduled some jobs (and they haven't been sync'd),
             // and need to batch them up or register them.
             // This is a big optimization if we only Run methods on main thread...
-            if (!m_JobHandle.Equals(default(JobHandle)))
+            if (!NeedToGetDependencyFromSafetyManager && !m_JobHandle.Equals(default(JobHandle)))
             {
                 JobHandle.ScheduleBatchedJobs();
                 m_JobHandle = m_DependencyManager->AddDependency(m_JobDependencyForReadingSystems.Ptr,
@@ -991,6 +1001,18 @@ namespace Unity.Entities
             AddReaderWriter(isReadOnly ? ComponentType.ReadOnly<T>() : ComponentType.ReadWrite<T>());
             return EntityManager.GetComponentLookup<T>(isReadOnly);
         }
+        /// <summary> Obsolete. Use <see cref="GetComponentLookup{T}"/> instead.</summary>
+        /// <param name="isReadOnly">Whether the data is only read, not written. Access data as
+        /// read-only whenever possible.</param>
+        /// <typeparam name="T">A struct that implements <see cref="IComponentData"/>.</typeparam>
+        /// <returns>All component data of type T.</returns>
+        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(BurstCompatibleComponentData) })]
+        [Obsolete("This method has been renamed to GetComponentLookup<T>(). (RemovedAFter Entities 1.0) (UnityUpgradable) -> GetComponentLookup<T>(*)", false)]
+        public ComponentLookup<T> GetComponentDataFromEntity<T>(bool isReadOnly = false)
+            where T : unmanaged, IComponentData
+        {
+            return GetComponentLookup<T>(isReadOnly);
+        }
 
         /// <summary>
         /// Manually gets a BufferLookup&lt;T&gt; object that can access a <seealso cref="DynamicBuffer{T}"/>.
@@ -1012,6 +1034,18 @@ namespace Unity.Entities
             AddReaderWriter(isReadOnly ? ComponentType.ReadOnly<T>() : ComponentType.ReadWrite<T>());
             return EntityManager.GetBufferLookup<T>(isReadOnly);
         }
+        /// <summary> Obsolete. Use <see cref="GetBufferLookup{T}"/> instead.</summary>
+        /// <param name="isReadOnly">Whether the buffer data is only read or is also written. Access data in
+        /// a read-only fashion whenever possible.</param>
+        /// <typeparam name="T">The type of <see cref="IBufferElementData"/> stored in the buffer.</typeparam>
+        /// <returns>An array-like object that provides access to buffers, indexed by <see cref="Entity"/>.</returns>
+        /// <seealso cref="ComponentLookup{T}"/>
+        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(BurstCompatibleBufferElement) })]
+        [Obsolete("This method has been renamed to GetBufferLookup<T>(). (RemovedAFter Entities 1.0) (UnityUpgradable) -> GetBufferLookup<T>(*)", false)]
+        public BufferLookup<T> GetBufferFromEntity<T>(bool isReadOnly = false) where T : unmanaged, IBufferElementData
+        {
+            return GetBufferLookup<T>(isReadOnly);
+        }
 
         /// <summary>
         /// Manually gets a dictionary-like container containing information about how entities are stored.
@@ -1023,6 +1057,14 @@ namespace Unity.Entities
         /// and call .Update(ref state) at the call-site.</remarks>
         [GenerateTestsForBurstCompatibility]
         public EntityStorageInfoLookup GetEntityStorageInfoLookup()
+        {
+            return EntityManager.GetEntityStorageInfoLookup();
+        }
+        ///<summary> Obsolete. Use <see cref="GetEntityStorageInfoLookup"/> instead.</summary>
+        /// <returns>A EntityStorageInfoLookup object.</returns>
+        [GenerateTestsForBurstCompatibility]
+        [Obsolete("This method has been renamed to GetEntityStorageInfoLookup(). (RemovedAFter Entities 1.0) (UnityUpgradable) -> GetEntityStorageInfoLookup(*)", false)]
+        public EntityStorageInfoLookup GetStorageInfoFromEntity()
         {
             return EntityManager.GetEntityStorageInfoLookup();
         }
@@ -1202,6 +1244,14 @@ namespace Unity.Entities
 
             var megaQuery = GetEntityQuery(builder);
             RequireForUpdate(megaQuery);
+        }
+
+        /// <summary> Obsolete. Use <see cref="RequireForUpdate{T}"/> instead.</summary>
+        /// <typeparam name="T">The <see cref="IComponentData"/> subtype of the singleton component.</typeparam>
+        [Obsolete("RequireSingletonForUpdate has been renamed. Use RequireForUpdate<T>() instead. (RemovedAFter Entities 1.0) (UnityUpgradable) -> RequireForUpdate<T>()", true)]
+        public void RequireSingletonForUpdate<T>()
+        {
+            RequireForUpdate<T>();
         }
     }
 }
