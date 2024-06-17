@@ -904,41 +904,6 @@ namespace Unity.Entities
         /// <summary>
         /// Returns the primary Entity
         /// </summary>
-        /// <returns>The requested Entity</returns>
-        /// <remarks>Implicitly it access the entity with TransformUsageFlags.Dynamic as TransformUsageFlags.</remarks>
-        [Obsolete("Use the version of the function with the explicit TransformUsageFlag parameter (RemovedAfter Entities 1.0)")]
-        public Entity GetEntity()
-        {
-            return GetEntity(TransformUsageFlags.Dynamic);
-        }
-
-        /// <summary>
-        /// Returns the Entity associated with a GameObject
-        /// </summary>
-        /// <param name="authoring">The GameObject whose Entity is requested</param>
-        /// <returns>The requested Entity if found, null otherwise</returns>
-        /// <remarks>Implicitly it access the entity with TransformUsageFlags.Dynamic as TransformUsageFlags.</remarks>
-        [Obsolete("Use the version of the function with the explicit TransformUsageFlag parameter (RemovedAfter Entities 1.0)")]
-        public Entity GetEntity(GameObject authoring)
-        {
-            return GetEntity(authoring, TransformUsageFlags.Dynamic);
-        }
-
-        /// <summary>
-        /// Returns the Entity associated with an Object
-        /// </summary>
-        /// <param name="authoring">The Object whose Entity is requested</param>
-        /// <returns>The requested Entity if found, null otherwise</returns>
-        /// <remarks>Implicitly it access the entity with TransformUsageFlags.Dynamic as TransformUsageFlags.</remarks>
-        [Obsolete("Use the version of the function with the explicit TransformUsageFlag parameter (RemovedAfter Entities 1.0)")]
-        public Entity GetEntity(Component authoring)
-        {
-            return GetEntity(authoring, TransformUsageFlags.Dynamic);
-        }
-
-        /// <summary>
-        /// Returns the primary Entity
-        /// </summary>
         /// <param name="flags">The flags to add to this Entity</param>
         /// <returns>The requested Entity</returns>
         public Entity GetEntity(TransformUsageFlags flags)
@@ -1497,31 +1462,6 @@ namespace Unity.Entities
 #region Add and Set Components on Entities
 
         /// <summary>
-        /// Adds a component of type T to the primary Entity
-        /// </summary>
-        /// <typeparam name="T">The type of component to add</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddComponent<T>() where T : unmanaged, IComponentData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent<T>(entity);
-        }
-
-        /// <summary>
-        /// Adds a component of type T to the primary Entity
-        /// </summary>
-        /// <param name="component">The component to add</param>
-        /// <typeparam name="T">The type of component to add</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddComponent<T>(in T component) where T : unmanaged, IComponentData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent<T>(entity, component);
-        }
-
-        /// <summary>
         /// Adds a component of type T to the Entity
         /// </summary>
         /// <param name="entity">The Entity to add the component to</param>
@@ -1575,19 +1515,6 @@ namespace Unity.Entities
             _State.Ecb.AddComponent(entities, component);
         }
 
-        /// <summary>
-        /// Adds a component of type ComponentType to the primary Entity
-        /// </summary>
-        /// <param name="componentType">The type of component to add</param>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddComponent(ComponentType componentType)
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent(entity, componentType);
-        }
-
-        /// <summary>
         /// Adds a component of type ComponentType to the Entity
         /// </summary>
         /// <param name="entity">The Entity to add the component to</param>
@@ -1643,18 +1570,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Adds multiple components of types ComponentType to the primary Entity
-        /// </summary>
-        /// <param name="componentTypeSet">The types of components to add</param>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddComponent(in ComponentTypeSet componentTypeSet)
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent(entity, componentTypeSet);
-        }
-
-        /// <summary>
         /// Add multiple components of types ComponentType to the Entity
         /// </summary>
         /// <param name="entity">The Entity to add the components to</param>
@@ -1690,19 +1605,6 @@ namespace Unity.Entities
 
 #if !UNITY_DISABLE_MANAGED_COMPONENTS
         /// <summary>
-        /// Adds a managed component of type T to the primary Entity
-        /// </summary>
-        /// <param name="component">The component to add</param>
-        /// <typeparam name="T">The type of component to add</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddComponentObject<T>(T component) where T : class
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponentObject<T>(entity, component);
-        }
-
-        /// <summary>
         /// Adds a managed component of type T to the Entity
         /// </summary>
         /// <param name="entity">The Entity to add the component to</param>
@@ -1724,19 +1626,6 @@ namespace Unity.Entities
 #endif
 
         /// <summary>
-        /// Adds a managed shared component of type T to the primary Entity
-        /// </summary>
-        /// <param name="component">The component to add</param>
-        /// <typeparam name="T">The type of component to add</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddSharedComponentManaged<T>(T component) where T : struct, ISharedComponentData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddSharedComponentManaged<T>(entity, component);
-        }
-
-        /// <summary>
         /// Adds a managed shared component of type T to the Entity
         /// </summary>
         /// <param name="entity">The Entity to add the component to</param>
@@ -1753,19 +1642,6 @@ namespace Unity.Entities
             else
                 CheckValidAdditionalEntity(entity);
             _State.Ecb.AddSharedComponentManaged(entity, component);
-        }
-
-        /// <summary>
-        /// Adds a shared component of type T to the primary Entity
-        /// </summary>
-        /// <param name="component">The component to add</param>
-        /// <typeparam name="T">The type of component to add</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AddSharedComponent<T>(T component) where T : unmanaged, ISharedComponentData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddSharedComponent<T>(entity, component);
         }
 
         /// <summary>
@@ -1787,18 +1663,6 @@ namespace Unity.Entities
             _State.Ecb.AddSharedComponent(entity, component);
         }
 
-        /// <summary>
-        /// Adds a DynamicBuffer of type T to the primary Entity
-        /// </summary>
-        /// <typeparam name="T">The type of buffer to add</typeparam>
-        /// <returns>The created DynamicBuffer</returns>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public DynamicBuffer<T> AddBuffer<T>() where T : unmanaged, IBufferElementData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            return AddBuffer<T>(entity);
-        }
 
         /// <summary>
         /// Adds a DynamicBuffer of type T to the Entity
@@ -1858,19 +1722,6 @@ namespace Unity.Entities
                 CheckComponentHasBeenAddedByThisBaker(entity, TypeManager.GetTypeIndex<T>());
 
             _State.Ecb.SetComponentEnabled<T>(entity, enabled);
-        }
-
-        /// <summary>
-        /// Sets the enabled value of the component on the primary Entity.
-        /// </summary>
-        /// <param name="enabled">True if the specified component should be enabled, or false if it should be disabled</param>
-        /// <typeparam name="T">The type of component to set</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void SetComponentEnabled<T>(bool enabled) where T : struct, IEnableableComponent
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            SetComponentEnabled<T>(entity, enabled);
         }
 
          /// <summary>
@@ -1952,24 +1803,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Replaces a DynamicBuffer of type T on the primary Entity
-        /// </summary>
-        /// <remarks>
-        /// This method can only be invoked if the same baker instance previously added this specific buffer.
-        /// This is not a very common operation in bakers, but sometimes you have utility methods that add the relevant buffer and initialize them to a reasonable default state for that utility method,
-        /// but then your baker needs to override the value of one of those added buffers to something specific in your particular baker.
-        /// </remarks>
-        /// <typeparam name="T">The type of buffer to set</typeparam>
-        /// <returns>The new DynamicBuffer</returns>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public DynamicBuffer<T> SetBuffer<T>() where T : unmanaged, IBufferElementData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            return SetBuffer<T>(entity);
-        }
-
-        /// <summary>
         /// Replaces a DynamicBuffer of type T on the Entity
         /// </summary>
         /// <remarks>
@@ -2008,19 +1841,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Append to a DynamicBuffer of type T on the primary Entity
-        /// </summary>
-        /// <param name="element">The element of type T to append to the buffer</param>
-        /// <typeparam name="T">The type of buffer to append to</typeparam>
-        /// <remarks>Implicitly it will access the primary entity with TransformUsageFlags.Dynamic.</remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public void AppendToBuffer<T>(T element) where T : unmanaged, IBufferElementData
-        {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AppendToBuffer<T>(entity, element);
-        }
-
-        /// <summary>
         /// Append to a DynamicBuffer of type T on the Entity
         /// </summary>
         /// <param name="entity">The Entity to set the buffer on</param>
@@ -2049,25 +1869,6 @@ namespace Unity.Entities
         }
 
 #endregion
-
-        /// <summary>
-        /// Creates an additional Entity tied to the primary entity.
-        /// </summary>
-        /// <returns>Returns the newly created entity.</returns>
-        /// <remarks>
-        /// Additional entities are automatically reverted by the baking system if the source primary entity is removed in a new baking pass.
-        /// Additional entities are created with the same active or static state as the Primary Entity. For example, if the authoring object is disabled,
-        /// the new additional entity will also have the <see cref="Disabled"/> tag component.
-        ///
-        /// Implicitly it will create the additional entity with TransformUsageFlags.Dynamic.
-        ///
-        /// Baking only additional entities are not exported in the runtime data.
-        /// </remarks>
-        [Obsolete("Use the version of the function with the explicit Entity parameter (RemovedAfter Entities 1.0)")]
-        public Entity CreateAdditionalEntity()
-        {
-            return CreateAdditionalEntity(TransformUsageFlags.Dynamic);
-        }
 
         /// <summary>
         /// Creates an additional Entity tied to the primary entity.
