@@ -14,8 +14,6 @@ namespace Unity.Entities
         SharedComponent = 1 << 2,
         ChunkComponent = 1 << 3,
         CompanionComponent = 1 << 4,
-        [Obsolete("Use ComponentPropertyType.CompanionComponent instead.", error: false)]
-        HybridComponent = CompanionComponent,
         Tag = 1 << 5,
         Buffer = 1 << 6,
         All = Component | SharedComponent | ChunkComponent | CompanionComponent | Tag | Buffer

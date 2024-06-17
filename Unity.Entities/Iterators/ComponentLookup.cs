@@ -7,13 +7,6 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="ComponentLookup{T}"/> instead.</summary>
-    /// <typeparam name="T">The type of <see cref="IComponentData"/> to access.</typeparam>
-    [Obsolete("This type has been renamed to ComponentLookup<T>. (RemovedAfter Entities 1.0) (UnityUpgradable) -> ComponentLookup<T>", true)]
-    public struct ComponentDataFromEntity<T> where T : unmanaged, IComponentData
-    {
-    }
-
     /// <summary>
     /// A [NativeContainer] that provides access to all instances of components of type T, indexed by <see cref="Entity"/>.
     /// </summary>
@@ -576,17 +569,6 @@ namespace Unity.Entities
 
             return new EnabledRefRW<T2>(MakeSafeBitRef(ptr, indexInBitField), ptrChunkDisabledCount);
         }
-        /// <summary> Obsolete. Use <see cref="GetEnabledRefRWOptional{T}"/> instead.</summary>
-        /// <typeparam name="T2">The component type</typeparam>
-        /// <param name="entity">The referenced entity</param>
-        /// <returns>Returns a safe reference to the component enabled state. If the component
-        /// doesn't exist, it returns a default <see cref="EnabledRefRW{T}"/>.</returns>
-        [Obsolete("This method has been renamed to GetEnabledRefRWOptional<T>. (RemovedAfter Entities 1.0)", false)]
-        public EnabledRefRW<T2> GetComponentEnabledRefRWOptional<T2>(Entity entity)
-            where T2 : unmanaged, IComponentData, IEnableableComponent
-        {
-            return GetEnabledRefRWOptional<T2>(entity);
-        }
 
         /// <summary>
         /// Gets a safe reference to the component enabled state.
@@ -628,18 +610,6 @@ namespace Unity.Entities
             int indexInBitField;
             var ptr = ecs->GetEnabledRawRO(entity, m_TypeIndex, ref m_Cache, out indexInBitField, out _);
             return new EnabledRefRO<T2>(MakeSafeBitRef(ptr, indexInBitField));
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetEnabledRefROOptional{T}"/> instead.</summary>
-        /// <typeparam name="T2">The component type</typeparam>
-        /// <param name="entity">The referenced entity</param>
-        /// <returns> Returns a safe reference to the component enabled state.
-        /// If the component doesn't exist, returns a default <see cref="EnabledRefRO{T}"/>.</returns>
-        [Obsolete("This method has been renamed to GetEnabledRefROOptional<T>. (RemovedAfter Entities 1.0)", false)]
-        public EnabledRefRO<T2> GetComponentEnabledRefROOptional<T2>(Entity entity)
-            where T2 : unmanaged, IComponentData, IEnableableComponent
-        {
-            return GetEnabledRefROOptional<T2>(entity);
         }
     }
 }

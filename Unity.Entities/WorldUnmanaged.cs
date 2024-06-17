@@ -14,38 +14,6 @@ using Unity.Jobs.LowLevel.Unsafe;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="SystemHandle"/> instead.</summary>
-    [Obsolete("(UnityUpgradable) -> SystemHandle", true)]
-    public struct SystemHandleUntyped : IEquatable<SystemHandleUntyped>, IComparable<SystemHandleUntyped>
-    {
-        internal Entity m_Entity;
-        internal ushort m_Handle;
-        internal ushort m_Version;
-        internal uint m_WorldSeqNo;
-
-        internal SystemHandleUntyped(Entity systemEntity, ushort handle, ushort version, uint worldSeqNo)
-        {
-            m_Entity = systemEntity;
-            m_Handle = handle;
-            m_Version = version;
-            m_WorldSeqNo = worldSeqNo;
-        }
-        /// <inheritdoc cref="SystemHandle.CompareTo(SystemHandle)"/>
-        public int CompareTo(SystemHandleUntyped other) => 0;
-        /// <inheritdoc cref="SystemHandle.Equals(object)"/>
-        public override bool Equals(object obj) => false;
-        /// <inheritdoc cref="SystemHandle.Equals(SystemHandle)"/>
-        public bool Equals(SystemHandleUntyped other) => false;
-        /// <inheritdoc cref="SystemHandle.GetHashCode"/>
-        public override int GetHashCode() => 0;
-        /// <inheritdoc cref="SystemHandle.operator=="/>
-        public static bool operator ==(SystemHandleUntyped lhs, SystemHandleUntyped rhs) => false;
-        /// <inheritdoc cref="SystemHandle.operator!="/>
-        public static bool operator !=(SystemHandleUntyped lhs, SystemHandleUntyped rhs) => false;
-        /// <inheritdoc cref="SystemHandle.Update(WorldUnmanaged)"/>
-        public void Update(WorldUnmanaged world) { }
-    }
-
     /// <summary>
     /// An identifier representing a system instance in a particular world.
     /// </summary>
@@ -1224,18 +1192,6 @@ namespace Unity.Entities
         /// <returns>True if the system handle identifies a valid system, false otherwise</returns>
         public bool IsSystemValid(SystemHandle id) =>
             GetImpl().IsSystemValid(id);
-
-        /// <summary> Obsolete. Use <see cref="WorldUnmanaged.GetUnsafeSystemRef{T}(SystemHandle)"/> instead.</summary>
-        /// <param name="systemHandle">The system handle</param>
-        /// <typeparam name="T">The unmanaged system</typeparam>
-        /// <returns></returns>
-        [Obsolete("Use GetUnsafeSystemRef (UnityUpgradable) -> GetUnsafeSystemRef<T>(*)", true)]
-        public ref T ResolveSystem<T>(SystemHandle systemHandle) where T : unmanaged, ISystem
-        {
-            var ptr = ResolveSystemState(systemHandle);
-            CheckSystemReference(ptr);
-            return ref UnsafeUtility.AsRef<T>(ptr->m_SystemPtr);
-        }
 
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS"), Conditional("UNITY_DOTS_DEBUG")]
         internal void CheckSystemReference(SystemState* ptr)
