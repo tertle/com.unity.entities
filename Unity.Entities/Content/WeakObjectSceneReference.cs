@@ -74,32 +74,5 @@ namespace Unity.Entities.Content
         {
             return Id.GetHashCode();
         }
-
-
-
-        /// <summary>
-        /// True if the object is either being loaded or already finished loading.
-        /// </summary>
-        [Obsolete("This property is no longer valid.  Check the loading status of the scene returned from LoadAsync.")]
-        public Unity.Loading.SceneLoadingStatus LoadingStatus => Loading.SceneLoadingStatus.Failed;
-
-        /// <summary>
-        /// The loaded scene object.
-        /// </summary>
-        [Obsolete("This property is no longer valid.  Use the scene returned from LoadAsync.")]
-        public Scene SceneResult => default;
-
-        /// <summary>
-        /// The ContentSceneFile that was loaded.  This can be used to manually integrate the loaded scene at the end of the frame.
-        /// </summary>
-        [Obsolete("This property is no longer valid.  The scene file does not exist in all cases (e.g. play mode).")]
-        public Unity.Loading.ContentSceneFile SceneFileResult => default;
-
-        /// <summary>
-        /// Releases the object.  This will decrement the reference count of this object.  When an objects reference count reaches 0, the archive file is released.  The archive file is only
-        /// unloaded when its reference count reaches zero, which will then release the archive it was loaded from.  Archives will be unmounted when their reference count reaches 0.
-        /// </summary>
-        [Obsolete("Release has been replaced with Unload(ref Scene scene).  You will need to use the scene returned from LoadAsync to unload the scene and its resources.")]
-        public void Release() { }
     }
 }

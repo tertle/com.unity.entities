@@ -1290,33 +1290,5 @@ namespace Unity.Entities.Content
 
         internal static IAlternativeLoader OverrideLoader;
 #endif
-
-        /// <summary>
-        /// Gets the current status of an active scene.
-        /// </summary>
-        /// <param name="sceneId">The id of the scene.</param>
-        /// <returns>The status of the scene loading process.</returns>
-        [ExcludeFromBurstCompatTesting("References managed engine API and static data")]
-        [Obsolete("This property is no longer valid.  Check the loading status of the scene returned from LoadSceneAsync.")]
-        public static SceneLoadingStatus GetSceneLoadingStatus(UntypedWeakReferenceId sceneId) => default;
-
-        /// <summary>
-        /// The scene file.  This is needed to integrate when the scene is loaded with the <seealso cref=" Unity.Loading.ContentSceneParameters.autoIntegrate"/> value set to false.
-        /// </summary>
-        /// <param name="sceneId">The runtime id of the scene.</param>
-        /// <returns>The scene file. If the scene is not loaded, the returned scene will be invalid.</returns>
-        [ExcludeFromBurstCompatTesting("References managed engine API and static data")]
-        [Obsolete("This property is no longer valid.  The scene file does not exist in all cases (e.g. play mode).")]
-        public static ContentSceneFile GetSceneFileValue(UntypedWeakReferenceId sceneId) => default;
-
-        /// <summary>
-        /// The loaded scene value.
-        /// </summary>
-        /// <param name="sceneId">The runtime id of the scene.</param>
-        /// <returns>The scene. If the scene is not loaded, the returned scene will be invalid.</returns>
-        [ExcludeFromBurstCompatTesting("References managed engine API and static data")]
-        [Obsolete("This property is no longer valid.  Use the scene returned from LoadAsync.")]
-        public static Scene GetSceneValue(UntypedWeakReferenceId sceneId) => default;
-
     }
 }

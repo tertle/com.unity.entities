@@ -24,12 +24,6 @@ namespace Unity.Entities
         public int IndexInChunk;
     }
 
-    /// <summary> Obsolete. Use <see  cref="BufferLookup{T}"/> instead.</summary>
-    [Obsolete("This type has been renamed to EntityStorageInfoLookup. (RemovedAfter Entities 1.0) (UnityUpgradable) -> EntityStorageInfoLookup", true)]
-    public unsafe struct StorageInfoFromEntity
-    {
-    }
-
     /// <summary>
     /// A [NativeContainer] that provides access to information about how Entities are stored. <see cref="Entity"/>.
     /// </summary>
