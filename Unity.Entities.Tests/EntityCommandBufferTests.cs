@@ -127,53 +127,6 @@ namespace Unity.Entities.Tests
             Assert.DoesNotThrow(() => ecb.Dispose());
         }
 
-        [Test]
-        public void Playback_WithSinglePlaybackSuccess_DisposesCapturedEntityArrays()
-        {
-            var archetype = m_Manager.CreateArchetype(typeof(EcsTestData));
-            m_Manager.CreateEntity(archetype, 100);
-            using(var query = m_Manager.CreateEntityQuery(typeof(EcsTestData)))
-            using(var cmds = new EntityCommandBuffer(World.UpdateAllocator.ToAllocator, PlaybackPolicy.SinglePlayback))
-            {
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-                cmds.AddComponent<EcsTestTag>(query, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-                Assert.IsFalse(CleanupListsAreEmpty(cmds), "ECB has empty cleanup lists prior to playback");
-
-                cmds.Playback(m_Manager);
-                Assert.IsFalse(CleanupListsAreEmpty(cmds), "ECB with SinglePlayback has empty cleanup lists after playback");
-            }
-            // TODO(DOTS-4497): at this point (after the ecb has been Disposed),
-            // we should assert that the allocator passed to the ECB constructor has no remaining unreleased
-            // allocations. However, that isn't currently possible.
-        }
-
-        [Test]
-        [TestRequiresDotsDebugOrCollectionChecks("Test requires entity command buffer safety checks")]
-        public void Playback_WithSinglePlaybackError_DisposesCapturedEntityArrays()
-        {
-            var archetype = m_Manager.CreateArchetype(typeof(EcsTestData));
-            m_Manager.CreateEntity(archetype, 100);
-            var ent = m_Manager.CreateEntity(archetype);
-            using(var query = m_Manager.CreateEntityQuery(typeof(EcsTestData)))
-            using(var cmds = new EntityCommandBuffer(World.UpdateAllocator.ToAllocator, PlaybackPolicy.SinglePlayback))
-            {
-                cmds.AddComponent<EcsTestData2>(ent);
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-                cmds.AddComponent<EcsTestTag>(query, EntityQueryCaptureMode.AtRecord); // entity array is captured here
-#pragma warning restore
-                Assert.IsFalse(CleanupListsAreEmpty(cmds), "ECB has empty cleanup lists prior to playback");
-
-                m_Manager.DestroyEntity(ent); // this will force an ECB playback error before the entity array command is played back
-                Assert.Throws<InvalidOperationException>(() => cmds.Playback(m_Manager));
-                // The entity array should still be present in the cleanup list
-                Assert.IsFalse(CleanupListsAreEmpty(cmds), "ECB with SinglePlayback has empty cleanup lists after playback");
-            }
-            // TODO(DOTS-4497): at this point (after the ecb has been Disposed),
-            // we should assert that the allocator passed to the ECB constructor has no remaining unreleased
-            // allocations. However, that isn't currently possible.
-        }
-
         [BurstCompile(CompileSynchronously = true)]
         struct TestJob : IJob
         {

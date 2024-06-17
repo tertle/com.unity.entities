@@ -7,20 +7,6 @@ using Unity.Collections;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="IRateManager"/> instead.</summary>
-    [Obsolete("This interface has been renamed to IRateManager (RemovedAFter Entities 1.0)", true)]
-    public interface IFixedRateManager
-    {
-        /// <summary> Obsolete. Use <see cref="IRateManager.ShouldGroupUpdate"/> instead.</summary>
-        /// <param name="group">The system group to check</param>
-        /// <returns>
-        /// True while the <paramref name="group"/> should update its member systems, and then false once the group should no longer update for this frame.
-        /// Note: This is called infinitely until it returns false.
-        /// </returns>
-        bool ShouldGroupUpdate(ComponentSystemGroup group);
-        /// <summary> Obsolete. Use <see cref="IRateManager.Timestep"/> instead.</summary>
-        float Timestep { get; set; }
-    }
     /// <summary>
     /// Interface to define custom behaviors for controlling when a <see cref="ComponentSystemGroup"/> should update,
     /// and what timestep should be visible to the systems in that group. This allows the implementation of Unity's

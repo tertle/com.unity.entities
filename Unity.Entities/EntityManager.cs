@@ -179,11 +179,6 @@ namespace Unity.Entities
         /// </summary>
         public int EntityOrderVersion => GetCheckedEntityDataAccess()->EntityComponentStore->EntityOrderVersion;
 
-        /// <summary> Obsolete. Use <see cref="EntityOrderVersion"/> instead.</summary>
-        [Obsolete("EntityManager.Version has been deprecated. Use EntityOrderVersion instead (UnityUpgradable) -> EntityOrderVersion")]
-        public int Version => GetCheckedEntityDataAccess()->EntityComponentStore->EntityOrderVersion;
-
-
         /// <summary>
         /// A counter that increments after every system update.
         /// </summary>
@@ -653,15 +648,6 @@ namespace Unity.Entities
             return access->GetSharedComponentCount();
         }
 
-        /// <summary> Obsolete. Use <see cref="SetSharedComponentManaged{T}(Unity.Entities.Entity,T)"/> instead.</summary>
-        /// <param name="entity">The entity</param>
-        /// <param name="componentData">A shared component object containing the values to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        [Obsolete("Use SetSharedComponentManaged<T> (UnityUpgradable) -> SetSharedComponentManaged<T>(*)", true)]
-        public void SetSharedComponentData<T>(Entity entity, T componentData) where T : struct, ISharedComponentData
-        {
-        }
-
         /// <summary>
         /// Sets the shared component of an entity.
         /// </summary>
@@ -763,13 +749,7 @@ namespace Unity.Entities
                 ComponentType.ReadWrite<T>(), UnsafeUtility.AddressOf(ref componentData));
             access->EndStructuralChanges(ref changes);
         }
-        /// <summary> Obsolete. Use <see cref="SetSharedComponentManaged{T}(Unity.Entities.Entity,T)"/> instead.</summary>
-        /// <param name="query">The query where matching entities will be assigned the shared component to.</param>
-        /// <param name="componentData">A shared component object containing the values to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        [Obsolete("Use SetSharedComponentManaged<T> (UnityUpgradable) -> SetSharedComponentManaged<T>(*)", true)]
-        public void SetSharedComponentData<T>(EntityQuery query, T componentData) where T : struct, ISharedComponentData
-        {}
+
         /// <summary>
         /// Sets the shared component of all entities in the query.
         /// </summary>
@@ -822,16 +802,6 @@ namespace Unity.Entities
             return access->GetSharedComponentData_Unmanaged<T>(entity);
         }
 
-        /// <summary> Obsolete. Use <see cref="GetSharedComponent{T}(Unity.Entities.Entity)"/> instead.</summary>
-        /// <param name="entity">The target entity</param>
-        /// <typeparam name="T">The type of the unmanaged shared component to look up on the target entity</typeparam>
-        /// <returns>The index of the target entity's value for the shared component of type <typeparamref name="T"/>.</returns>
-        [Obsolete("Use GetSharedComponent<T> (UnityUpgradable) -> GetSharedComponent<T>(*)", true)]
-        public T GetUnmanagedSharedComponentData<T>(Entity entity) where T : unmanaged, ISharedComponentData
-        {
-            return default;
-        }
-
         /// <summary>
         /// Retrieves the index of the managed or unmanaged shared component for an entity.
         /// </summary>
@@ -863,29 +833,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Retrieves the index of the unmanaged shared component data value for an entity.
-        /// </summary>
-        /// <param name="entity">The target entity</param>
-        /// <typeparam name="T">The type of the unmanaged shared component to look up on the target entity</typeparam>
-        /// <returns>The index of the target entity's value for the shared component of type <typeparamref name="T"/>.</returns>
-        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(BurstCompatibleSharedComponentData) })]
-        [Obsolete("Use GetSharedComponentIndex<T> instead. (RemovedAfter Entities 1.0) (UnityUpgradable) -> GetSharedComponentIndex<T>(*)", true)]
-        public int GetSharedComponentDataIndex<T>(Entity entity) where T : unmanaged, ISharedComponentData
-        {
-            return GetSharedComponentIndex<T>(entity);
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetSharedComponentIndex{T}"/> instead.</summary>
-        /// <param name="entity">The target entity</param>
-        /// <typeparam name="T">The type of the unmanaged shared component to look up on the target entity</typeparam>
-        /// <returns>The index of the target entity's value for the shared component of type <typeparamref name="T"/>.</returns>
-        [Obsolete("Use GetSharedComponentIndex<T> (UnityUpgradable) -> GetSharedComponentIndex<T>(*)", true)]
-        public int GetUnmanagedSharedComponentDataIndex<T>(Entity entity) where T : unmanaged, ISharedComponentData
-        {
-            return -1;
-        }
-
-        /// <summary>
         /// Gets a shared component by index.
         /// </summary>
         /// <remarks>
@@ -904,27 +851,6 @@ namespace Unity.Entities
         {
             var access = GetCheckedEntityDataAccess();
             return access->GetSharedComponentData_Unmanaged<T>(sharedComponentIndex);
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetSharedComponent{T}(int)"/> instead.</summary>
-        /// <param name="sharedComponentIndex">The index of the shared component in the internal shared component
-        /// list.</param>
-        /// <typeparam name="T">The data type of the shared component.</typeparam>
-        /// <returns>A copy of the shared component.</returns>
-        [Obsolete("Use GetSharedComponent<T> (UnityUpgradable) -> GetSharedComponent<T>(*)", true)]
-        public T GetUnmanagedSharedComponentData<T>(int sharedComponentIndex) where T : unmanaged, ISharedComponentData
-        {
-            return default;
-        }
-
-        /// <summary> Obsolete. Use <see cref="SetSharedComponent{T}(Entity,T)"/> instead.</summary>
-        /// <param name="entity">The entity</param>
-        /// <param name="componentData">An unmanaged shared component object containing the values to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        [Obsolete("Use SetSharedComponent<T> (UnityUpgradable) -> SetSharedComponent<T>(*)", true)]
-        public void SetUnmanagedSharedComponentData<T>(Entity entity, T componentData)
-            where T : unmanaged, ISharedComponentData
-        {
         }
 
         /// <summary>
@@ -994,16 +920,6 @@ namespace Unity.Entities
             Assert.IsFalse(TypeManager.IsManagedSharedComponent(typeIndex));
             access->SetSharedComponentData_Unmanaged(entity, typeIndex, componentDataAddr, null);
             access->EndStructuralChanges(ref changes);
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetSharedComponentManaged{T}(Unity.Entities.Entity)"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <typeparam name="T">The type of shared component.</typeparam>
-        /// <returns>A copy of the shared component.</returns>
-        [Obsolete("Use GetSharedComponentManaged<T> (UnityUpgradable) -> GetSharedComponentManaged<T>(*)", true)]
-        public T GetSharedComponentData<T>(Entity entity) where T : struct, ISharedComponentData
-        {
-            return default;
         }
 
         /// <summary>
@@ -1082,18 +998,6 @@ namespace Unity.Entities
             return access->GetSharedComponentData<T>(entity);
         }
 
-        /// <summary> Obsolete. Use <see cref="GetSharedComponentManaged{T}(int)"/> instead.</summary>
-        /// <param name="sharedComponentIndex">The index of the shared component in the internal shared component
-        /// list.</param>
-        /// <typeparam name="T">The data type of the shared component.</typeparam>
-        /// <returns>A copy of the shared component.</returns>
-        [Obsolete("Use GetSharedComponentManaged<T> (UnityUpgradable) -> GetSharedComponentManaged<T>(*)", true)]
-        public T GetSharedComponentData<T>(int sharedComponentIndex) where T : struct, ISharedComponentData
-        {
-            return default;
-        }
-
-
         /// <summary>
         /// Gets a shared component by index.
         /// </summary>
@@ -1137,15 +1041,6 @@ namespace Unity.Entities
             return access->GetSharedComponentDataBoxed(sharedComponentIndex, typeIndex);
         }
 
-        /// <summary> Obsolete. Use <see cref="GetAllUniqueSharedComponentsManaged{T}(System.Collections.Generic.List{T})"/> instead.</summary>
-        /// <param name="sharedComponentValues">A List&lt;T&gt; object to receive the unique instances of the
-        /// shared component of type T.</param>
-        /// <typeparam name="T">The type of shared component.</typeparam>
-        [Obsolete("Use GetAllUniqueSharedComponentsManaged<T> (UnityUpgradable) -> GetAllUniqueSharedComponentsManaged<T>(*)", true)]
-        public void GetAllUniqueSharedComponentData<T>(List<T> sharedComponentValues) where T : struct, ISharedComponentData
-        {}
-
-
         /// <summary>
         /// Gets a list of all the unique instances of a shared component type.
         /// </summary>
@@ -1166,20 +1061,6 @@ namespace Unity.Entities
             var access = GetCheckedEntityDataAccess();
             access->GetAllUniqueSharedComponents(sharedComponentValues);
         }
-
-        /// <summary> Obsolete. Use <see cref="GetAllUniqueSharedComponentsManaged{T}(List{T},List{int})"/> instead.</summary>
-        /// <param name="sharedComponentValues">A List&lt;T&gt; object to receive the unique instances of the
-        /// shared component of type T.</param>
-        /// <param name="sharedComponentIndices">A List&lt;int&gt; object to receive the unique instances of the
-        /// shared components' indices.</param>
-        /// <typeparam name="T">The type of shared component.</typeparam>
-        [Obsolete(
-            "Use GetAllUniqueSharedComponentsManaged<T> (UnityUpgradable) -> GetAllUniqueSharedComponentsManaged<T>(*)",
-            true)]
-        public void GetAllUniqueSharedComponentData<T>(List<T> sharedComponentValues, List<int> sharedComponentIndices) where T : struct, ISharedComponentData
-        {
-        }
-
 
         /// <summary>
         /// Gets a list of all unique shared components of the same type and a corresponding list of indices into the
@@ -1206,26 +1087,6 @@ namespace Unity.Entities
             var access = GetCheckedEntityDataAccess();
             access->GetAllUniqueSharedComponents(sharedComponentValues, sharedComponentIndices);
         }
-
-        /// <summary> Obsolete. Use <see cref="GetAllUniqueSharedComponentsManaged{T}(List{T},List{int},List{int})"/> instead.</summary>
-        /// <param name="sharedComponentValues">A List&lt;T&gt; object to receive the unique instances of the
-        /// shared component of type T.</param>
-        /// <param name="sharedComponentIndices">A List&lt;int&gt; object to receive the unique instances of the
-        /// shared components' indices.</param>
-        /// <param name="sharedComponentVersions">A List&lt;int&gt; object to receive the unique instances of the
-        /// shared components' versions.</param>
-        /// <typeparam name="T">The type of shared component.</typeparam>
-        [Obsolete(
-            "Use GetAllUniqueSharedComponentsManaged<T> (UnityUpgradable) -> GetAllUniqueSharedComponentsManaged<T>(*)",
-            true)]
-        public void GetAllUniqueSharedComponentData<T>(
-            List<T> sharedComponentValues,
-            List<int> sharedComponentIndices,
-            List<int> sharedComponentVersions)
-        where T : struct, ISharedComponentData
-        {
-        }
-
 
         /// <summary>
         /// Gets a list of all unique shared components of the same type and a corresponding list of indices into the
@@ -1277,18 +1138,6 @@ namespace Unity.Entities
             sharedComponentValues = new NativeList<T>(0, allocator);
             sharedComponentValues.m_ListData->Dispose();
             access->GetAllUniqueSharedComponents_Unmanaged<T>(out *sharedComponentValues.m_ListData, allocator);
-        }
-
-        /// <summary> Obsolete. Use <see cref="AddSharedComponent{T}(Unity.Entities.Entity,T)"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="componentData">The shared component value to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        /// <returns>Returns false if the entity already has the shared component. The shared component value is set either way.</returns>
-        [Obsolete("Use AddSharedComponent<T> (UnityUpgradable) -> AddSharedComponent<T>(*)", true)]
-        public bool AddUnmanagedSharedComponentData<T>(Entity entity, T componentData)
-            where T : unmanaged, ISharedComponentData
-        {
-            return false;
         }
 
         /// <summary>
@@ -2136,19 +1985,6 @@ namespace Unity.Entities
             access->EndStructuralChanges(ref changes);
         }
 
-
-        /// <summary> Obsolete. Use <see cref="AddComponent"/> instead.</summary>
-        /// <param name="entity">The entity to modify.</param>
-        /// <param name="componentTypeSet">The types of components to add.</param>
-        // We can't use (UnityUpgradable) reliably here, since the parameter type ComponentTypes is also being renamed
-        // to ComponentTypeSet. So for now it's just a warning that wraps the new function.
-        [Obsolete("AddComponents() has been renamed to AddComponent(). AddComponents() will be removed in a future package release.", false)]
-        public void AddComponents(Entity entity, in ComponentTypeSet componentTypeSet)
-        {
-            AddComponent(entity, componentTypeSet);
-        }
-
-
         /// <summary>
         /// Removes a component from an entity.
         /// </summary>
@@ -2717,18 +2553,6 @@ namespace Unity.Entities
             SetComponentObject(system.m_Entity, type, componentData);
         }
 
-        /// <summary> Obsolete. Use <see cref="AddSharedComponentManaged{T}(Unity.Entities.Entity,T)"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="componentData">The shared component value to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        /// <returns>Returns false if the entity already has the shared component. The shared component value is set either way.</returns>
-        [Obsolete("Use AddSharedComponentManaged (UnityUpgradable) -> AddSharedComponentManaged<T>(*)", true)]
-        public bool AddSharedComponentData<T>(Entity entity, T componentData) where T : struct, ISharedComponentData
-        {
-            return false;
-        }
-
-
         /// <summary>
         /// Adds a shared component to an entity.
         /// </summary>
@@ -2848,13 +2672,6 @@ namespace Unity.Entities
                 UnsafeUtility.AddressOf(ref componentData));
             access->EndStructuralChanges(ref changes);
         }
-
-        /// <summary> Obsolete. Use <see cref="AddSharedComponentManaged{T}(Unity.Entities.Entity,T)"/> instead.</summary>
-        /// <param name="entityQuery">The EntityQuery defining a set of entities to modify.</param>
-        /// <param name="componentData">The data to set.</param>
-        /// <typeparam name="T">The data type of the shared component.</typeparam>
-        [Obsolete("Use AddSharedComponentManaged (UnityUpgradable) -> AddSharedComponentManaged<T>(*)")]
-        public void AddSharedComponentData<T>(EntityQuery entityQuery, T componentData) where T : struct, ISharedComponentData {}
 
         /// <summary>
         /// Adds a possibly-managed shared component to a set of entities defined by a EntityQuery.
@@ -2992,14 +2809,6 @@ namespace Unity.Entities
         public bool IsEnabled(Entity entity)
         {
             return GetCheckedEntityDataAccess()->IsEnabled(entity);
-        }
-        /// <summary> Obsolete. Use <see cref="IsEnabled(Entity)"/> instead.</summary>
-        /// <param name="entity">The entity to check</param>
-        /// <returns>True if the target entity does not have <see cref="Disabled"/> tag component, or false if it does.</returns>
-        [Obsolete("This function has been renamed to IsEnabled().  (RemovedAfter Entities 1.0) (UnityUpgradable) -> IsEnabled(*)", false)]
-        public bool GetEnabled(Entity entity)
-        {
-            return IsEnabled(entity);
         }
 
         /// <summary>
@@ -3566,59 +3375,6 @@ namespace Unity.Entities
             return entities;
         }
 
-        /// <summary>
-        /// Clones a set of entities.
-        /// </summary>
-        /// <remarks>
-        /// The new entity has the same archetype and component values as the original, however cleanup and prefab tag components are removed from the clone.
-        ///
-        /// Entity references on components that are being cloned to entities inside the set are remapped to the instantiated entities.
-        /// This method overload ignores the <see cref="LinkedEntityGroup"/> component,
-        /// since the group of entities that will be cloned is passed explicitly.
-        ///
-        /// **Important:** This method creates a sync point, which means that the EntityManager waits for all
-        /// currently running jobs to complete before creating the entity. No additional jobs can start before
-        /// the method is finished. A sync point can cause a drop in performance because the ECS framework might not
-        /// be able to use the processing power of all available cores.
-        /// </remarks>
-        /// <param name="srcEntities">The set of entities to clone</param>
-        /// <param name="outputEntities">the set of entities that were cloned. outputEntities.Length must match srcEntities.Length</param>
-        [StructuralChangeMethod]
-        [Obsolete("This method will be removed in a future Entities release. " +
-                  "If you wish to clone the full hierarchy of every entity in a given array, simply loop through the array to and invoke `EntityManager.Instantiate(Entity entity)` on each entity.")]
-        public void Instantiate(NativeArray<Entity> srcEntities, NativeArray<Entity> outputEntities)
-        {
-            var access = GetCheckedEntityDataAccess();
-            access->PrepareForInstantiateAdditiveStructuralChanges(srcEntities);
-            var changes = access->BeginAdditiveStructuralChanges();
-            access->InstantiateInternalDuringStructuralChange((Entity*)srcEntities.GetUnsafeReadOnlyPtr(), (Entity*)outputEntities.GetUnsafePtr(), srcEntities.Length, outputEntities.Length, true);
-            access->EndStructuralChanges(ref changes);
-        }
-
-        /// <summary>
-        /// Clones a set of entities, different from Instantiate because it does not remove the <see cref="Prefab"/> tag component.
-        /// </summary>
-        /// <remarks>
-        /// The new entity has the same archetype and component values as the original, however cleanup components are removed from the clone.
-        ///
-        /// Entity references on components that are being cloned to entities inside the set are remapped to the instantiated entities.
-        /// This method overload ignores the <see cref="LinkedEntityGroup"/> component,
-        /// since the group of entities that will be cloned is passed explicitly.
-        ///
-        /// **Important:** This method creates a sync point, which means that the EntityManager waits for all
-        /// currently running jobs to complete before creating the entity. No additional jobs can start before
-        /// the method is finished. A sync point can cause a drop in performance because the ECS framework might not
-        /// be able to use the processing power of all available cores.
-        /// </remarks>
-        /// <param name="srcEntities">The set of entities to clone</param>
-        /// <param name="outputEntities">the set of entities that were cloned. outputEntities.Length must match srcEntities.Length</param>
-        [StructuralChangeMethod]
-        [ExcludeFromCoverage]
-        [Obsolete("This method is not safe to use in some contexts, and will be removed from the public API in a future Entities release. To create copies of a prefab Entity, use EntityManager.Instantiate().")]
-        public void CopyEntities(NativeArray<Entity> srcEntities, NativeArray<Entity> outputEntities)
-        {
-            CopyEntitiesInternal(srcEntities, outputEntities);
-        }
         internal void CopyEntitiesInternal(NativeArray<Entity> srcEntities, NativeArray<Entity> outputEntities)
         {
             var access = GetCheckedEntityDataAccess();
@@ -3626,43 +3382,6 @@ namespace Unity.Entities
             var changes = access->BeginAdditiveStructuralChanges();
             access->InstantiateInternalDuringStructuralChange((Entity*)srcEntities.GetUnsafeReadOnlyPtr(), (Entity*)outputEntities.GetUnsafePtr(), srcEntities.Length, outputEntities.Length, false);
             access->EndStructuralChanges(ref changes);
-        }
-
-        /// <summary>
-        /// **Obsolete.** The use of this function is not recommended.
-        /// Consider using a more idiomatic ECS way to detect creation and destruction, like (enableable) tags and cleanup components.
-        /// </summary>
-        /// <remarks>
-        /// Detects the created and destroyed entities compared to last time the method was called with the given state.
-        /// Entities must be fully destroyed, if cleanup components keep it alive it still counts as not yet destroyed.
-        /// <see cref="EntityCommandBuffer"/> instances that have not been played back will have no effect on this until they are played back.
-        /// </remarks>
-        /// <param name="state">The same state list must be passed when you call this method, it remembers the entities that were already notified created and destroyed.</param>
-        /// <param name="createdEntities">The entities that were created.</param>
-        /// <param name="destroyedEntities">The entities that were destroyed.</param>
-        /// <returns>a <see cref="JobHandle"/> for the job scheduled by this method.</returns>
-        [Obsolete("Consider using a more idiomatic ECS way to detect creation and destruction, like (enableable) tags and cleanup components.")]
-        public JobHandle GetCreatedAndDestroyedEntitiesAsync(NativeList<int> state, NativeList<Entity> createdEntities, NativeList<Entity> destroyedEntities)
-        {
-            return GetCheckedEntityDataAccess()->GetCreatedAndDestroyedEntitiesAsync(state, createdEntities, destroyedEntities);
-        }
-
-        /// <summary>
-        /// **Obsolete.** The use of this function is not recommended.
-        /// Consider using a more idiomatic ECS way to detect creation and destruction, like (enableable) tags and cleanup components.
-        /// </summary>
-        /// <remarks>
-        /// Detects the created and destroyed entities compared to last time the method was called with the given state.
-        /// Entities must be fully destroyed, if cleanup components keep it alive it still counts as not yet destroyed.
-        /// <see cref="EntityCommandBuffer"/> instances that have not been played back will have no effect on this until they are played back.
-        /// </remarks>
-        /// <param name="state">The same state list must be passed when you call this method, it remembers the entities that were already notified created and destroyed.</param>
-        /// <param name="createdEntities">The entities that were created.</param>
-        /// <param name="destroyedEntities">The entities that were destroyed.</param>
-        [Obsolete("Consider using a more idiomatic ECS way to detect creation and destruction, like (enableable) tags and cleanup components.")]
-        public void GetCreatedAndDestroyedEntities(NativeList<int> state, NativeList<Entity> createdEntities, NativeList<Entity> destroyedEntities)
-        {
-            GetCheckedEntityDataAccess()->GetCreatedAndDestroyedEntities(state,  createdEntities, destroyedEntities);
         }
 
         /// <summary>
@@ -4217,15 +3936,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Obsolete. Use <see cref="CompleteAllTrackedJobs"/> instead.
-        /// </summary>
-        [Obsolete("CompleteAllJobs() has been deprecated. Use CompleteAllTrackedJobs() instead (RemovedAfter 2023-04-08) (UnityUpgradable) -> CompleteAllTrackedJobs()", true)]
-        public void CompleteAllJobs()
-        {
-            GetCheckedEntityDataAccess()->CompleteAllTrackedJobs();
-        }
-
-        /// <summary>
         /// Gets the dynamic type object required to access a chunk component of type T.
         /// </summary>
         /// <remarks>
@@ -4627,18 +4337,6 @@ namespace Unity.Entities
                 };
                 allArchetypes.Add(entityArchetype);
             }
-        }
-
-        /// <summary>
-        /// This method is obsolete. Use <see cref="EntityQuery.GetEntityQueryMask"/> instead.
-        /// </summary>
-        /// <remarks>**Obsolete.** Use <see cref="EntityQuery.GetEntityQueryMask"/> instead.</remarks>
-        /// <param name="query">The query whose mask should be returned</param>
-        /// <returns>A query mask for the provided query</returns>
-        [Obsolete("Use EntityQuery.GetEntityQueryMask()")]
-        public EntityQueryMask GetEntityQueryMask(EntityQuery query)
-        {
-            return query.GetEntityQueryMask();
         }
 
         // @TODO Point to documentation for multithreaded way to check Entity validity.

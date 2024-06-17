@@ -6,12 +6,6 @@ using Unity.Mathematics;
 
 namespace Unity.Entities
 {
-    /// <summary> Obsolete. Use <see cref="ComponentTypeSet"/> instead.</summary>
-    [Obsolete("ComponentTypes has been renamed to ComponentTypeSet. (UnityUpgradable) -> ComponentTypeSet", true)]
-    public struct ComponentTypes
-    {
-    }
-
     /// <summary>
     /// An immutable set of <see cref="ComponentType"/> values.
     /// </summary>
