@@ -15,7 +15,12 @@ public partial class IfeDescription
         public ITypeSymbol TypeSymbol { get; set; }
         public ITypeSymbol TypeParameterSymbol { get; set; }
         public QueryType QueryType { get; set; }
-        public bool IsReadOnly => QueryType is QueryType.RefRO or QueryType.EnabledRefRO or QueryType.ValueTypeComponent or QueryType.UnmanagedSharedComponent or QueryType.ManagedSharedComponent;
+        public bool IsReadOnly => QueryType is QueryType.RefRO
+            or QueryType.EnabledRefRO_ComponentData
+            or QueryType.EnabledRefRO_BufferElementData
+            or QueryType.ValueTypeComponent
+            or QueryType.UnmanagedSharedComponent
+            or QueryType.ManagedSharedComponent;
         public ITypeSymbol QueriedTypeSymbol => TypeParameterSymbol ?? TypeSymbol;
     }
 
@@ -108,6 +113,7 @@ public partial class IfeDescription
             }
 
             bool isQueryTypeEnableable = false;
+            var enableableType = EnableableType.NotApplicable;
 
             switch (typeSymbol)
             {
@@ -144,11 +150,15 @@ public partial class IfeDescription
                             }
                             // If `typeArgument` is a fully valid type
                             isQueryTypeEnableable = typeArgument.IsEnableableComponent();
+                            enableableType = typeArgument.IsComponent() ? EnableableType.ComponentData : EnableableType.BufferElementData;
                             break;
                         }
                         case INamedTypeSymbol { Arity: 0 }:
+                        {
                             isQueryTypeEnableable = typeArgument.IsEnableableComponent();
+                            enableableType = typeArgument.IsComponent() ? EnableableType.ComponentData : EnableableType.BufferElementData;
                             break;
+                        }
                         default:
                             throw new ArgumentOutOfRangeException($"Unable to parse {typeArgument.ToFullName()}.");
                     }
@@ -159,8 +169,14 @@ public partial class IfeDescription
                 "DynamicBuffer" => (QueryType.DynamicBuffer, false),
                 "RefRW" => (QueryType.RefRW, isQueryTypeEnableable),
                 "RefRO" => (QueryType.RefRO, isQueryTypeEnableable),
-                "EnabledRefRW" => (QueryType.EnabledRefRW, true),
-                "EnabledRefRO" => (QueryType.EnabledRefRO, true),
+                "EnabledRefRW" => (
+                    enableableType == EnableableType.ComponentData
+                        ? QueryType.EnabledRefRW_ComponentData
+                        : QueryType.EnabledRefRW_BufferElementData, true),
+                "EnabledRefRO" => (
+                    enableableType == EnableableType.ComponentData
+                        ? QueryType.EnabledRefRO_ComponentData
+                        : QueryType.EnabledRefRO_BufferElementData, true),
                 "UnityEngineComponent" => (QueryType.UnityEngineComponent, false),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -174,5 +190,12 @@ public partial class IfeDescription
                 return false;
             }
         }
+    }
+
+    private enum EnableableType
+    {
+        ComponentData,
+        BufferElementData,
+        NotApplicable
     }
 }

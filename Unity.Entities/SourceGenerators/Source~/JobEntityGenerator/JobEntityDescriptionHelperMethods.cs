@@ -39,12 +39,8 @@ public partial class JobEntityDescription
         return accessibility1 switch
         {
             Accessibility.Private => accessibility2 != Accessibility.Private,
-            Accessibility.Internal => accessibility2 == Accessibility.ProtectedOrInternal ||
-                                      accessibility2 == Accessibility.Protected ||
-                                      accessibility2 == Accessibility.Public,
-            Accessibility.Protected => accessibility2 == Accessibility.ProtectedOrInternal ||
-                                       accessibility2 == Accessibility.Internal ||
-                                       accessibility2 == Accessibility.Public,
+            Accessibility.Internal => accessibility2 is Accessibility.ProtectedOrInternal or Accessibility.Protected or Accessibility.Public,
+            Accessibility.Protected => accessibility2 is Accessibility.ProtectedOrInternal or Accessibility.Internal or Accessibility.Public,
             Accessibility.ProtectedOrInternal => accessibility2 == Accessibility.Public,
             Accessibility.Public => false,
             _ => throw new ArgumentOutOfRangeException()

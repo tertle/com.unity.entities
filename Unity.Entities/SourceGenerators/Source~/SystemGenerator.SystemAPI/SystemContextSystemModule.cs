@@ -144,7 +144,7 @@ public class SystemContextSystemModule : ISystemModule
                     AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithArgument);
                     break;
                 case "GetSingletonBuffer":
-                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithoutArgument);
+                    AddCandidate(CandidateFlags.None, CandidateType.SingletonWithArgument);
                     break;
                 case "TryGetSingleton":
                     AddCandidate(CandidateFlags.ReadOnly, CandidateType.SingletonWithArgument);

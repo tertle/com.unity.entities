@@ -340,29 +340,6 @@ public class JobEntityErrorTests
     }
 
     [TestMethod]
-    public async Task SGJE0019_RefWrapperWithNonComponent()
-    {
-        const string source = @"
-            using Unity.Entities;
-            using Unity.Entities.Tests;
-            partial struct SomeSystem : ISystem {
-                public void OnUpdate(ref SystemState state)
-                {
-                    new MyJob().ScheduleParallel();
-                }
-            }
-            public partial struct MyJob : IJobEntity
-            {
-                void Execute(ref EnabledRefRO<EcsIntElementEnableable> {|#0:e|})
-                {
-                }
-            }";
-
-        var expected = VerifyCS.CompilerError(nameof(JobEntityGeneratorErrors.SGJE0019)).WithLocation(0);
-        await VerifyCS.VerifySourceGeneratorAsync(source, expected);
-    }
-
-    [TestMethod]
     public async Task SGJE0020_GenericJob()
     {
         const string source = @"

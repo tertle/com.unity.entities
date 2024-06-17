@@ -67,6 +67,21 @@ public class ForEachNoErrorTests
     }
 
     [TestMethod]
+    public async Task EnableableBufferElement()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+
+            public partial struct SomeSystem : ISystem {
+                public void OnUpdate(ref SystemState state) {
+                    foreach (var _ in SystemAPI.Query<EnabledRefRO<EcsTestBufferElementEnableable>>()){}
+                }
+            }";
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
+
+    [TestMethod]
     public async Task SystemBasePartialTypes_IdiomaticForEach()
     {
         const string source = @"

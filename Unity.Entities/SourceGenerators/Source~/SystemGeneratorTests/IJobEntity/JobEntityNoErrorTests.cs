@@ -45,6 +45,19 @@ public class JobEntityNoErrorTests
     }
 
     [TestMethod]
+    public async Task JobWithEnableableBufferElement()
+    {
+        const string source = @"
+            using Unity.Entities;
+
+            public partial struct JobWithEnableableBufferElement : IJobEntity
+            {
+                public void Execute(EnabledRefRO<Unity.Entities.Tests.EcsTestBufferElementEnableable> refRO) {}
+            }";
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
+
+    [TestMethod]
     public async Task InnerNamespaceUsing()
     {
         const string source = @"
