@@ -2586,20 +2586,6 @@ namespace Unity.Entities
                 m_Data->AppendEntityQueryComponentCommand(&m_Data->m_MainThreadChain, MainThreadSortKey,
                     ECBCommand.AddComponentForEntityQuery, entityQuery, componentType);
         }
-        /// <summary>Obsolete. Use <see cref="AddComponent(EntityQuery,ComponentType,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="componentType">The type of component to add.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void AddComponent(EntityQuery entityQuery, ComponentType componentType)
-            => AddComponent(entityQuery, componentType, EntityQueryCaptureMode.AtRecord);
-        /// <summary>Obsolete. Use <see cref="AddComponent(EntityQuery,ComponentType,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added. </param>
-        /// <param name="componentType">The type of component to add.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponent(*)")]
-        public void AddComponentForEntityQuery(EntityQuery entityQuery, ComponentType componentType)
-            => AddComponent(entityQuery, componentType, EntityQueryCaptureMode.AtRecord);
 
         /// <summary>Records a command to add a component to all entities matching a query.</summary>
         /// <remarks>
@@ -2613,21 +2599,6 @@ namespace Unity.Entities
         [SupportedInEntitiesForEach]
         public void AddComponent<T>(EntityQuery entityQuery, EntityQueryCaptureMode queryCaptureMode)
             => AddComponent(entityQuery, ComponentType.ReadWrite<T>(), queryCaptureMode);
-        /// <summary>Obsolete. Use <see cref="AddComponent{T}(EntityQuery,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <typeparam name="T"> The type of component to add. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void AddComponent<T>(EntityQuery entityQuery)
-            => AddComponent(entityQuery, ComponentType.ReadWrite<T>(), EntityQueryCaptureMode.AtRecord);
-        /// <summary>Obsolete. Use <see cref="AddComponent{T}(EntityQuery,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added. </param>
-        /// <typeparam name="T"> The type of component to add. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponent<T>(*)")]
-        public void AddComponentForEntityQuery<T>(EntityQuery entityQuery)
-            => AddComponent(entityQuery, ComponentType.ReadWrite<T>(), EntityQueryCaptureMode.AtRecord);
-
 
         /// <summary>Records a command to add a component to all entities matching a query. Also sets the value of this new component on all the matching entities.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
@@ -2651,14 +2622,6 @@ namespace Unity.Entities
             m_Data->AppendMultipleEntitiesComponentCommandWithValue(&m_Data->m_MainThreadChain, MainThreadSortKey,
                 ECBCommand.AddComponentForMultipleEntities, entityQuery, value);
         }
-        /// <summary>Obsolete. Use <see cref="AddComponent{T}(EntityQuery, T)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added. </param>
-        /// <param name="value">The value to set on the new component in playback for all entities matching the query.</param>
-        /// <typeparam name="T"> The type of component to add. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponent<T>(*)")]
-        public void AddComponentForEntityQuery<T>(EntityQuery entityQuery, T value) where T : unmanaged, IComponentData
-            => AddComponent<T>(entityQuery, value);
 
         /// <summary>Records a command to add multiple components to all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
@@ -2687,21 +2650,6 @@ namespace Unity.Entities
                 m_Data->AppendEntityQueryComponentTypeSetCommand(&m_Data->m_MainThreadChain, MainThreadSortKey,
                     ECBCommand.AddMultipleComponentsForEntityQuery, entityQuery, componentTypeSet);
         }
-        /// <summary>Obsolete. Use <see cref="AddComponent(EntityQuery,in ComponentTypeSet,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="componentTypeSet">The types of components to add.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void AddComponent(EntityQuery entityQuery, in ComponentTypeSet componentTypeSet)
-            => AddComponent(entityQuery, componentTypeSet, EntityQueryCaptureMode.AtRecord);
-        /// <summary>Obsolete. Use <see cref="AddComponent(EntityQuery,in ComponentTypeSet,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the components are added. </param>
-        /// <param name="componentTypeSet">The types of components to add.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponent(*)")]
-        public void AddComponentForEntityQuery(EntityQuery entityQuery, in ComponentTypeSet componentTypeSet)
-            => AddComponent(entityQuery, componentTypeSet, EntityQueryCaptureMode.AtRecord);
-
 
         /// <summary> Records a command to add a possibly-managed shared component to all entities matching a query.</summary>
         /// <remarks>
@@ -2770,24 +2718,6 @@ namespace Unity.Entities
                 }
             }
         }
-        /// <summary>Obsolete. Use <see cref="AddSharedComponentManaged{T}(EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="component"> The component value to add. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void AddSharedComponentManaged<T>(EntityQuery entityQuery, T component) where T : struct, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => AddSharedComponentManaged(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="AddSharedComponentManaged{T}(EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery"> The query specifying which entities to add the component value to. </param>
-        /// <param name="component"> The component value to add. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddSharedComponentManaged (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddSharedComponent<T>(*)")]
-        public void AddSharedComponentForEntityQuery<T>(EntityQuery entityQuery, T component) where T : unmanaged, ISharedComponentData
-            => AddSharedComponentManaged<T>(entityQuery, component, EntityQueryCaptureMode.AtRecord);
 
         /// <summary> Records a command to add a unmanaged shared component to all entities matching a query.</summary>
         /// <remarks>
@@ -2837,16 +2767,6 @@ namespace Unity.Entities
                     isDefaultObject ? null : componentAddr);
             }
         }
-        /// <summary>Obsolete. Use <see cref="AddSharedComponent{T}(EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="component"> The component value to add. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void AddSharedComponent<T>(EntityQuery entityQuery, T component) where T : unmanaged, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-                => AddSharedComponent(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
 
         /// <summary> Records a command to add a hybrid component and set its value for all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
@@ -2877,13 +2797,6 @@ namespace Unity.Entities
             m_Data->AppendMultipleEntitiesComponentCommandWithObject(&m_Data->m_MainThreadChain, MainThreadSortKey,
                 ECBCommand.AddComponentObjectForMultipleEntities, entityQuery, componentData, type);
         }
-        /// <summary>Obsolete. Use <see cref="AddComponentObject(EntityQuery, object)"/> instead.</summary>
-        /// <param name="entityQuery"> The query specifying which entities to add the component value to.</param>
-        /// <param name="componentData"> The component object to add. </param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponentObject (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponentObject(*)")]
-        public void AddComponentObjectForEntityQuery(EntityQuery entityQuery, object componentData)
-            => AddComponentObject(entityQuery, componentData);
 
         /// <summary> Records a command to set a hybrid component value for all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
@@ -2914,13 +2827,6 @@ namespace Unity.Entities
             m_Data->AppendMultipleEntitiesComponentCommandWithObject(&m_Data->m_MainThreadChain, MainThreadSortKey,
                 ECBCommand.SetComponentObjectForMultipleEntities, entityQuery, componentData, type);
         }
-        /// <summary> Obsolete. Use <see cref="SetComponentObject(EntityQuery, object)"/> instead.</summary>
-        /// <param name="entityQuery"> The query specifying which entities to set the component value for.</param>
-        /// <param name="componentData"> The component object to set.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use SetComponentObject (RemovedAfter Entities 1.0) (UnityUpgradable) -> SetComponentObject(*)")]
-        public void SetComponentObjectForEntityQuery(EntityQuery entityQuery, object componentData)
-            => SetComponentObject(entityQuery, componentData);
 
         /// <summary> Records a command to set a possibly-managed shared component value on all entities matching a query.</summary>
         /// <remarks>
@@ -2985,26 +2891,6 @@ namespace Unity.Entities
                         isDefaultObject ? null : componentAddr);
             }
         }
-        /// <summary>Obsolete. Use <see cref="SetSharedComponentManaged{T}(EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="component"> The component value to set. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void SetSharedComponentManaged<T>(EntityQuery entityQuery, T component) where T : struct, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => SetSharedComponentManaged(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="SetSharedComponentManaged{T}(EntityQuery, T, EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery"> The query specifying which entities to add the component value to. </param>
-        /// <param name="component"> The component value to set. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use SetSharedComponentManaged (RemovedAfter Entities 1.0) (UnityUpgradable) -> SetSharedComponentManaged<T>(*)")]
-        public void SetSharedComponentForEntityQueryManaged<T>(EntityQuery entityQuery, T component) where T : struct, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => SetSharedComponentManaged<T>(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
 
         /// <summary> Records a command to set an unmanaged shared component value on all entities matching a query.</summary>
         /// <remarks>
@@ -3050,26 +2936,6 @@ namespace Unity.Entities
                     hashCode,
                     isDefaultObject ? null : componentAddr);
         }
-        /// <summary>Obsolete. Use <see cref="SetSharedComponent{T}(EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="component"> The component value to set. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void SetSharedComponent<T>(EntityQuery entityQuery, T component) where T : unmanaged, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => SetSharedComponent(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="SetSharedComponent{T}(Unity.Entities.EntityQuery,T,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery"> The query specifying which entities to add the component value to. </param>
-        /// <param name="component"> The component value to add. </param>
-        /// <typeparam name="T"> The type of shared component to set. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use SetSharedComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> SetSharedComponent<T>(*)")]
-        public void SetSharedComponentForEntityQuery<T>(EntityQuery entityQuery, T component) where T : unmanaged, ISharedComponentData
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => SetSharedComponent<T>(entityQuery, component, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
 
         /// <summary>Records a command to remove a component from all entities matching a query.</summary>
         /// <remarks>
@@ -3094,25 +2960,6 @@ namespace Unity.Entities
                 m_Data->AppendEntityQueryComponentCommand(&m_Data->m_MainThreadChain, MainThreadSortKey,
                     ECBCommand.RemoveComponentForEntityQuery, entityQuery, componentType);
         }
-        /// <summary>Obsolete. Use <see cref="RemoveComponent(EntityQuery,ComponentType,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <param name="componentType">The type of component to add.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void RemoveComponent(EntityQuery entityQuery, ComponentType componentType)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent(entityQuery, componentType, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="RemoveComponent(EntityQuery, ComponentType, EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities from which the component is removed. </param>
-        /// <param name="componentType">The types of component to remove.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use RemoveComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> RemoveComponent(*)")]
-        public void RemoveComponentForEntityQuery(EntityQuery entityQuery, ComponentType componentType)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent(entityQuery, componentType, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-
 
         /// <summary>Records a command to remove a component from all entities matching a query.</summary>
         /// <remarks>
@@ -3126,25 +2973,6 @@ namespace Unity.Entities
         [SupportedInEntitiesForEach]
         public void RemoveComponent<T>(EntityQuery entityQuery, EntityQueryCaptureMode queryCaptureMode)
             => RemoveComponent(entityQuery, ComponentType.ReadWrite<T>(), queryCaptureMode);
-        /// <summary>Obsolete. Use <see cref="RemoveComponent{T}(EntityQuery,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to which the component is added.</param>
-        /// <typeparam name="T"> The type of component to remove. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void RemoveComponent<T>(EntityQuery entityQuery)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent(entityQuery, ComponentType.ReadWrite<T>(), EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="RemoveComponent{T}(EntityQuery)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities from which the component is removed. </param>
-        /// <typeparam name="T"> The type of component to remove. </typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use RemoveComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> RemoveComponent<T>(*)")]
-        public void RemoveComponentForEntityQuery<T>(EntityQuery entityQuery)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent<T>(entityQuery, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-
 
         /// <summary>Records a command to remove multiple components from all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
@@ -3173,26 +3001,6 @@ namespace Unity.Entities
                 m_Data->AppendEntityQueryComponentTypeSetCommand(&m_Data->m_MainThreadChain, MainThreadSortKey,
                     ECBCommand.RemoveMultipleComponentsForEntityQuery, entityQuery, componentTypeSet);
         }
-        /// <summary>Obsolete. Use <see cref="RemoveComponent(EntityQuery,in ComponentTypeSet,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities from which the components are removed. </param>
-        /// <param name="componentTypeSet">The types of components to remove.</param>
-        /// <exception cref="NullReferenceException">Throws if an Allocator was not passed in when the EntityCommandBuffer was created.</exception>
-        /// <exception cref="InvalidOperationException">Throws if this EntityCommandBuffer has already been played back.</exception>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void RemoveComponent(EntityQuery entityQuery, in ComponentTypeSet componentTypeSet)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent(entityQuery, componentTypeSet, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="RemoveComponent(EntityQuery,in ComponentTypeSet,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities from which the components are removed. </param>
-        /// <param name="componentTypeSet">The types of components to remove.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use RemoveComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> RemoveComponent(*)")]
-        public void RemoveComponentForEntityQuery(EntityQuery entityQuery, in ComponentTypeSet componentTypeSet)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => RemoveComponent(entityQuery, componentTypeSet, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
 
         /// <summary>Records a command to destroy all entities matching a query.</summary>
         /// <param name="entityQuery">The query specifying the entities to destroy.</param>
@@ -3213,22 +3021,6 @@ namespace Unity.Entities
                 m_Data->AppendEntityQueryCommand(&m_Data->m_MainThreadChain, MainThreadSortKey,
                     ECBCommand.DestroyForEntityQuery, entityQuery);
         }
-        /// <summary>Obsolete. Use <see cref="DestroyEntity(EntityQuery,EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to destroy.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("This method now takes an extra parameter to control when the query is evaluated. To preserve the current semantics, use EntityQueryCaptureMode.AtRecord (RemovedAfter Entities 2.0)")]
-        public void DestroyEntity(EntityQuery entityQuery)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => DestroyEntity(entityQuery, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
-        /// <summary>Obsolete. Use <see cref="DestroyEntity(Unity.Entities.EntityQuery, EntityQueryCaptureMode)"/> instead.</summary>
-        /// <param name="entityQuery">The query specifying the entities to destroy.</param>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use DestroyEntity (RemovedAfter Entities 1.0) (UnityUpgradable) -> DestroyEntity(*)")]
-        public void DestroyEntitiesForEntityQuery(EntityQuery entityQuery)
-#pragma warning disable 0618 // EntityQueryCaptureMode.AtRecord is obsolete.
-            => DestroyEntity(entityQuery, EntityQueryCaptureMode.AtRecord);
-#pragma warning restore
 
         static bool IsDefaultObject<T>(ref T component, out int hashCode) where T : struct, ISharedComponentData
         {
@@ -6518,16 +6310,6 @@ namespace Unity.Entities
                 ECBCommand.SetComponentEnabled, e, TypeManager.GetTypeIndex<T>(), value);
         }
 
-        /// <summary>Obsolete. Use <see cref="AddComponent{T}(Unity.Entities.EntityCommandBuffer,Unity.Entities.EntityQuery,T)"/> instead.</summary>
-        /// <param name="ecb"> This entity command buffer.</param>
-        /// <param name="query"> The query specifying which entities to add the component value to.</param>
-        /// <param name="component"> The component value to add. </param>
-        /// <typeparam name="T"> The type of component to add.</typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use AddComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> AddComponent<T>(*)")]
-        public static void AddComponentForEntityQuery<T>(this EntityCommandBuffer ecb, EntityQuery query, T component) where T : class, IComponentData, new()
-            => AddComponent<T>(ecb, query, component);
-
         /// <summary> Records a command to add a managed component and set its value for all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.
         ///
@@ -6546,16 +6328,6 @@ namespace Unity.Entities
         {
             ecb.AddComponentObject(query, component);
         }
-
-        /// <summary>Obsolete. Use <see cref="SetComponent{T}(Unity.Entities.EntityCommandBuffer,Unity.Entities.EntityQuery,T)"/> instead.</summary>
-        /// <param name="ecb"> This entity command buffer.</param>
-        /// <param name="query"> The query specifying which entities to set the component value for.</param>
-        /// <param name="component"> The component value to set.</param>
-        /// <typeparam name="T"> The type of component to set.</typeparam>
-        [SupportedInEntitiesForEach]
-        [Obsolete("Use SetComponent (RemovedAfter Entities 1.0) (UnityUpgradable) -> SetComponent<T>(*)")]
-        public static void SetComponentForEntityQuery<T>(this EntityCommandBuffer ecb, EntityQuery query, T component) where T : class, IComponentData, new()
-            => SetComponent<T>(ecb, query, component);
 
         /// <summary> Records a command to set a managed component value for all entities matching a query.</summary>
         /// <remarks>The set of entities matching the query is 'captured' in the method call, and the recorded command stores an array of all these entities.

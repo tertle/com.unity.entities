@@ -177,12 +177,6 @@ namespace Unity.Scenes.Editor
         }
 
 #endregion
-        /// <summary> Obsolete. Use <see cref="Scene.isSubScene"/> instead.</summary>
-        [Obsolete("IsEntitySubScene is deprecated, use Scene.isSubScene (RemovedAfter 2021-04-27)")]
-        internal static bool IsEntitySubScene(Scene scene)
-        {
-            return scene.isSubScene;
-        }
 
         static unsafe MinMaxAABB GetBoundsAndRemove(EntityManager entityManager, EntityQuery query)
         {
