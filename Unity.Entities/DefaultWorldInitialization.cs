@@ -91,6 +91,10 @@ namespace Unity.Entities
 
             World.DisposeAllWorlds();
 
+#if !ENTITY_STORE_V1
+            EntityComponentStore.s_entityStore.Data.Dispose();
+#endif
+
 #if (UNITY_EDITOR || DEVELOPMENT_BUILD) && !DISABLE_ENTITIES_JOURNALING
             EntitiesJournaling.Shutdown();
 #endif
