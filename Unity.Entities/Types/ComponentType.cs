@@ -40,7 +40,7 @@ namespace Unity.Entities
         /// <summary>
         /// True if the component type is a <see cref="IBufferElementData"/>
         /// </summary>
-        public bool IsBuffer => TypeIndex.IsBuffer;
+        public readonly bool IsBuffer => TypeIndex.IsBuffer;
         /// <summary>
         /// Obsolete. Use <see cref="IsCleanupComponent"/> instead.
         /// </summary>
@@ -52,7 +52,7 @@ namespace Unity.Entities
         /// <summary>
         /// True if the component type is a <see cref="ICleanupComponentData"/>
         /// </summary>
-        public bool IsCleanupComponent => TypeIndex.IsCleanupComponent;
+        public readonly bool IsCleanupComponent => TypeIndex.IsCleanupComponent;
         /// <summary>
         /// Obsolete. Use <see cref="IsCleanupComponent"/> instead.
         /// </summary>
@@ -64,47 +64,47 @@ namespace Unity.Entities
         /// <summary>
         /// True if the component type is a <see cref="ICleanupSharedComponentData"/>
         /// </summary>
-        public bool IsCleanupSharedComponent => TypeIndex.IsCleanupSharedComponent;
+        public readonly bool IsCleanupSharedComponent => TypeIndex.IsCleanupSharedComponent;
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ICleanupBufferElementData"/>.
         /// </summary>
-        public bool IsCleanupBufferComponent => TypeIndex.IsCleanupBufferComponent;
+        public readonly bool IsCleanupBufferComponent => TypeIndex.IsCleanupBufferComponent;
         /// <summary>
         /// True if the component type is a <see cref="IComponentData"/>
         /// </summary>
-        public bool IsComponent => TypeIndex.IsComponentType;
+        public readonly bool IsComponent => TypeIndex.IsComponentType;
         /// <summary>
         /// True if the component type is a <see cref="ISharedComponentData"/>
         /// </summary>
-        public bool IsSharedComponent => TypeIndex.IsSharedComponentType;
+        public readonly bool IsSharedComponent => TypeIndex.IsSharedComponentType;
         /// <summary>
         /// True if the component type is a managed component
         /// </summary>
-        public bool IsManagedComponent => TypeIndex.IsManagedComponent;
+        public readonly bool IsManagedComponent => TypeIndex.IsManagedComponent;
         /// <summary>
         /// True if the component type does not contain actual fields or data
         /// </summary>
-        public bool IsZeroSized => TypeIndex.IsZeroSized;
+        public readonly bool IsZeroSized => TypeIndex.IsZeroSized;
         /// <summary>
         /// True if the component type is flagged as a chunk component type
         /// </summary>
-        public bool IsChunkComponent => TypeIndex.IsChunkComponent;
+        public readonly bool IsChunkComponent => TypeIndex.IsChunkComponent;
         /// <summary>
         /// True if the component type is a <see cref="IEnableableComponent"/>
         /// </summary>
-        public bool IsEnableable => TypeIndex.IsEnableable;
+        public readonly bool IsEnableable => TypeIndex.IsEnableable;
         /// <summary>
         /// True if any of the fields in the component type are type <see cref="Entity"/>
         /// </summary>
-        public bool HasEntityReferences => TypeIndex.HasEntityReferences;
+        public readonly bool HasEntityReferences => TypeIndex.HasEntityReferences;
         /// <summary>
         /// The component type contains a <seealso cref="NativeContainerAttribute"/> decorated member. NativeContainer members found in nested member types will also cause this property to return true.
         /// </summary>
-        public bool HasNativeContainer => TypeIndex.HasNativeContainer;
+        public readonly bool HasNativeContainer => TypeIndex.HasNativeContainer;
         /// <summary>
         /// True if the component type is appropriate for chunk serialization. Such types are blittable without containing pointer types or have been decorated with <seealso cref="ChunkSerializableAttribute"/>.
         /// </summary>
-        public bool IsChunkSerializable => TypeIndex.IsChunkSerializable;
+        public readonly bool IsChunkSerializable => TypeIndex.IsChunkSerializable;
 
         /// <summary>
         /// Returns a <see cref="ComponentType"/> with <see cref="AccessMode.ReadWrite"/> based on the generic type T.
@@ -312,7 +312,7 @@ namespace Unity.Entities
         /// </summary>
         /// <returns>The managed type</returns>
         [ExcludeFromBurstCompatTesting("Returns a managed Type")]
-        public Type GetManagedType()
+        public readonly Type GetManagedType()
         {
             return TypeManager.GetType(TypeIndex);
         }
@@ -435,7 +435,7 @@ namespace Unity.Entities
         /// </summary>
         /// <returns>A string of the component type</returns>
         [ExcludeFromBurstCompatTesting("Returns managed string")]
-        public override string ToString()
+        public readonly override string ToString()
         {
             return ToFixedString().ToString();
         }
@@ -450,7 +450,7 @@ namespace Unity.Entities
         /// </summary>
         /// <returns>A <see cref="FixedString128Bytes"/> of the component type</returns>
         [GenerateTestsForBurstCompatibility]
-        public FixedString128Bytes ToFixedString()
+        public readonly FixedString128Bytes ToFixedString()
         {
             if (TypeIndex == TypeIndex.Null)
                 return kMsg_None;
@@ -473,7 +473,7 @@ namespace Unity.Entities
         /// </summary>
         /// <param name="other">The other component type to compare to</param>
         /// <returns>True if the <see cref="TypeIndex"/> and <see cref="AccessModeType"/>of both are equal</returns>
-        public bool Equals(ComponentType other) => TypeIndex == other.TypeIndex && AccessModeType == other.AccessModeType;
+        public readonly bool Equals(ComponentType other) => TypeIndex == other.TypeIndex && AccessModeType == other.AccessModeType;
 
         /// <summary>
         /// Returns the sort order this component type compared to another
@@ -481,7 +481,7 @@ namespace Unity.Entities
         /// <param name="other">The other component type</param>
         /// <returns>The sort order</returns>
 		[GenerateTestsForBurstCompatibility]
-        public int CompareTo(ComponentType other)
+        public readonly int CompareTo(ComponentType other)
         {
             if (TypeIndex != other.TypeIndex)
                 return TypeIndex.CompareTo(other.TypeIndex);
@@ -494,9 +494,9 @@ namespace Unity.Entities
         /// <param name="obj">The object to check</param>
         /// <returns>True if the object is a <see cref="ComponentType"/> and the object equals this component type</returns>
         [ExcludeFromBurstCompatTesting("Takes managed object")]
-        public override bool Equals(object obj) => obj is ComponentType type && type == this;
+        public readonly override bool Equals(object obj) => obj is ComponentType type && type == this;
 
-        public override int GetHashCode()
+        public readonly override int GetHashCode()
         {
             unchecked
             {
