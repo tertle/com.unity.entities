@@ -2575,6 +2575,7 @@ namespace Unity.Entities
         /// </summary>
         internal readonly bool IsZeroSized => m_IsZeroSized == 1;
 
+
 #pragma warning disable 0414
         private readonly int m_Length;
 #if ENABLE_UNITY_COLLECTIONS_CHECKS

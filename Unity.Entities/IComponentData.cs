@@ -334,4 +334,12 @@ namespace Unity.Entities
     public struct Simulate : IComponentData, IEnableableComponent
     {
     }
+
+    public struct DynamicChunk : IComponentData
+    {
+    }
+
+    struct DynamicChunkData : IComponentData
+    {
+    }
 }

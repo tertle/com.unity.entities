@@ -251,6 +251,7 @@ namespace Unity.Entities.Editor
                 public const string Tag = "tag-component" + k_PostFix;
                 public const string SharedComponent = "shared-component" + k_PostFix;
                 public const string ChunkComponent = "chunk-component" + k_PostFix;
+                public const string VirtualComponent = "chunk-component" + k_PostFix; // "virtual-component" + k_PostFix; // TODO
                 public const string ManagedComponent = "managed-component" + k_PostFix;
                 public const string BufferComponent = "buffer-component" + k_PostFix;
             }

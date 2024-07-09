@@ -205,6 +205,11 @@ namespace Unity.Entities
         public bool IsBakingOnlyType { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  (Value & TypeManager.BakingOnlyTypeFlag) != 0; } }
 
         /// <summary>
+        /// The component type is used as a chunk component (a component mapped to a Chunk rather than <seealso cref="Entity"/>)
+        /// </summary>
+        public bool IsVirtualComponent { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return (Value & TypeManager.VirtualComponentTypeFlag) != 0; } }
+
+        /// <summary>
         /// Zero-based index for the <seealso cref="Unity.Entities.TypeIndex"/> stored in Value (the type index with no flags).
         /// </summary>
         public int Index { [MethodImpl(MethodImplOptions.AggressiveInlining)] get { return  Value & TypeManager.ClearFlagsMask; } }
@@ -505,74 +510,74 @@ namespace Unity.Entities
         /// Bitflag set for component types that do not contain an <seealso cref="Entity"/> member.
         /// Entity members found in nested member types will cause this bitflag to not be set.
         /// </summary>
-        public const int HasNoEntityReferencesFlag = 1 << 17; // this flag is inverted to ensure the type id of Entity can still be 1
+        public const int HasNoEntityReferencesFlag = 1 << 16; // this flag is inverted to ensure the type id of Entity can still be 1
 
         /// <summary>
         /// Bitflag set if a component is not appropriate to be included in chunk serialization.
         /// </summary>
-        public const int IsNotChunkSerializableTypeFlag = 1 << 18; // this flag is inverted to ensure the type id of Entity can still be 1
+        public const int IsNotChunkSerializableTypeFlag = 1 << 17; // this flag is inverted to ensure the type id of Entity can still be 1
 
         /// <summary>
         /// Bitflag set for component types with NativeContainer data <seealso cref="NativeContainerAttribute"/>.
         /// </summary>
-        public const int HasNativeContainerFlag = 1 << 19;
+        public const int HasNativeContainerFlag = 1 << 18;
 
         /// <summary>
         /// Bitflag set for component types decorated with the <seealso cref="BakingTypeAttribute"/> attribute.
         /// </summary>
-        public const int BakingOnlyTypeFlag = 1 << 20;
+        public const int BakingOnlyTypeFlag = 1 << 19;
 
         /// <summary>
         /// Bitflag set for component types decorated with the <seealso cref="TemporaryBakingTypeAttribute"/> attribute.
         /// </summary>
-        public const int TemporaryBakingTypeFlag = 1 << 21;
+        public const int TemporaryBakingTypeFlag = 1 << 20;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="IRefCounted"/>.
         /// </summary>
-        public const int IRefCountedComponentFlag = 1 << 22;
+        public const int IRefCountedComponentFlag = 1 << 21;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="System.IEquatable{T}"/>.
         /// </summary>
-        public const int IEquatableTypeFlag = 1 << 23;
+        public const int IEquatableTypeFlag = 1 << 22;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="IEnableableComponent"/>.
         /// </summary>
-        public const int EnableableComponentFlag = 1 << 24;
+        public const int EnableableComponentFlag = 1 << 23;
 
-        /// <summary>
-        /// Obsolete. Use <see cref="CleanupComponentTypeFlag"/> instead.
-        /// </summary>
-        [Obsolete("SystemStateTypeFlag has been renamed to CleanupComponentTypeFlag. SystemStateTypeFlag will be removed in a future package release. (UnityUpgradable) -> CleanupComponentTypeFlag", false)]
-        public const int SystemStateTypeFlag = 1 << 25;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ISystemStateComponentData"/>.
         /// </summary>
-        public const int CleanupComponentTypeFlag = 1 << 25;
+        public const int CleanupComponentTypeFlag = 1 << 24;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="IBufferElementData"/>.
         /// </summary>
-        public const int BufferComponentTypeFlag = 1 << 26;
+        public const int BufferComponentTypeFlag = 1 << 25;
 
         /// <summary>
         /// Bitflag set for component types inheriting from <seealso cref="ISharedComponentData"/>.
         /// </summary>
-        public const int SharedComponentTypeFlag = 1 << 27;
+        public const int SharedComponentTypeFlag = 1 << 26;
 
         /// <summary>
         /// Bitflag set for component types requiring managed
         /// storage due to being a class type and/or containing managed references.
         /// </summary>
-        public const int ManagedComponentTypeFlag = 1 << 28;
+        public const int ManagedComponentTypeFlag = 1 << 27;
 
         /// <summary>
         /// Bitflag set for component types converted into Chunk Components.
         /// </summary>
-        public const int ChunkComponentTypeFlag = 1 << 29;
+        public const int ChunkComponentTypeFlag = 1 << 28;
+
+        /// <summary>
+        /// Bitflag set for component types converted into Virtual Components.
+        /// </summary>
+        public const int VirtualComponentTypeFlag = 1 << 29;
 
         /// <summary>
         /// Bitflag set for component types which allocate 0 bytes in Chunk storage
@@ -1275,6 +1280,13 @@ namespace Unity.Entities
         public static bool IsChunkComponent(TypeIndex typeIndex) => typeIndex.IsChunkComponent;
 
         /// <summary>
+        /// <seealso cref="TypeIndex.IsVirtualComponent"/>
+        /// </summary>
+        /// <param name="typeIndex">TypeIndex for a component</param>
+        /// <returns>Returns if the component type is used as a virtual component (a component mapped to a Chunk rather than <seealso cref="Entity"/>)</returns>
+        public static bool IsVirtualComponent(TypeIndex typeIndex) => typeIndex.IsVirtualComponent;
+
+        /// <summary>
         /// <seealso cref="TypeIndex.IsEnableable"/>
         /// </summary>
         /// <param name="typeIndex">TypeIndex for a component</param>
@@ -1315,6 +1327,13 @@ namespace Unity.Entities
         /// <param name="typeIndex">The TypeIndex to use as a chunk component.</param>
         /// <returns>Returns the new TypeIndex.</returns>
         public static TypeIndex MakeChunkComponentTypeIndex(TypeIndex typeIndex) => new TypeIndex{ Value = typeIndex.Value | ChunkComponentTypeFlag | ZeroSizeInChunkTypeFlag };
+
+        /// <summary>
+        /// Creates a new TypeIndex that allows the passed in 'typeindex' to be used as a chunk component.
+        /// </summary>
+        /// <param name="typeIndex">The TypeIndex to use as a chunk component.</param>
+        /// <returns>Returns the new TypeIndex.</returns>
+        public static TypeIndex MakeVirtualComponentTypeIndex(TypeIndex typeIndex) => new TypeIndex{ Value = typeIndex.Value | VirtualComponentTypeFlag | ZeroSizeInChunkTypeFlag };
 
         /// <summary>
         /// Used to determine if a component inherits from another component type

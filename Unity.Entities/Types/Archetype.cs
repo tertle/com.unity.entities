@@ -21,6 +21,8 @@ namespace Unity.Entities
         HasWeakAssetRefs = 1024,
         HasSystemInstanceComponents = 2048,
         HasUnityObjectRefs = 4096,
+        DynamicChunk = 8192, // The parent chunk
+        DynamicChunkData = 16384, // The virtual chunk
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -73,6 +75,7 @@ namespace Unity.Entities
         public short FirstTagComponent;
         public short FirstSharedComponent;
         public short FirstChunkComponent;
+        public short FirstVirtualComponent;
 
         public ArchetypeFlags Flags;
 
@@ -80,6 +83,19 @@ namespace Unity.Entities
         public Archetype* InstantiateArchetype; // Removes cleanup components & prefabs
         public Archetype* CleanupResidueArchetype;
         public Archetype* MetaChunkArchetype;
+
+        public Archetype** VirtualChunkArchetype;
+        public int ChunkCount;
+        public ushort* DynamicTypes; // Array with TypeCount elements
+
+        public ref Archetype* GetVirtualChunkArchetype(int index)
+        {
+            fixed (Archetype* ptr = &this)
+            {
+                Archetype** v0 = ptr->VirtualChunkArchetype;
+                return ref v0[index];
+            }
+        }
 
         public EntityRemapUtility.EntityPatchInfo* ScalarEntityPatches;
         public EntityRemapUtility.BufferEntityPatchInfo* BufferEntityPatches;
@@ -102,13 +118,16 @@ namespace Unity.Entities
         public bool HasWeakAssetRefs => (Flags & ArchetypeFlags.HasWeakAssetRefs) != 0;
         public bool HasUnityObjectRefs => (Flags & ArchetypeFlags.HasUnityObjectRefs) != 0;
         public bool HasSystemInstanceComponents => (Flags & ArchetypeFlags.HasSystemInstanceComponents) != 0;
+        public bool HasDynamicChunk => (Flags & ArchetypeFlags.DynamicChunk) != 0;
+        public bool HasDynamicChunkData => (Flags & ArchetypeFlags.DynamicChunkData) != 0;
 
         public int NumNativeComponentData => FirstBufferComponent - 1;
         public int NumBufferComponents => FirstManagedComponent - FirstBufferComponent;
         public int NumManagedComponents => FirstTagComponent - FirstManagedComponent;
         public int NumTagComponents => FirstSharedComponent - FirstTagComponent;
         public int NumSharedComponents => FirstChunkComponent - FirstSharedComponent;
-        public int NumChunkComponents => TypesCount - FirstChunkComponent;
+        public int NumChunkComponents => FirstVirtualComponent - FirstChunkComponent;
+        public int NumVirtualComponents => TypesCount - FirstVirtualComponent;
         public int NonZeroSizedTypesCount => FirstTagComponent;
 
         // These help when iterating specific component types
@@ -118,7 +137,8 @@ namespace Unity.Entities
         public int ManagedComponentsEnd => FirstTagComponent;
         public int TagComponentsEnd => FirstSharedComponent;
         public int SharedComponentsEnd => FirstChunkComponent;
-        public int ChunkComponentsEnd => TypesCount;
+        public int ChunkComponentsEnd => FirstVirtualComponent;
+        public int VirtualComponentsEnd => TypesCount;
 
         public bool HasChunkComponents => FirstChunkComponent != TypesCount;
 

@@ -75,7 +75,7 @@ namespace Unity.Entities
         public static implicit operator int(ChunkIndex index) => index.Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
+        internal readonly unsafe Chunk* GetPtr() => EntityComponentStore.s_chunkStore.Data.GetChunkPointer(Value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool MatchesFilter(MatchingArchetype* match, ref EntityQueryFilter filter)
@@ -259,6 +259,15 @@ namespace Unity.Entities
             }
         }
 
+        internal readonly ChunkIndex GetDynamicChunk(int index)
+        {
+            unsafe
+            {
+                var ptr = GetPtr();
+                return ptr->DynamicChunks[index];
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(ChunkIndex other)
         {
@@ -331,6 +340,9 @@ namespace Unity.Entities
         // SequenceNumber is a unique number for each chunk, across all worlds. (Chunk* is not guranteed unique, in particular because chunk allocations are pooled)
         [FieldOffset(kSerializedHeaderSize)]
         public ulong SequenceNumber;
+
+        [FieldOffset(kSerializedHeaderSize+8)]
+        public ChunkIndex* DynamicChunks; // not serialized so outside
 
         // NOTE: SequenceNumber is not part of the serialized header.
         //       It is cleared on write to disk, it is a global in memory sequence ID used for comparing chunks.

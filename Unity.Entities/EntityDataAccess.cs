@@ -9,6 +9,7 @@ using Unity.Burst.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine.Profiling;
 
 namespace Unity.Entities
@@ -600,9 +601,24 @@ namespace Unity.Entities
 
             ComponentTypeInArchetype* typesInArchetype = stackalloc ComponentTypeInArchetype[count + 2];
 
-            var cachedComponentCount = FillSortedArchetypeArray(typesInArchetype, types, count, addSimulateComponentIfMissing);
+            var hasDynamicChunkType = HasDynamicChunkType(types, count);
+            int cachedComponentCount = hasDynamicChunkType
+                ? FillSortedArchetypeArrayDynamic(typesInArchetype, types, count, addSimulateComponentIfMissing)
+                : FillSortedArchetypeArray(typesInArchetype, types, count, addSimulateComponentIfMissing);
 
             return CreateArchetype_Sorted(typesInArchetype, cachedComponentCount);
+        }
+
+        internal bool HasDynamicChunkType(ComponentType* types, int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                if (types[i] == ComponentType.ReadWrite<DynamicChunk>())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal EntityArchetype CreateArchetype_Sorted(ComponentTypeInArchetype* typesInArchetype, int cachedComponentCount)
@@ -628,9 +644,88 @@ namespace Unity.Entities
             bool hasSimulate = false;
             for (var i = 0; i < count; ++i)
             {
-                hasSimulate |= (requiredComponents[i] == ComponentType.ReadWrite<Simulate>());
-                SortingUtilities.InsertSorted(dst, i + 1, requiredComponents[i]);
+                var component = requiredComponents[i];
+                hasSimulate |= (component == ComponentType.ReadWrite<Simulate>());
+                SortingUtilities.InsertSorted(dst, i + 1, component);
             }
+            if (!hasSimulate && addSimulateComponentIfMissing)
+            {
+                SortingUtilities.InsertSorted(dst, count + 1, ComponentType.ReadWrite<Simulate>());
+                return count + 2;
+            }
+            return count + 1;
+        }
+
+        internal int FillSortedArchetypeArrayDynamic(ComponentTypeInArchetype* dst, ComponentType* requiredComponents, int count, bool addSimulateComponentIfMissing)
+        {
+            CheckMoreThan1024Components(count);
+
+            var sizes = stackalloc ushort[count+1];
+            sizes[0] = (ushort)EntityComponentStore->GetTypeInfo(ComponentType.ReadWrite<Entity>().TypeIndex).SizeInChunk;
+
+            int maxSize = 0;
+
+            var tmp = stackalloc ComponentTypeInArchetype[count];
+
+            for (var i = 0; i < count; ++i)
+            {
+                var component = requiredComponents[i];
+                SortingUtilities.InsertSorted(tmp, i, component);
+            }
+
+            var firstIndexOfZero = count;
+
+            for (var i = 0; i < count; i++)
+            {
+                var index = tmp[i].TypeIndex;
+                ref readonly var cType = ref EntityComponentStore->GetTypeInfo(tmp[i].TypeIndex);
+                if (index.IsChunkComponent || index.IsSharedComponentType || index.IsZeroSized)
+                {
+                    firstIndexOfZero = i;
+                    break;
+                }
+
+                sizes[i+1] = (ushort)cType.SizeInChunk;
+                maxSize = math.max(sizes[i+1], maxSize);
+            }
+
+            var maxSizes =  stackalloc ushort[2];
+            maxSizes[0] = (ushort)EntityComponentStore->GetTypeInfo(ComponentType.ReadWrite<Entity>().TypeIndex).SizeInChunk;
+            maxSizes[1] = (ushort)maxSize;
+
+            var chunkDataSize = Chunk.kChunkBufferSize;
+            int maxCapacity = TypeManager.MaximumChunkCapacity;
+            maxCapacity = math.min(maxCapacity, Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, maxSizes, 2));
+
+            var countLoop = firstIndexOfZero;
+
+            for (var i = 0; i < countLoop; i++)
+            {
+                if (Unity.Entities.EntityComponentStore.CalculateChunkCapacity(chunkDataSize, sizes, i + 2) < maxCapacity) // +2 because of entity at 0
+                {
+                    (sizes[i+1], sizes[countLoop - 1+1]) = (sizes[countLoop - 1+1], sizes[i+1]); // +1 because of entity at 0
+                    (tmp[i], tmp[countLoop - 1]) = (tmp[countLoop - 1], tmp[i]);
+                    i--;
+                    countLoop--;
+                }
+            }
+
+            for (var i = countLoop; i < firstIndexOfZero; i++)
+            {
+                tmp[i] = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(TypeManager.MakeVirtualComponentTypeIndex(tmp[i].TypeIndex)));
+            }
+
+
+            dst[0] = new ComponentTypeInArchetype(ComponentType.ReadWrite<Entity>());
+            bool hasSimulate = false;
+
+            for (var i = 0; i < count; ++i)
+            {
+                var component = tmp[i].ToComponentType();
+                hasSimulate |= (component == ComponentType.ReadWrite<Simulate>());
+                SortingUtilities.InsertSorted(dst, i + 1, component);
+            }
+
             if (!hasSimulate && addSimulateComponentIfMissing)
             {
                 SortingUtilities.InsertSorted(dst, count + 1, ComponentType.ReadWrite<Simulate>());

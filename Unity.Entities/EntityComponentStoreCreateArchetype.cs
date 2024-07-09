@@ -11,13 +11,13 @@ namespace Unity.Entities
         // ----------------------------------------------------------------------------------------------------------
         // PUBLIC
         // ----------------------------------------------------------------------------------------------------------
-        public Archetype* GetOrCreateArchetype(ComponentTypeInArchetype* inTypesSorted, int count)
+        public Archetype* GetOrCreateArchetype(ComponentTypeInArchetype* inTypesSorted, int count, bool isDynamicData = false)
         {
             var srcArchetype = GetExistingArchetype(inTypesSorted, count);
             if (srcArchetype != null)
                 return srcArchetype;
 
-            srcArchetype = CreateArchetype(inTypesSorted, count);
+            srcArchetype = CreateArchetype(inTypesSorted, count, isDynamicData);
 
             var types = stackalloc ComponentTypeInArchetype[count + 1];
 
@@ -38,7 +38,7 @@ namespace Unity.Entities
 
 
             // Setup cleanup archetype
-            if (srcArchetype->CleanupNeeded)
+            if (!isDynamicData && srcArchetype->CleanupNeeded)
             {
                 var cleanupEntityType = new ComponentTypeInArchetype(ComponentType.FromTypeIndex(m_CleanupEntityType));
                 bool cleanupAdded = false;
@@ -99,9 +99,113 @@ namespace Unity.Entities
                     SortingUtilities.InsertSorted(types, metaArchetypeTypeCount++, m_ChunkHeaderComponentType);
                     srcArchetype->MetaChunkArchetype = GetOrCreateArchetype(types, metaArchetypeTypeCount);
                 }
+
+                if (srcArchetype->HasDynamicChunk)
+                {
+                    var startIndex = (int)srcArchetype->FirstVirtualComponent;
+                    var chunkDataSize = Chunk.kChunkBufferSize;
+                    var maxCapacity = srcArchetype->ChunkCapacity;
+
+                    var sizes = stackalloc ushort[srcArchetype->NumVirtualComponents];
+
+                    for (var i = 0; i < srcArchetype->NumVirtualComponents; i++)
+                    {
+                        sizes[i] = (ushort)GetTypeInfo(types[i + startIndex].TypeIndex).SizeInChunk;
+                    }
+
+                    // types[0] = new ComponentTypeInArchetype(m_EntityComponentType);
+
+                    // TODO remove allocation
+                    var linkedChunks = new NativeList<DynamicChunkToSetup>(Allocator.Temp);
+
+                    while (startIndex < srcArchetype->VirtualComponentsEnd)
+                    {
+                        var countLoop = srcArchetype->VirtualComponentsEnd;
+                        int componentTypeCount = 0;
+
+                        var localSizes = sizes + startIndex - srcArchetype->FirstVirtualComponent;
+
+                        for (var i = startIndex; i < countLoop; i++)
+                        {
+                            var v = CalculateChunkCapacity(chunkDataSize, localSizes, i + 1 - startIndex);
+
+                            if (v < maxCapacity)
+                            {
+                                (localSizes[i - startIndex], localSizes[countLoop - 1 - startIndex]) = (localSizes[countLoop - 1 - startIndex], localSizes[i - startIndex]);
+                                (srcArchetype->Types[i], srcArchetype->Types[countLoop - 1]) = (srcArchetype->Types[countLoop - 1], srcArchetype->Types[i]);
+                                i--;
+                                countLoop--;
+                            }
+                            else
+                            {
+                                var t = srcArchetype->Types[i].TypeIndex.Value;
+
+                                var typeIndex = new TypeIndex
+                                {
+                                    Value = t & ~(TypeManager.VirtualComponentTypeFlag | TypeManager.ZeroSizeInChunkTypeFlag),
+                                };
+
+                                var typeToInsert = new ComponentType
+                                {
+                                    TypeIndex = VirtualComponentToNormalTypeIndex(typeIndex)
+                                };
+                                SortingUtilities.InsertSorted(types, componentTypeCount++, typeToInsert);
+                            }
+                        }
+
+                        SortingUtilities.InsertSorted(types, componentTypeCount++, m_VirtualChunkDataComponentType);
+                        const int extraComponents = 1; // ENTITY, m_VirtualChunkDataComponentType // TODO does it need entity?
+
+                        var linkedArchetype = GetOrCreateArchetype(types, componentTypeCount, true);
+                        Assert.IsTrue(linkedArchetype->ChunkCapacity >= srcArchetype->ChunkCapacity);
+
+                        linkedChunks.Add(new DynamicChunkToSetup
+                        {
+                            Archetype = linkedArchetype,
+                            StartIndex = startIndex,
+                            Count = componentTypeCount - extraComponents,
+                        });
+
+                        startIndex += componentTypeCount - extraComponents;
+                    }
+
+                    ChunkAllocate<IntPtr>(&srcArchetype->VirtualChunkArchetype, linkedChunks.Length + 1);
+                    srcArchetype->ChunkCount = linkedChunks.Length + 1;
+
+                    ChunkAllocate<ushort>(&srcArchetype->DynamicTypes, srcArchetype->TypesCount);
+                    UnsafeUtility.MemClear(srcArchetype->DynamicTypes, UnsafeUtility.SizeOf<ushort>() * srcArchetype->TypesCount);
+
+                    // Add ourselves to the first slot
+                    srcArchetype->GetVirtualChunkArchetype(0) = srcArchetype;
+
+                    for (var i = 0; i < linkedChunks.Length; i++)
+                    {
+                        srcArchetype->GetVirtualChunkArchetype(i+1) = linkedChunks[i].Archetype;
+
+                        var offset = linkedChunks[i].StartIndex;
+
+                        for (var index = 0; index < linkedChunks[i].Count; index++)
+                        {
+                            srcArchetype->DynamicTypes[offset + index] = (ushort)(i + 1);
+                        }
+                    }
+                }
+                // else
+                // {
+                //     ChunkAllocate<IntPtr>(&srcArchetype->VirtualChunkArchetype);
+                //     srcArchetype->ChunkCount = 1;
+                //     srcArchetype->GetVirtualChunkArchetype(0) = srcArchetype;
+                // }
             }
 
             return srcArchetype;
+        }
+
+        struct DynamicChunkToSetup
+        {
+            public Archetype* Archetype;
+            public int StartIndex;
+            public int Count;
         }
 
         Archetype* CreateInstanceArchetype(ComponentTypeInArchetype* inTypesSorted, int count, ComponentTypeInArchetype* types, Archetype* srcArchetype, bool removePrefab)

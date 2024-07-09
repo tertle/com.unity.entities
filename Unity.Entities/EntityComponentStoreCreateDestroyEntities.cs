@@ -175,6 +175,8 @@ namespace Unity.Entities
 
             if (archetype->MetaChunkArchetype != null)
                 CreateMetaEntityForChunk(newChunk);
+            if (archetype->HasDynamicChunk)
+                CreateDynamicChunksForChunk(newChunk);
 
             return newChunk;
         }
@@ -223,6 +225,27 @@ namespace Unity.Entities
                 var chunkHeader = (ChunkHeader*)GetComponentDataWithTypeRW(metaEntity, m_ChunkHeaderType, GlobalSystemVersion);
 
                 chunkHeader->ArchetypeChunk = new ArchetypeChunk(chunk, entityComponentStore);
+            }
+        }
+
+        internal void CreateDynamicChunksForChunk(ChunkIndex chunk)
+        {
+            fixed(EntityComponentStore* entityComponentStore = &this)
+            {
+                Archetype* archetype = entityComponentStore->GetArchetype(chunk);
+                var sharedIndices = stackalloc int[0];
+
+                var ptr = chunk.GetPtr();
+
+                ChunkAllocate<ChunkIndex>(&ptr->DynamicChunks, archetype->ChunkCount);
+                ptr->DynamicChunks[0] = chunk;
+
+                for(var i = 1; i < archetype->ChunkCount; i++)
+                {
+                    var dynamicArchetype = archetype->GetVirtualChunkArchetype(i);
+                    var linkedChunk = GetCleanChunkNoMetaChunk(dynamicArchetype, sharedIndices);
+                    ptr->DynamicChunks[i] = linkedChunk;
+                }
             }
         }
 

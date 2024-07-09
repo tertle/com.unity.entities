@@ -449,10 +449,13 @@ namespace Unity.Entities
         TypeIndex m_DisabledType;
         TypeIndex m_EntityType;
         TypeIndex m_SystemInstanceType;
+        TypeIndex m_VirtualChunkType;
+        TypeIndex m_VirtualChunkDataType;
 
         ComponentType m_ChunkHeaderComponentType;
         ComponentType m_EntityComponentType;
         ComponentType m_SimulateComponentType;
+        ComponentType m_VirtualChunkDataComponentType;
 
         TypeManager.TypeInfo* m_TypeInfos;
         TypeManager.EntityOffsetInfo* m_EntityOffsetInfos;
@@ -785,10 +788,13 @@ namespace Unity.Entities
             entities->m_DisabledType = TypeManager.GetTypeIndex<Disabled>();
             entities->m_EntityType = TypeManager.GetTypeIndex<Entity>();
             entities->m_SystemInstanceType = TypeManager.GetTypeIndex<SystemInstance>();
+            entities->m_VirtualChunkType = TypeManager.GetTypeIndex<DynamicChunk>();
+            entities->m_VirtualChunkDataType = TypeManager.GetTypeIndex<DynamicChunkData>();
 
             entities->m_ChunkHeaderComponentType = ComponentType.ReadWrite<ChunkHeader>();
             entities->m_EntityComponentType = ComponentType.ReadWrite<Entity>();
             entities->m_SimulateComponentType = ComponentType.ReadWrite<Simulate>();
+            entities->m_VirtualChunkDataComponentType = ComponentType.ReadWrite<DynamicChunkData>();
             entities->InitializeTypeManagerPointers();
 
             entities->m_ChunkListChangesTracker = new ChunkListChanges();
@@ -832,6 +838,7 @@ namespace Unity.Entities
         }
 
         public TypeIndex ChunkComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
+        public TypeIndex VirtualComponentToNormalTypeIndex(TypeIndex typeIndex) => m_TypeInfos[typeIndex.Index].TypeIndex;
 
         public static void Destroy(EntityComponentStore* entityComponentStore)
         {
@@ -1169,6 +1176,17 @@ namespace Unity.Entities
             return GetArchetype(chunk);
         }
 
+        public Archetype* GetArchetype(Entity entity, TypeIndex typeIndex)
+        {
+            AssertEntitiesExist(&entity, 1);
+            var chunk = GetChunk(entity);
+            Assert.IsTrue(chunk != ChunkIndex.Null);
+
+            var archetype = GetArchetype(chunk);
+            ChunkDataUtility.RemapDynamicChunk(ref chunk, ref archetype, typeIndex);
+            return archetype;
+        }
+
         public ChunkIndex GetChunk(Entity entity)
         {
 #if !ENTITY_STORE_V1
@@ -1308,7 +1326,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type) != -1;
         }
 
@@ -1317,7 +1335,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type);
             if (Hint.Unlikely(archetype != cache.Archetype))
                 cache.Update(archetype, type);
             return cache.IndexInArchetype != -1;
@@ -1328,7 +1346,7 @@ namespace Unity.Entities
             if (Hint.Unlikely(!Exists(entity)))
                 return false;
 
-            var archetype = GetArchetype(entity);
+            var archetype = GetArchetype(entity, type.TypeIndex);
             return ChunkDataUtility.GetIndexInTypeArray(archetype, type.TypeIndex) != -1;
         }
 
@@ -2603,7 +2621,7 @@ namespace Unity.Entities
 
         internal static int GetComponentArraySize(int componentSize, int entityCount) => CollectionHelper.Align(componentSize * entityCount, CollectionHelper.CacheLineSize);
 
-        static int CalculateSpaceRequirement(ushort* componentSizes, int componentCount, int entityCount)
+        internal static int CalculateSpaceRequirement(ushort* componentSizes, int componentCount, int entityCount)
         {
             int size = 0;
             for (int i = 0; i < componentCount; ++i)
@@ -2611,7 +2629,7 @@ namespace Unity.Entities
             return size;
         }
 
-        static int CalculateChunkCapacity(int bufferSize, ushort* componentSizes, int count)
+        internal static int CalculateChunkCapacity(int bufferSize, ushort* componentSizes, int count)
         {
             int totalSize = 0;
             for (int i = 0; i < count; ++i)
@@ -2642,9 +2660,16 @@ namespace Unity.Entities
                 throw new ArgumentException($"Component Data sizes may not be larger than {short.MaxValue}");
         }
 
-        internal Archetype* CreateArchetype(ComponentTypeInArchetype* types, int count)
+        internal Archetype* CreateArchetype(ComponentTypeInArchetype* types, int count, bool isDynamicData)
         {
-            AssertArchetypeComponents(types, count);
+            if (isDynamicData)
+            {
+                AssertArchetypeComponentsDynamic(types, count);
+            }
+            else
+            {
+                AssertArchetypeComponents(types, count);
+            }
 
             // Compute how many IComponentData types store Entities and need to be patched.
             // Types can have more than one entity, which means that this count is not necessarily
@@ -2709,6 +2734,9 @@ namespace Unity.Entities
 
             {
                 short i = (short)count;
+                do {dstArchetype->FirstVirtualComponent = i;}
+                while (types[--i].IsVirtual);
+                i++;
                 do dstArchetype->FirstChunkComponent = i;
                 while (types[--i].IsChunkComponent);
                 i++;
@@ -2747,7 +2775,32 @@ namespace Unity.Entities
                     dstArchetype->Flags |= ArchetypeFlags.HasWeakAssetRefs;
                 if (typeInfo.HasUnityObjectRefs)
                     dstArchetype->Flags |= ArchetypeFlags.HasUnityObjectRefs;
+                if (typeIndex == m_VirtualChunkType)
+                    dstArchetype->Flags |= ArchetypeFlags.DynamicChunk;
+                if (typeIndex == m_VirtualChunkDataType)
+                    dstArchetype->Flags |= ArchetypeFlags.DynamicChunkData;
             }
+
+            // VirtualChunkData can't have virtual components
+            Assert.IsTrue(!dstArchetype->HasDynamicChunkData || dstArchetype->NumVirtualComponents == 0);
+
+            Assert.IsTrue(isDynamicData == dstArchetype->HasDynamicChunkData);
+
+            // if (dstArchetype->VirtualChunk)
+            // {
+            //     int mask = 0;
+            //     for (var it = dstArchetype->FirstVirtualComponent; it < dstArchetype->VirtualComponentsEnd; it++)
+            //     {
+            //         var vc = TypeManager.GetTypeInfo(types[it].TypeIndex).VirtualChunk;
+            //         Assert.IsTrue(vc is > 0 and <= 8);
+            //         mask |= 1 << (vc - 1);
+            //     }
+            //     dstArchetype->VirtualChunkMask = (byte)mask;
+            // }
+            // else
+            // {
+            //     dstArchetype->VirtualChunkMask = 0;
+            // }
 
             if (dstArchetype->NumManagedComponents > 0)
                 dstArchetype->Flags |= ArchetypeFlags.HasManagedComponents;
@@ -3149,6 +3202,10 @@ namespace Unity.Entities
         public ushort     ComponentSizeOf;
         public short      IndexInArchetype;
 
+        [NativeDisableUnsafePtrRestriction]
+        public Archetype* DynamicArchetype;
+        public short      DynamicIndexInArchetype;
+
         // This method will *always* update the cache.
         // It should only be called if it's already been determined that the cache is stale.
         // It is safe to call if the archetype does not contain the type.
@@ -3158,6 +3215,21 @@ namespace Unity.Entities
             ComponentOffset = IndexInArchetype == -1 ? 0 : archetype->Offsets[IndexInArchetype];
             ComponentSizeOf = IndexInArchetype == -1 ? (ushort)0 : archetype->SizeOfs[IndexInArchetype];
             Archetype = archetype;
+        }
+
+        public void UpdateDynamic(Archetype* dynamicArchetype, TypeIndex typeIndex)
+        {
+            ChunkDataUtility.GetDynamicIndexInTypeArray(dynamicArchetype, typeIndex, ref DynamicIndexInArchetype);
+            DynamicArchetype = dynamicArchetype;
+
+            if (!Hint.Unlikely(DynamicIndexInArchetype != -1))
+            {
+                IndexInArchetype = -1;
+                return;
+            }
+
+            var chunkIndex = dynamicArchetype->DynamicTypes[DynamicIndexInArchetype];
+            Update(dynamicArchetype->GetVirtualChunkArchetype(chunkIndex), typeIndex);
         }
     }
 }

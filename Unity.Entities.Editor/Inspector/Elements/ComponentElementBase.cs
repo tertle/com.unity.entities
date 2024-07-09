@@ -44,6 +44,9 @@ namespace Unity.Entities.Editor
                     foldout.contentContainer.Add(new HelpBox("Changing shared values will move entities between chunks", HelpBoxMessageType.Info));
             }
 
+            if (Type == ComponentPropertyType.VirtualComponent)
+                foldout.contentContainer.Add(new HelpBox("Virtual Component", HelpBoxMessageType.Info));
+
             var content = new PropertyElement();
 
             // We set user data to this root PropertyElement to indicate this is a live property displaying runtime data.
