@@ -90,6 +90,43 @@ namespace Unity.Entities.Analyzer
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+
+        [DataTestMethod]
+        [DataRow("GetComponentLookup", "SystemAPI.GetComponentLookup<EcsTestData>()")]
+        [DataRow("GetComponent", "SystemAPI.GetComponent<EcsTestData>(entity)")]
+        [DataRow("GetComponentRW", "SystemAPI.GetComponentRW<EcsTestData>(entity)")]
+        [DataRow("GetComponentRO", "SystemAPI.GetComponentRO<EcsTestData>(entity)")]
+        [DataRow("SetComponent", "SystemAPI.SetComponent<EcsTestData>(entity, new EcsTestData())")]
+        [DataRow("HasComponent", "SystemAPI.HasComponent<EcsTestData>(entity)")]
+        [DataRow("GetBufferLookup", "SystemAPI.GetBufferLookup<EcsIntElement>(true)")]
+        [DataRow("GetBuffer", "SystemAPI.GetBuffer<EcsIntElement>(entity)")]
+        [DataRow("HasBuffer", "SystemAPI.HasBuffer<EcsIntElement>(entity)")]
+        [DataRow("GetEntityStorageInfoLookup", "SystemAPI.GetEntityStorageInfoLookup()")]
+        [DataRow("Exists", "SystemAPI.Exists(entity)")]
+        [DataRow("GetAspect", "SystemAPI.GetAspect<EcsTestAspect>(entity)")]
+        public async Task SystemAPIUseInEFE_NoError(string memberName, string apiMethodInvocation)
+        {
+            var test = @$"
+                using Unity.Entities;
+                using Unity.Entities.Tests;
+                using static Unity.Entities.SystemAPI;
+
+                partial class TestSystem : SystemBase
+                {{
+                    protected override void OnUpdate()
+                    {{
+                        Entities
+                            .ForEach((Entity entity) =>
+                            {{
+                                {apiMethodInvocation};
+                            }})
+                            .Run();
+                    }}
+                }}";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
         [DataTestMethod]
         [DataRow("HasSingleton", @"{|#0:SystemAPI.HasSingleton<EcsTestData>()|}")]
         [DataRow("HasSingleton", @"{|#0:HasSingleton<EcsTestData>()|}")]

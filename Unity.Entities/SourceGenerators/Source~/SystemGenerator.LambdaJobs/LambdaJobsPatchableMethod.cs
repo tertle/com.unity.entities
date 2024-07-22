@@ -221,7 +221,7 @@ class LambdaJobsPatchableMethod
                         var dataAccessField = rewriter.GetOrCreateDataAccessField(
                             methodSymbol.TypeArguments.First(), true, AccessorDataType.ComponentLookup);
                         var entityArgument = GetArgumentsInOrder(originalNode, "entity").First();
-                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}[{entityArgument}]");
+                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}.GetRefRO({entityArgument})");
                     }
                 }
             },
@@ -235,7 +235,7 @@ class LambdaJobsPatchableMethod
                         var dataAccessField = rewriter.GetOrCreateDataAccessField(
                             methodSymbol.TypeArguments.First(), false, AccessorDataType.ComponentLookup);
                         var entityArgument = GetArgumentsInOrder(originalNode, "entity").First();
-                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}[{entityArgument}]");
+                        return SyntaxFactory.ParseExpression($"{dataAccessField.FieldName}.GetRefRW({entityArgument})");
                     }
                 }
             }

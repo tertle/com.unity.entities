@@ -13,6 +13,8 @@ namespace Unity.Entities.Analyzer
                 {
                     new[] {"GetComponentLookup", "SystemAPI.GetComponentLookup<EcsTestData>()"},
                     new[] {"GetComponent", "SystemAPI.GetComponent<EcsTestData>(entity)"},
+                    new[] {"GetComponentRW", "SystemAPI.GetComponentRW<EcsTestData>(entity)"},
+                    new[] {"GetComponentRO", "SystemAPI.GetComponentRO<EcsTestData>(entity)"},
                     new[] {"SetComponent", "SystemAPI.SetComponent<EcsTestData>(entity, new EcsTestData())"},
                     new[] {"HasComponent", "SystemAPI.HasComponent<EcsTestData>(entity)"},
                     new[] {"GetBufferLookup", "SystemAPI.GetBufferLookup<EcsIntElement>(true)"},
