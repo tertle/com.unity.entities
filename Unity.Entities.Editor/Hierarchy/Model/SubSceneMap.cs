@@ -80,7 +80,10 @@ namespace Unity.Entities.Editor
                         continue;
                     handle = HierarchyNodeHandle.FromSubScene(s_SubSceneCounter++);
                     nodeStore.AddNode(handle);
-                    nameStore.SetName(handle,  $"Entity Scene {sceneReference.SceneGUID}"); // todo find entity scene name?
+                    var path = UnityEditor.AssetDatabase.GUIDToAssetPath(sceneReference.SceneGUID);
+                    var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.SceneAsset>(path);
+                    nameStore.SetName(handle,
+                        asset != null ? $"{asset.name}" : $"Entity Scene {sceneReference.SceneGUID}");
                 }
 
                 m_EntityScenes.Add(entity, handle);
