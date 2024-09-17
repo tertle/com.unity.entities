@@ -45,8 +45,19 @@ public partial class JobEntityModule
 
             result._typeInfo = systemDescription.SemanticModel.GetTypeInfo(jobEntityInstance);
 
-            (bool isJobEntity, result.IsExtensionMethodUsed) = DoesTypeInheritJobEntityAndUseExtensionMethod(result._typeInfo);
-            return isJobEntity;
+            if (!result._typeInfo.Type.InheritsFromInterface("Unity.Entities.IJobEntity"))
+            {
+                if (result._typeInfo.Type.ToFullName() == "global::Unity.Entities.IJobEntityExtensions")
+                    result.IsExtensionMethodUsed = true;
+                else
+                    return false;
+            }
+
+            // check if type is an error symbol
+            if (systemDescription.SemanticModel.GetSymbolInfo(candidate.MemberAccessExpressionSyntax).CandidateSymbols.Length > 0)
+                return false;
+
+            return true;
         }
 
         public (bool Success, ObjectCreationExpressionSyntax? ObjectCreationExpressionSyntax, IdentifierNameSyntax? IdentifierNameSyntax, int JobArgumentIndexInExtensionMethod)
@@ -286,10 +297,5 @@ public partial class JobEntityModule
                 writer.WriteLine("}");
             }
         }
-
-        static (bool IsKnownCandidate, bool IsExtensionMethodUsed) DoesTypeInheritJobEntityAndUseExtensionMethod(TypeInfo typeInfo) =>
-            typeInfo.Type.InheritsFromInterface("Unity.Entities.IJobEntity")
-                ? (IsKnownCandidate: true, IsExtensionMethodUsed: false) // IsExtensionMethodUsed is ignored if IsCandidate is false, so we don't need to test the same thing twice
-                : (IsKnownCandidate: typeInfo.Type.ToFullName() == "global::Unity.Entities.IJobEntityExtensions", IsExtensionMethodUsed: true);
     }
 }

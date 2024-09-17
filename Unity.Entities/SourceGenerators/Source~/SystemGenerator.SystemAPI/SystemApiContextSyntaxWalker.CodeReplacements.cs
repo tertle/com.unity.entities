@@ -87,7 +87,9 @@ public partial class SystemApiContextSyntaxWalker
                         if (!_systemDescription.TryGetSystemStateParameterName(candidateSyntax, out var systemState))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -123,7 +125,9 @@ public partial class SystemApiContextSyntaxWalker
             // Based on type argument
             case IMethodSymbol { TypeArguments.Length: 1 } namedTypeSymbolWithTypeArg:
             {
-                var typeArgument = namedTypeSymbolWithTypeArg.TypeArguments.Single();
+                var typeArgument = namedTypeSymbolWithTypeArg.TypeArguments.SingleOrDefault();
+                if (typeArgument == null)
+                    return default;
 
                 if (TryGetSystemBaseGeneric(out string replacementCode, out ReplacedWith replacedWith))
                     return (
@@ -182,9 +186,11 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
                         var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().First()
-                            .TypeArgumentList.Arguments.Single();
+                            .TypeArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null || typeArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -198,7 +204,9 @@ public partial class SystemApiContextSyntaxWalker
                     {
                         var lookup =
                             _systemDescription.QueriesAndHandles.GetOrCreateComponentLookupField(typeArgument, true);
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         if (!_systemDescription.TryGetSystemStateParameterName(candidateSyntax,
                                 out var systemStateExpression))
@@ -222,7 +230,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -243,7 +253,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -289,9 +301,11 @@ public partial class SystemApiContextSyntaxWalker
                     }
                     case CandidateType.HasComponent when isManagedApi:
                     {
-                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().Single()
-                            .TypeArgumentList.Arguments.Single();
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().SingleOrDefault()
+                            ?.TypeArgumentList.Arguments.SingleOrDefault();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (typeArg == null || entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -313,7 +327,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -330,9 +346,11 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().Single()
-                            .TypeArgumentList.Arguments.Single();
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var typeArg = candidateSyntax.Node.DescendantNodes().OfType<GenericNameSyntax>().SingleOrDefault()?
+                            .TypeArgumentList.Arguments.SingleOrDefault();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (typeArg == null || entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -350,7 +368,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -473,7 +493,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;
@@ -492,7 +514,9 @@ public partial class SystemApiContextSyntaxWalker
                                 out var systemStateExpression))
                             return default;
 
-                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.Single();
+                        var entityArg = invocationExpressionSyntax.ArgumentList.Arguments.SingleOrDefault();
+                        if (entityArg == null)
+                            return default;
 
                         // Because we are partially patching the node with an open parenthesis with no accompanying closing parenthesis, we need to increment `_numClosingBracketsForNestedSystemApiInvocations` by one.
                         _numClosingBracketsForNestedSystemApiInvocations++;

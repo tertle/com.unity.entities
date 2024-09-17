@@ -11,6 +11,29 @@ namespace Unity.Entities.SourceGenerators;
 public class SystemAPIErrorTests
 {
     [TestMethod]
+    public async Task NO_SGICE_BUT_HAS_CSHARP_COMPILE_ERRORS()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+            using static Unity.Entities.SystemAPI;
+            partial struct SomeJobEntity : IJobEntity
+            {
+                public void Execute(in EcsTestData id){}
+            }
+
+            partial struct SomeSystem : ISystem {
+                public void OnUpdate(ref SystemState state) {
+                    var hadComp = {|#0:HasComponent<EcsTestData>|}();
+                    new SomeJobEntity().ScheduleParallel({|#1:SystemAPI.Query<RefRO<EcsTestData>>().WithEntityAccess()|});
+                }
+            }";
+        var expectedA = VerifyCS.CompilerError("CS7036").WithLocation(0);
+        var expectedB = VerifyCS.CompilerError("CS1503").WithLocation(1);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expectedA, expectedB);
+    }
+
+    [TestMethod]
     public async Task SGSA0001()
     {
         const string source = @"

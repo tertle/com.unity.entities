@@ -58,6 +58,21 @@ public class JobEntityNoErrorTests
     }
 
     [TestMethod]
+    public async Task NO_SGICE_BUT_HAS_CSHARP_COMPILE_ERRORS()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+            using static Unity.Entities.SystemAPI;
+            partial struct SomeJobEntity : IJobEntity
+            {
+                public void Execute(ref DynamicBuffer<{|#0:NotADefinedType|}> someBuffer){}
+            }";
+        var expectedA = VerifyCS.CompilerError("CS0246").WithLocation(0);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expectedA);
+    }
+
+    [TestMethod]
     public async Task InnerNamespaceUsing()
     {
         const string source = @"
