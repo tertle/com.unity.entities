@@ -412,7 +412,7 @@ namespace Unity.Entities
                 throw new ArgumentException(
                     "During destruction of a system you are not allowed to create more systems.");
 #endif
-            
+
             return TypeManager.ConstructSystem(TypeManager.GetSystemType(type));
         }
 
@@ -591,8 +591,8 @@ namespace Unity.Entities
         /// <returns>The instance of system type <typeparamref name="T"/> in this World. If the system
         /// does not exist in this World, it will first be created.</returns>
         public T GetOrCreateSystemManaged<T>() where T : ComponentSystemBase
-        //sadly, we have to use reflection to account for the fact that T might not have been registered at startup. 
-        //someday, we can ban this and avoid reflection here. 
+        //sadly, we have to use reflection to account for the fact that T might not have been registered at startup.
+        //someday, we can ban this and avoid reflection here.
         {
             var idx = TypeManager.GetSystemTypeIndexNoThrow<T>();
             if (idx == SystemTypeIndex.Null)
@@ -748,7 +748,7 @@ namespace Unity.Entities
                 TypeManager.AddSystemTypeToTablesAfterInit(typeof(T));
                 idx = TypeManager.GetSystemTypeIndex<T>();
             }
-                
+
             return (T)CreateSystemManaged(idx);
         }
 
@@ -769,7 +769,7 @@ namespace Unity.Entities
         {
             return CreateSystem(TypeManager.GetSystemTypeIndex(type));
         }
-        
+
         /// <summary>
         /// Create and return a handle to an instance of a system of type <paramref name="type"/> in this World.
         /// </summary>
@@ -817,7 +817,7 @@ namespace Unity.Entities
         {
             return CreateSystemManaged(TypeManager.GetSystemTypeIndex(type));
         }
-        
+
         /// <summary>
         /// Create and return an instance of a system of type <paramref name="type"/> in this World.
         /// </summary>
@@ -828,14 +828,6 @@ namespace Unity.Entities
             CheckGetOrCreateSystem();
             return CreateSystemInternal(type);
         }
-
-        /// <summary> Obsolete. Use <see cref="AddSystemManaged{T}(T)"/> instead.</summary>
-        /// <typeparam name="T">The system type</typeparam>
-        /// <param name="system">The existing system instance to add</param>
-        /// <returns>The input <paramref name="system"/></returns>
-        [Obsolete("(UnityUpgradable) -> AddSystemManaged<T>(*)", true)]
-        public T AddSystem<T>(T system) where T : ComponentSystemBase
-            => AddSystemManaged(system);
 
         /// <summary>
         /// Adds an existing system instance to this World
@@ -1058,15 +1050,6 @@ namespace Unity.Entities
             system.DestroyInstance();
         }
 
-        /// <summary>
-        /// Destroy all system instances in the World. Any errors encountered during individual system destruction will be logged to the console.
-        /// </summary>
-        /// <exception cref="ArgumentException">Thrown if any of the World's systems are currently executing.</exception>
-        [Obsolete("This function now takes an out bool parameter to report if any exceptions were logged.", false)]
-        public void DestroyAllSystemsAndLogException()
-        {
-            DestroyAllSystemsAndLogException(out _);
-        }
         /// <summary>
         /// Destroy all system instances in the World. Any errors encountered during individual system destruction will be logged to the console.
         /// </summary>
@@ -1552,50 +1535,6 @@ namespace Unity.Entities
         public static SystemHandle GetOrCreateSystem<T>(this World self) where T : unmanaged, ISystem
         {
             return self.Unmanaged.GetOrCreateUnmanagedSystem<T>();
-        }
-
-        /// <summary> Obsolete. Use <see cref="World.GetOrCreateSystem(Type)"/> instead.</summary>
-        /// <param name="self">The World</param>
-        /// <param name="unmanagedType">The type.</param>
-        /// <returns></returns>
-        [Obsolete("Use World.GetOrCreateSystem instead")]
-        public static SystemHandle GetOrCreateSystem(World self, Type unmanagedType)
-        {
-            return self.GetOrCreateSystem(unmanagedType);
-        }
-        /// <summary> Obsolete. Use <see cref="World.DestroySystem(SystemHandle)"/> instead.</summary>
-        /// <param name="self">The World</param>
-        /// <param name="sysHandle">The system handle.</param>
-        [Obsolete("Use World.DestroySystem instead")]
-        public static void DestroySystem(World self, SystemHandle sysHandle)
-        {
-            self.DestroySystem(sysHandle);
-        }
-        /// <summary> Obsolete. Use <see cref="World.CreateSystem{T}"/> instead.</summary>
-        /// <param name="self">The World</param>
-        /// <typeparam name="T">The system</typeparam>
-        /// <returns></returns>
-        [Obsolete("Use World.CreateSystem instead")]
-        public static SystemHandle AddSystem<T>(this World self) where T : unmanaged, ISystem
-        {
-            return CreateSystem<T>(self);
-        }
-        /// <summary> Obsolete. Use <see cref="World.GetOrCreateSystem"/> instead.</summary>
-        /// <param name="self">The World</param>
-        /// <param name="unmanagedType">The type.</param>
-        /// <returns></returns>
-        [Obsolete("Use World.GetOrCreateSystem instead")]
-        public static SystemHandle GetOrCreateUnmanagedSystem(this World self, Type unmanagedType)
-        {
-            return GetOrCreateSystem(self, unmanagedType);
-        }
-        /// <summary> Obsolete. Use <see cref="World.DestroySystem"/> instead.</summary>
-        /// <param name="self">The World</param>
-        /// <param name="sysHandle">The system handle.</param>
-        [Obsolete("Use World.DestroySystem instead")]
-        public static void DestroyUnmanagedSystem(this World self, SystemHandle sysHandle)
-        {
-            DestroySystem(self, sysHandle);
         }
     }
 }

@@ -9,80 +9,6 @@ using Unity.Jobs;
 
 namespace Unity.Entities
 {
-    [BurstCompile]
-    [Obsolete("Remove with CreateArchetypeChunkArrayAsync. (RemovedAfter Entities 1.0)")]
-    unsafe struct GatherChunksToArrayJob : IJobParallelFor
-    {
-        [NativeDisableUnsafePtrRestriction] public EntityComponentStore* entityComponentStore;
-        [NativeDisableUnsafePtrRestriction] public MatchingArchetype** MatchingArchetypes;
-        [DeallocateOnJobCompletion]
-        [ReadOnly] public NativeArray<int> Offsets;
-        [NativeDisableParallelForRestriction] public NativeArray<ArchetypeChunk> Chunks;
-
-        public void Execute(int index)
-        {
-            var archetype = MatchingArchetypes[index]->Archetype;
-            var chunkCount = archetype->Chunks.Count;
-            var offset = Offsets[index];
-            for (int i = 0; i < chunkCount; i++)
-            {
-                var srcChunk = archetype->Chunks[i];
-                Chunks[offset + i] = new ArchetypeChunk(srcChunk, entityComponentStore);
-            }
-        }
-    }
-
-    [BurstCompile]
-    [Obsolete("Remove with CreateArchetypeChunkArrayAsync. (RemovedAfter Entities 1.0)")]
-    internal unsafe struct GatherChunksToArrayWithFilteringJob : IJobParallelFor
-    {
-        [NativeDisableUnsafePtrRestriction] public EntityComponentStore* entityComponentStore;
-        [NativeDisableUnsafePtrRestriction] public MatchingArchetype** MatchingArchetypes;
-        public EntityQueryFilter Filter;
-
-        [ReadOnly] public NativeArray<int> Offsets;
-        public NativeArray<int> FilteredCounts;
-
-        [NativeDisableParallelForRestriction] public NativeArray<ArchetypeChunk> SparseChunks;
-
-        public void Execute(int index)
-        {
-            int filteredCount = 0;
-            var match = MatchingArchetypes[index];
-            var archetype = match->Archetype;
-            int chunkCount = archetype->Chunks.Count;
-            var writeIndex = Offsets[index];
-            var archetypeChunks = archetype->Chunks;
-
-            for (var i = 0; i < chunkCount; ++i)
-            {
-                if (match->ChunkMatchesFilter(i, ref Filter))
-                    SparseChunks[writeIndex + filteredCount++] =
-                        new ArchetypeChunk(archetypeChunks[i], entityComponentStore);
-            }
-
-            FilteredCounts[index] = filteredCount;
-        }
-    }
-
-    [BurstCompile]
-    [Obsolete("Remove with CreateArchetypeChunkArrayAsync. (RemovedAfter Entities 1.0)")]
-    struct JoinChunksJob : IJobParallelFor
-    {
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<int> DestinationOffsets;
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<ArchetypeChunk> SparseChunks;
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<int> Offsets;
-        [NativeDisableParallelForRestriction]  public NativeArray<ArchetypeChunk> JoinedChunks;
-
-        public void Execute(int index)
-        {
-            int destOffset = DestinationOffsets[index];
-            int count = DestinationOffsets[index + 1] - destOffset;
-            if (count != 0)
-                NativeArray<ArchetypeChunk>.Copy(SparseChunks, Offsets[index], JoinedChunks, destOffset, count);
-        }
-    }
-
     // Computes the first entity index of each chunk.
     [BurstCompile]
     struct FilteredChunkIndexJob : IJob
@@ -217,37 +143,6 @@ namespace Unity.Entities
     }
 
     [BurstCompile]
-    [Obsolete("Only used by obsolete code paths. (RemovedAfter Entities 1.0)")]
-    unsafe struct GatherEntitiesToArrayJob : IJobChunk
-    {
-        [NativeDisableUnsafePtrRestriction] public byte* Entities;
-        [ReadOnly] public EntityTypeHandle EntityTypeHandle;
-        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> ChunkBaseEntityIndices;
-
-        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-        {
-            int baseEntityIndexInQuery = ChunkBaseEntityIndices[unfilteredChunkIndex];
-            Entity* destinationPtr = (Entity*)Entities + baseEntityIndexInQuery;
-            Entity* sourcePtr = chunk.GetEntityDataPtrRO(EntityTypeHandle);
-            if (useEnabledMask)
-            {
-                int rangeEnd = 0;
-                int numCopied = 0;
-                while (EnabledBitUtility.TryGetNextRange(chunkEnabledMask, firstIndexToCheck: rangeEnd, out int rangeStart, out rangeEnd))
-                {
-                    int rangeCount = rangeEnd - rangeStart;
-                    UnsafeUtility.MemCpy(destinationPtr+numCopied, sourcePtr+rangeStart, rangeCount * sizeof(Entity));
-                    numCopied += rangeCount;
-                }
-            }
-            else
-            {
-                UnsafeUtility.MemCpy(destinationPtr, sourcePtr, chunk.Count * sizeof(Entity));
-            }
-        }
-    }
-
-    [BurstCompile]
     unsafe struct GatherEntitiesJob : IJobChunk
     {
         [NativeDisableParallelForRestriction] public TypelessUnsafeList OutputList;
@@ -286,41 +181,6 @@ namespace Unity.Entities
                 UnsafeUtility.MemCpy(dstEntities, srcEntities, chunk.Count * sizeof(Entity));
             }
             Interlocked.Add(ref *(OutputList.Length), copyCount);
-        }
-    }
-
-    [Obsolete("Use GatherComponentDataJob instead. (RemovedAfter Entities 1.0)")]
-    [BurstCompile]
-    unsafe struct GatherComponentDataToArrayJob : IJobChunk
-    {
-        [NativeDisableUnsafePtrRestriction] public byte* ComponentData;
-        public TypeIndex TypeIndex;
-        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> ChunkBaseEntityIndices;
-
-        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-        {
-            var archetype = chunk.Archetype.Archetype;
-            int indexInTypeArray = ChunkDataUtility.GetIndexInTypeArray(archetype, TypeIndex);
-            int typeOffset = archetype->Offsets[indexInTypeArray];
-            ushort typeSize = archetype->SizeOfs[indexInTypeArray];
-
-            int baseEntityIndexInQuery = ChunkBaseEntityIndices[unfilteredChunkIndex];
-            byte* srcBytes = chunk.m_Chunk.Buffer + typeOffset;
-            byte* dstBytes = ComponentData + (baseEntityIndexInQuery * typeSize);
-            if (useEnabledMask)
-            {
-                int rangeEnd = 0;
-                while (EnabledBitUtility.TryGetNextRange(chunkEnabledMask, firstIndexToCheck: rangeEnd, out int rangeStart, out rangeEnd))
-                {
-                    int rangeCount = rangeEnd - rangeStart;
-                    UnsafeUtility.MemCpy(dstBytes, srcBytes+rangeStart*typeSize, rangeCount*typeSize);
-                    dstBytes += rangeCount * typeSize;
-                }
-            }
-            else
-            {
-                UnsafeUtility.MemCpy(dstBytes, srcBytes, chunk.Count * typeSize);
-            }
         }
     }
 
@@ -368,41 +228,6 @@ namespace Unity.Entities
                 UnsafeUtility.MemCpy(dstBytes, srcBytes, chunk.Count * typeSize);
             }
             Interlocked.Add(ref *(OutputList.Length), copyCount);
-        }
-    }
-
-    [Obsolete("Use CopyComponentListToChunksJob instead. (RemovedAfter Entities 1.0)")]
-    [BurstCompile]
-    unsafe struct CopyComponentArrayToChunksJob : IJobChunk
-    {
-        [NativeDisableUnsafePtrRestriction] public byte* ComponentData;
-        public TypeIndex TypeIndex;
-        public uint GlobalSystemVersion;
-        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> ChunkBaseEntityIndices;
-
-        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-        {
-            var archetype = chunk.Archetype.Archetype;
-            int indexInTypeArray = ChunkDataUtility.GetIndexInTypeArray(archetype, TypeIndex);
-            ushort typeSize = archetype->SizeOfs[indexInTypeArray];
-
-            int baseEntityIndexInQuery = ChunkBaseEntityIndices[unfilteredChunkIndex];
-            var dstBytes = ChunkDataUtility.GetComponentDataWithTypeRW(chunk.m_Chunk, archetype, 0, TypeIndex, GlobalSystemVersion);
-            var srcBytes = ComponentData + (baseEntityIndexInQuery * typeSize);
-            if (useEnabledMask)
-            {
-                int rangeEnd = 0;
-                while (EnabledBitUtility.TryGetNextRange(chunkEnabledMask, firstIndexToCheck: rangeEnd, out int rangeStart, out rangeEnd))
-                {
-                    int rangeCount = rangeEnd - rangeStart;
-                    UnsafeUtility.MemCpy(dstBytes+rangeStart*typeSize, srcBytes, rangeCount*typeSize);
-                    srcBytes += rangeCount * typeSize;
-                }
-            }
-            else
-            {
-                UnsafeUtility.MemCpy(dstBytes, srcBytes, chunk.Count * typeSize);
-            }
         }
     }
 

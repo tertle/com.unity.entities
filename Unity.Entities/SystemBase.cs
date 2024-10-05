@@ -496,105 +496,6 @@ namespace Unity.Entities
         protected abstract void OnUpdate();
 
         /// <summary>
-        /// Look up the value of a component for an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <typeparam name="T">The type of component to retrieve.</typeparam>
-        /// <returns>A struct of type T containing the component value.</returns>
-        /// <remarks>
-        /// Use this method to look up data in another entity using its <see cref="Entity"/> object. For example, if you
-        /// have a component that contains an Entity field, you can look up the component data for the referenced
-        /// entity using this method.
-        ///
-        /// When iterating over a set of entities via [Entities.ForEach], do not use this method to access data of the
-        /// current entity in the set. This function is much slower than accessing the data directly (by passing the
-        /// component containing the data to your lambda iteration function as a parameter).
-        ///
-        /// When you call this method on the main thread, it invokes <see cref="EntityManager.GetComponentData{T}"/>.
-        /// (An [Entities.ForEach] function invoked with `Run()` executes on the main thread.) When you call this method
-        /// inside a job scheduled using [Entities.ForEach], this method gets replaced with component access methods
-        /// through <see cref="ComponentLookup{T}"/>.
-        ///
-        /// In both cases, this lookup method results in a slower, indirect memory access. When possible, organize your
-        /// data to minimize the need for indirect lookups.
-        ///
-        /// [Entities.ForEach]: xref:Unity.Entities.SystemBase.Entities
-        /// </remarks>
-        /// <exception cref="ArgumentException">Thrown if the component type has no fields.</exception>
-        [Obsolete("Use SystemAPI.GetComponent instead (RemovedAfter Entities 1.0)")]
-        protected internal T GetComponent<T>(Entity entity) where T : unmanaged, IComponentData
-        {
-            return EntityManager.GetComponentData<T>(entity);
-        }
-
-        /// <summary>
-        /// Sets the value of a component of an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="component">The data to set.</param>
-        /// <typeparam name="T">The component type.</typeparam>
-        /// <remarks>
-        /// Use this method to look up and set data in another entity using its <see cref="Entity"/> object. For example, if you
-        /// have a component that contains an Entity field, you can update the component data for the referenced
-        /// entity using this method.
-        ///
-        /// When iterating over a set of entities via [Entities.ForEach], do not use this method to update data of the
-        /// current entity in the set. This function is much slower than accessing the data directly (by passing the
-        /// component containing the data to your lambda iteration function as a parameter).
-        ///
-        /// When you call this method on the main thread, it invokes <see cref="EntityManager.SetComponentData{T}"/>.
-        /// (An [Entities.ForEach] function invoked with `Run()` executes on the main thread.) When you call this method
-        /// inside a job scheduled using [Entities.ForEach], this method gets replaced with component access methods
-        /// through <see cref="ComponentLookup{T}"/>.
-        ///
-        /// In both cases, this lookup method results in a slower, indirect memory access. When possible, organize your
-        /// data to minimize the need for indirect lookups.
-        ///
-        /// [Entities.ForEach]: xref:Unity.Entities.SystemBase.Entities
-        /// </remarks>
-        /// <exception cref="ArgumentException">Thrown if the component type has no fields.</exception>
-        [Obsolete("Use SystemAPI.SetComponent instead (RemovedAfter Entities 1.0)")]
-        protected internal void SetComponent<T>(Entity entity, T component) where T : unmanaged, IComponentData
-        {
-            EntityManager.SetComponentData(entity, component);
-        }
-
-        /// <summary>
-        /// Checks whether an entity has a specific type of component.
-        /// </summary>
-        /// <param name="entity">The Entity object.</param>
-        /// <typeparam name="T">The data type of the component.</typeparam>
-        /// <remarks>
-        /// Always returns false for an entity that has been destroyed.
-        ///
-        /// Use this method to check if another entity has a given type of component using its <see cref="Entity"/>
-        /// object. For example, if you have a component that contains an Entity field, you can check whether the
-        /// referenced entity has a specific type of component using this method. (Entities in the set always have
-        /// required components, so you don’t need to check for them.)
-        ///
-        /// When iterating over a set of entities via [Entities.ForEach], avoid using this method with the
-        /// current entity in the set. It is generally faster to change your entity query methods to avoid
-        /// optional components; this may require a different [Entities.ForEach] construction to handle
-        /// each combination of optional and non-optional components.
-        ///
-        /// When you call this method on the main thread, it invokes <see cref="EntityManager.HasComponent{T}"/>.
-        /// (An [Entities.ForEach] function invoked with `Run()` executes on the main thread.) When you call this method
-        /// inside a job scheduled using [Entities.ForEach], this method gets replaced with component access methods
-        /// through <see cref="ComponentLookup{T}"/>.
-        ///
-        /// In both cases, this lookup method results in a slower, indirect memory access. When possible, organize your
-        /// data to minimize the need for indirect lookups.
-        ///
-        /// [Entities.ForEach]: xref:Unity.Entities.SystemBase.Entities
-        /// </remarks>
-        /// <returns>True, if the specified entity has the component.</returns>
-        [Obsolete("Use SystemAPI.HasComponent instead (RemovedAfter Entities 1.0)")]
-        protected internal bool HasComponent<T>(Entity entity) where T : unmanaged, IComponentData
-        {
-            return EntityManager.HasComponent<T>(entity);
-        }
-
-        /// <summary>
         /// Checks whether an entity has a dynamic buffer of a specific IBufferElementData type.
         /// </summary>
         /// <param name="entity">The Entity object.</param>
@@ -649,38 +550,6 @@ namespace Unity.Entities
         {
             return base.GetComponentLookup<T>(isReadOnly);
         }
-        /// <summary> Obsolete. Use <see cref="GetComponentLookup{T}"/> instead.</summary>
-        /// <param name="isReadOnly">Whether the data is only read, not written. Access data as
-        /// read-only whenever possible.</param>
-        /// <typeparam name="T">A struct that implements <see cref="IComponentData"/>.</typeparam>
-        /// <returns>All component data of type T.</returns>
-        [Obsolete("This method has been renamed to GetComponentLookup. (RemovedAFter Entities 1.0)", true)] // Can't use (UnityUpgradable) due to similar rename in ComponentSystemBase
-        public new ComponentLookup<T> GetComponentDataFromEntity<T>(bool isReadOnly = false)
-            where T : unmanaged, IComponentData
-        {
-            return base.GetComponentLookup<T>(isReadOnly);
-        }
-
-        /// <summary>
-        /// Gets the dynamic buffer of an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <remarks>
-        /// When you call this method on the main thread, it invokes <see cref="EntityManager.GetBuffer{T}"/>.
-        /// (An [Entities.ForEach] function invoked with `Run()` executes on the main thread.) When you call this method
-        /// inside a job scheduled using [Entities.ForEach], this method gets replaced with component access methods
-        /// through <see cref="BufferLookup{T}"/>.
-        /// </remarks>
-        /// <param name="isReadOnly">Whether the buffer data is only read or is also written. Access data in
-        /// a read-only fashion whenever possible.</param>
-        /// <typeparam name="T">The type of the buffer's elements.</typeparam>
-        /// <returns>The DynamicBuffer object for accessing the buffer contents.</returns>
-        /// <exception cref="ArgumentException">Thrown if T is an unsupported type.</exception>
-        [Obsolete("Use SystemAPI.GetBuffer instead (RemovedAfter Entities 1.0)")]
-        public DynamicBuffer<T> GetBuffer<T>(Entity entity, bool isReadOnly = false) where T : unmanaged, IBufferElementData
-        {
-            return CheckedState()->GetBuffer<T>(entity, isReadOnly);
-        }
 
         /// <summary>
         /// Manually gets a BufferLookup&lt;T&gt; object that can access a <seealso cref="DynamicBuffer{T}"/>.
@@ -706,16 +575,6 @@ namespace Unity.Entities
         {
             return base.GetBufferLookup<T>(isReadOnly);
         }
-        /// <summary> Obsolete. Use <see cref="GetBufferLookup{T}"/> instead.</summary>
-        /// <param name="isReadOnly">Whether the buffer data is only read or is also written. Access data in
-        /// a read-only fashion whenever possible.</param>
-        /// <typeparam name="T">The type of <see cref="IBufferElementData"/> stored in the buffer.</typeparam>
-        /// <returns>An array-like object that provides access to buffers, indexed by <see cref="Entity"/>.</returns>
-        [Obsolete("This method has been renamed to GetBufferLookup. (RemovedAFter Entities 1.0)", true)] // Can't use (UnityUpgradable) due to similar rename in ComponentSystemBase
-        public new BufferLookup<T> GetBufferFromEntity<T>(bool isReadOnly = false) where T : unmanaged, IBufferElementData
-        {
-            return base.GetBufferLookup<T>(isReadOnly);
-        }
 
         /// <summary>
         /// Manually gets an EntityStorageInfoLookup object that can access a <see cref="EntityStorageInfo"/>.
@@ -732,26 +591,5 @@ namespace Unity.Entities
         /// <remarks> Prefer using <see cref="SystemAPI.GetEntityStorageInfoLookup"/> as it will cache in OnCreate for you
         /// and call .Update(this) at the call-site. </remarks>
         public new EntityStorageInfoLookup GetEntityStorageInfoLookup() => base.GetEntityStorageInfoLookup();
-        /// <summary> Obsolete. Use <see cref="GetEntityStorageInfoLookup"/> instead.</summary>
-        /// <returns>True if the given entity exists or the entity has a Cleanup Component that is yet to be destroyed</returns>
-        [Obsolete("This method has been renamed to GetEntityStorageInfoLookup. (RemovedAFter Entities 1.0)", true)] // Can't use (UnityUpgradable) due to similar rename in ComponentSystemBase
-        public new EntityStorageInfoLookup GetStorageInfoFromEntity() => base.GetEntityStorageInfoLookup();
-
-        /// <summary>
-        /// Checks if the entity exists inside this system's EntityManager.
-        /// </summary>
-        /// <remarks>
-        /// This returns true for an entity that was destroyed with DestroyEntity, but still has a cleanup component.
-        /// Prefer <see cref="ComponentLookup{T}.TryGetComponent"/> where applicable.
-        /// Can be used inside of Entities.ForEach.
-        /// </remarks>
-        /// <param name="entity">The entity to check</param>
-        /// <returns>True if the given entity exists or the entity has a Cleanup Component that is yet to be destroyed</returns>
-        /// <seealso cref="EntityManager.Exists"/>
-        [Obsolete("Use SystemAPI.Exists instead (RemovedAfter Entities 1.0)")]
-        public bool Exists(Entity entity)
-        {
-            return EntityManager.Exists(entity);
-        }
     }
 }

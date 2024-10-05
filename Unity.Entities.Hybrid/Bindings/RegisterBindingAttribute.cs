@@ -33,21 +33,6 @@ namespace Unity.Entities
         /// <summary>
         /// Establish a binding between the tagged authoring type and a runtime component field.
         /// </summary>
-        /// <param name="runtimeComponent">The target component type</param>
-        /// <param name="runtimeField">The target component field</param>
-        /// <param name="generated">If true, the type is auto-generated</param>
-        [Obsolete("You can now use base RegisterBindingAttribute(Type, string) to register vector based properties. (RemovedAfter 2023-02-14)")]
-        public  RegisterBindingAttribute(Type runtimeComponent, string runtimeField, bool generated)
-        {
-            ComponentType = runtimeComponent;
-            ComponentField = runtimeField;
-            Generated = generated;
-            AuthoringField = null;
-        }
-
-        /// <summary>
-        /// Establish a binding between the tagged authoring type and a runtime component field.
-        /// </summary>
         /// <param name="authoringField">The nested authoring field. Uses tagged field if null or empty.</param>
         /// <param name="runtimeComponent">The target component type</param>
         /// <param name="runtimeField">The target component field</param>
