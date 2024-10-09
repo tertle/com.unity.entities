@@ -1,4 +1,4 @@
-// #define DEBUG_ASSET_DEPENDENCY_TRACKER
+#define DEBUG_ASSET_DEPENDENCY_TRACKER
 #if UNITY_EDITOR
 using System;
 using System.Diagnostics;
