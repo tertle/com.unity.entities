@@ -212,7 +212,7 @@ namespace Unity.Scenes
                     // Process any sync imported assets
                     if (allSync.Length != 0)
                     {
-                        var hasFailedArtifacts = AssetDatabaseCompatibility.ProduceArtifactsRefreshIfNecessary(allSync.AsArray(), _AssetImportType, _ArtifactCache);
+                        var hasFailedArtifacts = !AssetDatabaseCompatibility.ProduceArtifactsRefreshIfNecessary(allSync.AsArray(), _AssetImportType, _ArtifactCache);
 
                         foreach (var artifact in _ArtifactCache)
                         {
