@@ -203,7 +203,14 @@ namespace Unity.Scenes.Editor
                 }
                 finally
                 {
-                    EditorSceneManager.CloseScene(scene, true);
+                    if (isScene)
+                    {
+                        EditorSceneManager.CloseScene(scene, true);
+                    }
+                    else
+                    {
+                        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                    }
                 }
             }
             // Currently it's not acceptable to let the asset database catch the exception since it will create a default asset without any dependencies
