@@ -85,5 +85,47 @@ namespace Unity.Entities.SourceGenerators
                 }";
             await VerifyCS.VerifySourceGeneratorAsync(source);
         }
+
+        [TestMethod]
+        public async Task MultiplePartialUnsafe()
+        {
+            const string sourceA = @"
+                using Unity.Entities;
+
+                public partial struct TestSystem1 : ISystem
+                {
+                    public void OnUpdate(ref SystemState state)
+                    {
+                        // Just need a SystemAPI call here
+                        var t = SystemAPI.Time;
+                        Unsafe(ref state);
+                    }
+                }";
+
+            const string sourceB = @"
+                using Unity.Entities;
+                using Unity.Burst.Intrinsics;
+
+                public unsafe partial struct TestSystem1
+                {
+                    private void Unsafe(ref SystemState state)
+                    {
+                        var t = SystemAPI.Time.DeltaTime; // And a second SystemAPI call here
+
+                        // This will error because the unsafe on the struct is being ignored
+                        // Assets\Script\Assembly\TestSystem1.Partial.cs(15,19): error CS0214: Pointers and fixed size buffers may only be used in an unsafe context
+                        var ptr = &t;
+
+                        // Assets\Script\Assembly\TestSystem1.Partial.cs(17,9): error CS0103: The name 'Debug' does not exist in the current context
+                        var test = new v128(); // This will error because the namespaces are ignored
+                    }
+                }";
+
+            await VerifyCS.VerifySourceGeneratorAsync(new []
+            {
+                sourceA,
+                sourceB
+            });
+        }
     }
 }

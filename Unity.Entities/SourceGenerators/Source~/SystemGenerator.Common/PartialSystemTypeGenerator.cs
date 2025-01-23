@@ -14,7 +14,7 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
         static (int NumClosingBracesRequired, int NumNotClosedIfDirectives)
             WriteOpeningSyntaxForGeneratedPart_AndReturnClosingSyntax(
                 IndentedTextWriter writer,
-                SyntaxNode originalType)
+                SyntaxNode originalType, INamedTypeSymbol systemTypeSymbol)
         {
             static (Stack<(string Value, bool AddIndentAfter)> OpeningSyntaxes, int NumClosingBracesRequired) GetBaseDeclaration(SyntaxNode typeSyntax)
             {
@@ -53,7 +53,18 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             }
 
             var baseDeclaration = GetBaseDeclaration(originalType);
-            var usings = originalType.SyntaxTree.GetCompilationUnitRoot().Usings;
+
+            HashSet<string> uniqueUsings = new HashSet<string>();
+            SyntaxList<UsingDirectiveSyntax> usings = SyntaxFactory.List<UsingDirectiveSyntax>();
+            foreach (var declaringSyntax in systemTypeSymbol.DeclaringSyntaxReferences)
+            {
+                var currentUsings = declaringSyntax.SyntaxTree.GetCompilationUnitRoot().Usings;
+                foreach (var @using in currentUsings)
+                {
+                    if (uniqueUsings.Add(@using.Name.ToString()))
+                        usings = usings.Add(@using);
+                }
+            }
 
             int numNotClosedIfDirectives = 0;
             foreach (var @using in usings)
@@ -92,8 +103,8 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             using var sw = new StringWriter();
             using var indentedTextWriter = new IndentedTextWriter(sw);
 
-            var result = WriteOpeningSyntaxForGeneratedPart_AndReturnClosingSyntax(indentedTextWriter, description.SystemTypeSyntax);
-            AppendBeginSystemType(indentedTextWriter, description.SystemTypeSyntax);
+            var result = WriteOpeningSyntaxForGeneratedPart_AndReturnClosingSyntax(indentedTextWriter, description.SystemTypeSyntax, description.SystemTypeSymbol);
+            AppendBeginSystemType(indentedTextWriter, description.SystemTypeSyntax, description.SystemTypeSymbol);
 
             foreach (var desc in allDescriptionsForTheSameSystem)
             {
@@ -140,10 +151,44 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             return (description.SyntaxTreeInfo, description.SystemTypeSyntax, indentedTextWriter.InnerWriter.ToString());
         }
 
-        static void AppendBeginSystemType(IndentedTextWriter writer, TypeDeclarationSyntax originalSyntax)
+        static void AppendBeginSystemType(IndentedTextWriter writer, TypeDeclarationSyntax originalSyntax, INamedTypeSymbol systemTypeSymbol)
         {
             writer.WriteLine("[global::System.Runtime.CompilerServices.CompilerGenerated]");
-            writer.Write(originalSyntax.Modifiers.ToString());
+
+            HashSet<int> uniqueModifiers = new();
+            foreach (var modifiers in systemTypeSymbol.DeclaringSyntaxReferences)
+            {
+                if (modifiers.GetSyntax() as TypeDeclarationSyntax is not { } typeDeclarationSyntax)
+                    continue;
+
+                foreach (var modifier in typeDeclarationSyntax.Modifiers)
+                    uniqueModifiers.Add(modifier.RawKind);
+            }
+
+            var uniqueModifiersEnumerator = uniqueModifiers.GetEnumerator();
+            if (uniqueModifiersEnumerator.MoveNext())
+            {
+                // writes modifiers in order, where the first always has no space before it
+                // and the rest have a space before them. Note: It will delay partial to the end
+                var hasPartial = uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword;
+                var firstHasPartial = hasPartial;
+                if (!hasPartial)
+                    writer.Write($"{SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current)}");
+                while (uniqueModifiersEnumerator.MoveNext())
+                {
+                    if (uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword)
+                    {
+                        if (uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword)
+                            hasPartial = true;
+                        continue;
+                    }
+                    writer.Write($" {SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current)}");
+                }
+
+                if (hasPartial)
+                    writer.Write(firstHasPartial ? "partial" : " partial");
+            }
+
             switch (originalSyntax)
             {
                 case StructDeclarationSyntax _:
