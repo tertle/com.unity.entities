@@ -76,7 +76,12 @@ namespace Unity.Entities.Editor
 
         protected abstract void OnComponentChanged(BindingContextElement element, PropertyPath path);
 
-        protected abstract void OnPopulateMenu(DropdownMenu menu);
+        protected virtual void OnPopulateMenu(DropdownMenu menu)
+        {
+            menu.AppendAction("Expand All Components", _ => ToggleAll(true), DropdownMenuAction.AlwaysEnabled);
+            menu.AppendAction("Collapse All Components", _ => ToggleAll(false), DropdownMenuAction.AlwaysEnabled);
+            menu.AppendSeparator();
+        }
 
         static void OnClicked(ClickEvent evt, EntityInspectorContext context)
         {
@@ -133,6 +138,11 @@ namespace Unity.Entities.Editor
             {
                 OnClicked(evt, context, current[i]);
             }
+        }
+
+        private void ToggleAll(bool value)
+        {
+            parent?.Query<Foldout>(className: UssClasses.Inspector.Component.Header).ForEach(f => f.value = value);
         }
     }
 }
