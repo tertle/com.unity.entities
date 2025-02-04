@@ -36,11 +36,6 @@ namespace Unity.Entities.Editor
             // Nothing to do..
         }
 
-        protected override void OnPopulateMenu(DropdownMenu menu)
-        {
-            // Nothing to do..
-        }
-
         void IBinding.PreUpdate()
         {
         }

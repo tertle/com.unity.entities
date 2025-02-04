@@ -39,6 +39,8 @@ namespace Unity.Entities.Editor
 
         protected override void OnPopulateMenu(DropdownMenu menu)
         {
+            base.OnPopulateMenu(menu);
+
             var container = Container;
             var value = PropertyContainer.GetValue<EntityContainer, TComponent>(ref container, Path);
             menu.AddCopyValue(value);
