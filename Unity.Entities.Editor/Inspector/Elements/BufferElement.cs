@@ -55,6 +55,8 @@ namespace Unity.Entities.Editor
 
         protected override void OnPopulateMenu(DropdownMenu menu)
         {
+            base.OnPopulateMenu(menu);
+
             var buffer = m_Content.GetTarget<InspectedBuffer<TList, TElement>>();
             menu.AddCopyValue(buffer.Value);
         }
