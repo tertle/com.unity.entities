@@ -303,4 +303,31 @@ public class LambdaJobsNoErrorTests
             }";
         await VerifyCS.VerifySourceGeneratorAsync(source);
     }
+
+    [TestMethod]
+    public async Task LambdaJobInPropertySetter()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+
+            public partial class MyScript : SystemBase
+            {
+                protected override void OnUpdate()
+                {
+                    ErrorExample = 1;
+                }
+
+                public int ErrorExample
+                {
+                    set => Entities.ForEach((ref EcsTestData ecsTestData) =>
+                            {
+                                ecsTestData = new EcsTestData { value = value };
+                            }
+                        ).Run();
+                }
+            }";
+
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
 }
