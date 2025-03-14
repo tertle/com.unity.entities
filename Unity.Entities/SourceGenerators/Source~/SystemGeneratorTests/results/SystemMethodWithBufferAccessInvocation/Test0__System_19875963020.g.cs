@@ -18,14 +18,14 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
             var lookup_rw = global::Unity.Entities.Internal.InternalCompilerInterface.GetBufferLookup<global::BufferData>(ref __TypeHandle.__BufferData_RW_BufferLookup, ref state);
             #line 24 "/0/Test0.cs"
             var lookup_ro = global::Unity.Entities.Internal.InternalCompilerInterface.GetBufferLookup<global::BufferData>(ref __TypeHandle.__BufferData_RO_BufferLookup, ref state);
-            #line 26 "/0/Test0.cs"
+            #line 25 "/0/Test0.cs"
 
             if (global::Unity.Entities.Internal.InternalCompilerInterface.HasBufferAfterCompletingDependency<global::BufferData>(ref __TypeHandle.__BufferData_RO_BufferLookup, ref state, entity))
             #line 27 "/0/Test0.cs"
             {
                 #line 28 "/0/Test0.cs"
                 var rotation = global::Unity.Entities.Internal.InternalCompilerInterface.GetBufferAfterCompletingDependency<global::BufferData>(ref __TypeHandle.__BufferData_RW_BufferLookup, ref state, entity);
-#line hidden
+                #line hidden
             }
         }
     }

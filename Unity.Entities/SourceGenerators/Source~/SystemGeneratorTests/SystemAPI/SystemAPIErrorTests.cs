@@ -34,6 +34,22 @@ public class SystemAPIErrorTests
     }
 
     [TestMethod]
+    public async Task NO_SGICE_BUT_HAS_CSHARP_COMPILE_ERRORS_2()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+
+            partial struct SomeSystem : ISystem {
+                public void OnUpdate(ref SystemState state) {
+                    foreach (var VARIABLE in SystemAPI.Query<{|#0:RefRO<>|}>()) {}
+                }
+            }";
+        var expectedA = VerifyCS.CompilerError("CS7003").WithLocation(0);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expectedA);
+    }
+
+    [TestMethod]
     public async Task SGSA0001()
     {
         const string source = @"

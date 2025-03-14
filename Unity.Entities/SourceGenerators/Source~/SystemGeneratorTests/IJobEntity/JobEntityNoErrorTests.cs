@@ -213,6 +213,26 @@ public class JobEntityNoErrorTests
 
         await VerifyCS.VerifySourceGeneratorAsync(source);
     }
+
+    [TestMethod]
+    public async Task UsingInPreProccessorStatements()
+    {
+        const string source = @"
+                namespace SomeNamespace {
+                    using Unity.Entities;
+                    using Unity.Entities.Tests;
+                    #if UNITY_EDITOR
+                    using Unity.Mathematics;
+                    #endif
+
+                    partial struct SomeJob : IJobEntity {
+                        public void Execute(in EcsTestData data) {}
+                    }
+                }";
+
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
+
     #region System
 
     [TestMethod]

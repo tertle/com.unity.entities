@@ -1,3 +1,4 @@
+#pragma warning disable 0618 // Disable Aspects obsolete warnings
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.Tests;
@@ -56,6 +57,8 @@ public readonly partial struct AspectSimple : global::Unity.Entities.IAspect, gl
 	/// A container type that provides access to instances of the enclosing Aspect type, indexed by <see cref="Unity.Entities.Entity"/>.
 	/// Equivalent to <see cref="global::Unity.Entities.ComponentLookup{T}"/> but for aspect types.
 	/// Constructed from an system state via its constructor.
+	/// </summary>
+	/// <remarks> Using this in an IJobEntity is not supported. </remarks>
 	public struct Lookup : global::Unity.Entities.Internal.InternalCompilerInterface.IAspectLookup<AspectSimple>
 	{
 		global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> AspectSimple_DataCAc;
@@ -88,7 +91,7 @@ public readonly partial struct AspectSimple : global::Unity.Entities.IAspect, gl
 		{
 			get
 			{
-				return new AspectSimple(this.AspectSimple_DataCAc.GetRefRW(entity));
+				return new AspectSimple(global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData>(ref this.AspectSimple_DataCAc, entity));
 			}
 		}
 	}
@@ -339,6 +342,8 @@ namespace AspectTests
 		/// A container type that provides access to instances of the enclosing Aspect type, indexed by <see cref="Unity.Entities.Entity"/>.
 		/// Equivalent to <see cref="global::Unity.Entities.ComponentLookup{T}"/> but for aspect types.
 		/// Constructed from an system state via its constructor.
+		/// </summary>
+		/// <remarks> Using this in an IJobEntity is not supported. </remarks>
 		public struct Lookup : global::Unity.Entities.Internal.InternalCompilerInterface.IAspectLookup<Aspect2>
 		{
 			global::Unity.Entities.EntityStorageInfoLookup _m_Esil;
@@ -400,11 +405,11 @@ namespace AspectTests
 					var chunk = this._m_Esil[entity].Chunk;
 					return new Aspect2(entity, 
 						this.Aspect2_DynamicBufferBAc[entity], 
-						this.Aspect2_Data.GetRefRW(entity), 
-						this.Aspect2_Data2CAc.GetRefRW(entity), 
-						this.Aspect2_Data3CAc.GetRefRW(entity), 
-						this.Aspect2_DataROCAc.GetRefRO(entity), 
-						this.Aspect2_DataOptionalCAc.GetRefRWOptional(entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData>(ref this.Aspect2_Data, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData2>(ref this.Aspect2_Data2CAc, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData3>(ref this.Aspect2_Data3CAc, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRO<global::Unity.Entities.Tests.EcsTestData4>(ref this.Aspect2_DataROCAc, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRWOptional<global::Unity.Entities.Tests.EcsTestData5>(ref this.Aspect2_DataOptionalCAc, entity), 
 						this.Aspect2_EcsTestDataEnableableCAc.GetEnabledRefRO<global::Unity.Entities.Tests.EcsTestDataEnableable>(entity), 
 						chunk.GetSharedComponent<global::Unity.Entities.Tests.EcsTestSharedComp>(this.Aspect2_EcsTestSharedCompScAc));
 				}
@@ -753,6 +758,8 @@ namespace AspectTests
 		/// A container type that provides access to instances of the enclosing Aspect type, indexed by <see cref="Unity.Entities.Entity"/>.
 		/// Equivalent to <see cref="global::Unity.Entities.ComponentLookup{T}"/> but for aspect types.
 		/// Constructed from an system state via its constructor.
+		/// </summary>
+		/// <remarks> Using this in an IJobEntity is not supported. </remarks>
 		public struct Lookup : global::Unity.Entities.Internal.InternalCompilerInterface.IAspectLookup<AspectNestedAliasing>
 		{
 			global::Unity.Entities.EntityStorageInfoLookup _m_Esil;
@@ -814,11 +821,11 @@ namespace AspectTests
 					var chunk = this._m_Esil[entity].Chunk;
 					return new AspectNestedAliasing(entity, 
 						this.AspectNestedAliasing_DynamicBuffer[entity], 
-						this.AspectNestedAliasing_Data.GetRefRW(entity), 
-						this.AspectNestedAliasing_Data2.GetRefRW(entity), 
-						this.AspectNestedAliasing_Data3.GetRefRW(entity), 
-						this.AspectNestedAliasing_DataRO.GetRefRO(entity), 
-						this.AspectNestedAliasing_DataOptional.GetRefRWOptional(entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData>(ref this.AspectNestedAliasing_Data, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData2>(ref this.AspectNestedAliasing_Data2, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData3>(ref this.AspectNestedAliasing_Data3, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRO<global::Unity.Entities.Tests.EcsTestData4>(ref this.AspectNestedAliasing_DataRO, entity), 
+						global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRWOptional<global::Unity.Entities.Tests.EcsTestData5>(ref this.AspectNestedAliasing_DataOptional, entity), 
 						this.AspectNestedAliasing_EcsTestDataEnableable.GetEnabledRefRO<global::Unity.Entities.Tests.EcsTestDataEnableable>(entity), 
 						chunk.GetSharedComponent<global::Unity.Entities.Tests.EcsTestSharedComp>(this.AspectNestedAliasing_EcsTestSharedComp));
 				}

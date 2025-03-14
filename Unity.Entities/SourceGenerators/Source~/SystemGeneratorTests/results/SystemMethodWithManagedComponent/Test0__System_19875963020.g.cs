@@ -15,7 +15,7 @@ public partial struct SomeSystem : global::Unity.Entities.ISystemCompilerGenerat
         state.EntityManager.AddComponentData(e, new EcsTestManagedComponent{value = "cake"});
         #line 12 "/0/Test0.cs"
         var comp = __query_1641826531_0.GetSingleton<EcsTestManagedComponent>().value;
-#line hidden
+        #line hidden
     }
 
     

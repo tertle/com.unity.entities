@@ -20,7 +20,7 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
             var check1 = global::Unity.Entities.Internal.InternalCompilerInterface.DoesEntityExist(ref __TypeHandle.__EntityStorageInfoLookup, ref state, entity);
             #line 25 "/0/Test0.cs"
             var check2 = storageInfo.Exists(entity);
-#line hidden
+            #line hidden
         }
     }
 

@@ -1,3 +1,4 @@
+#pragma warning disable 0618 // Disable Aspects obsolete warnings
 namespace Test
 {
 
@@ -55,6 +56,8 @@ namespace Test
 		/// A container type that provides access to instances of the enclosing Aspect type, indexed by <see cref="Unity.Entities.Entity"/>.
 		/// Equivalent to <see cref="global::Unity.Entities.ComponentLookup{T}"/> but for aspect types.
 		/// Constructed from an system state via its constructor.
+		/// </summary>
+		/// <remarks> Using this in an IJobEntity is not supported. </remarks>
 		public struct Lookup : global::Unity.Entities.Internal.InternalCompilerInterface.IAspectLookup<MyAspect>
 		{
 			global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> MyAspect_EcsTestDataCAc;
@@ -87,7 +90,7 @@ namespace Test
 			{
 				get
 				{
-					return new MyAspect(this.MyAspect_EcsTestDataCAc.GetRefRW(entity));
+					return new MyAspect(global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData>(ref this.MyAspect_EcsTestDataCAc, entity));
 				}
 			}
 		}

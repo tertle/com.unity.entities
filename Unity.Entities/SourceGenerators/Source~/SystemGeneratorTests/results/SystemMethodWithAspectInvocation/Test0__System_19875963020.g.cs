@@ -14,7 +14,7 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
         Entity entity = default;
         #line 17 "/0/Test0.cs"
         var testAspectRO = global::Unity.Entities.Internal.InternalCompilerInterface.GetAspectAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestAspect.Lookup, global::Unity.Entities.Tests.EcsTestAspect>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestAspect_RW_AspectLookup, ref state, false, entity);
-#line hidden
+        #line hidden
     }
 
     

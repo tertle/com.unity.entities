@@ -16,7 +16,7 @@ public partial struct RotationSpeedSystemForEachISystem : global::Unity.Entities
         {
             #line 23 "/0/Test0.cs"
             var rotation = global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestData>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestData_RO_ComponentLookup, ref state, entity);
-#line hidden
+            #line hidden
         }
     }
 

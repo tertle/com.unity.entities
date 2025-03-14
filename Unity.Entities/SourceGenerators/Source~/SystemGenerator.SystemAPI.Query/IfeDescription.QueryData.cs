@@ -21,7 +21,7 @@ public partial class IfeDescription
             or QueryType.ValueTypeComponent
             or QueryType.UnmanagedSharedComponent
             or QueryType.ManagedSharedComponent;
-        public ITypeSymbol QueriedTypeSymbol => TypeParameterSymbol ?? TypeSymbol;
+        public ITypeSymbol QueriedTypeSymbol => QueryType.DoesRequireTypeParameter() ? TypeParameterSymbol ?? TypeSymbol : TypeSymbol;
     }
 
     private bool TryGetQueryDatas()
@@ -59,6 +59,10 @@ public partial class IfeDescription
                     IfeCompilerMessages.SGFE009(SystemDescription, typeSymbol.ToFullName(), Location);
                     break;
             }
+
+            // User typed invalid code, but we shouldn't end up throwing ourselves as a result
+            if (typeParameterSymbol == null && result.QueryType.DoesRequireTypeParameter())
+                return false;
 
             var queryData = new QueryData
             {

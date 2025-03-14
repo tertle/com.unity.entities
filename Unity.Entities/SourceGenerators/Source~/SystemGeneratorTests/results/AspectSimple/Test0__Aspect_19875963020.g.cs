@@ -1,3 +1,4 @@
+#pragma warning disable 0618 // Disable Aspects obsolete warnings
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.Tests;
@@ -56,6 +57,8 @@ public readonly partial struct AspectSimple : global::Unity.Entities.IAspect, gl
 	/// A container type that provides access to instances of the enclosing Aspect type, indexed by <see cref="Unity.Entities.Entity"/>.
 	/// Equivalent to <see cref="global::Unity.Entities.ComponentLookup{T}"/> but for aspect types.
 	/// Constructed from an system state via its constructor.
+	/// </summary>
+	/// <remarks> Using this in an IJobEntity is not supported. </remarks>
 	public struct Lookup : global::Unity.Entities.Internal.InternalCompilerInterface.IAspectLookup<AspectSimple>
 	{
 		global::Unity.Entities.ComponentLookup<global::Unity.Entities.Tests.EcsTestData> AspectSimple_DataCAc;
@@ -88,7 +91,7 @@ public readonly partial struct AspectSimple : global::Unity.Entities.IAspect, gl
 		{
 			get
 			{
-				return new AspectSimple(this.AspectSimple_DataCAc.GetRefRW(entity));
+				return new AspectSimple(global::Unity.Entities.Internal.InternalCompilerInterface.GetComponentRefRW<global::Unity.Entities.Tests.EcsTestData>(ref this.AspectSimple_DataCAc, entity));
 			}
 		}
 	}

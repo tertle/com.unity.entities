@@ -12,7 +12,7 @@ public unsafe partial struct NestedSystemAPIInvocation_Example1 : global::Unity.
     {
         #line 15 "/0/Test0.cs"
 global::Unity.Entities.Internal.InternalCompilerInterface.SetComponentEnabledAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestDataEnableable>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestDataEnableable_RW_ComponentLookup, ref state, entity, !global::Unity.Entities.Internal.InternalCompilerInterface.IsComponentEnabledAfterCompletingDependency<global::Unity.Entities.Tests.EcsTestDataEnableable>(ref __TypeHandle.__Unity_Entities_Tests_EcsTestDataEnableable_RO_ComponentLookup, ref state, entity));
-#line hidden
+        #line hidden
     }
 
     
