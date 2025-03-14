@@ -59,12 +59,8 @@ namespace Unity.Editor.Bridge
             }
         }
 
-        [Obsolete("onItemChosen is obsolete, use onItemsChosen instead")]
-        public event Action<object> onItemChosen;
         public event Action<IEnumerable<object>> onItemsChosen;
 
-        [Obsolete("onSelectionChanged is obsolete, use onSelectionChange instead")]
-        public event Action<List<object>> onSelectionChanged;
         public event Action<IEnumerable<object>> onSelectionChange;
 
 
@@ -384,9 +380,6 @@ namespace Unity.Editor.Bridge
                     selectedIndex = itemsSource.Count - 1;
                     break;
                 case KeyCode.Return:
-#pragma warning disable 618
-                    onItemChosen?.Invoke(m_ItemsSource[selectedIndex]);
-#pragma warning restore 618
                     onItemsChosen?.Invoke(m_SelectedItems);
                     break;
                 case KeyCode.PageDown:
@@ -743,9 +736,6 @@ namespace Unity.Editor.Bridge
                 return;
 
             onSelectionChange?.Invoke(m_SelectedItems);
-#pragma warning disable 618
-            onSelectionChanged?.Invoke(m_SelectedItems);
-#pragma warning restore 618
         }
 
         public void ClearSelection()

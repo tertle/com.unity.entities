@@ -29,12 +29,6 @@ namespace Unity.Entities
         public readonly int Count => m_Chunk.Count;
 
         /// <summary>
-        /// The number of entities currently stored in the chunk.
-        /// </summary>
-        [Obsolete("This property is always equal to Count, and will be removed in a future release.")]
-        public readonly int ChunkEntityCount => m_Chunk.Count;
-
-        /// <summary>
         /// The number of entities that can fit in this chunk.
         /// </summary>
         /// <remarks>The capacity of a chunk depends on the size of the components making up the
@@ -195,24 +189,6 @@ namespace Unity.Entities
         {
             return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="DidChange{T}(ref Unity.Entities.ComponentTypeHandle{T},uint)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.
-        /// </param>
-        /// <param name="version">The version to compare. In a system, this parameter should be set to the
-        /// current <see cref="ComponentSystemBase.LastSystemVersion"/> at the time the job is run or
-        /// scheduled.</param>
-        /// <typeparam name="T">The component type.</typeparam>
-        /// <returns>True, if the version number stored in the chunk for this component is more recent than the version
-        /// passed to the <paramref name="version"/> parameter.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool DidChange<T>(ComponentTypeHandle<T> typeHandle, uint version) where T : IComponentData
-        {
-            return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
-        }
 
         /// <summary>
         /// Reports whether the data in any of IComponentData components in the chunk, of the type identified by
@@ -241,23 +217,6 @@ namespace Unity.Entities
         {
             return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="DidChange(ref Unity.Entities.DynamicComponentTypeHandle,uint)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicComponentTypeHandle"/>. Pass the object to a job
-        /// using a public field you define as part of the job struct.
-        /// </param>
-        /// <param name="version">The version to compare. In a system, this parameter should be set to the
-        /// current <see cref="ComponentSystemBase.LastSystemVersion"/> at the time the job is run or
-        /// scheduled.</param>
-        /// <returns>True, if the version number stored in the chunk for this component is more recent than the version
-        /// passed to the <paramref name="version"/> parameter.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool DidChange(DynamicComponentTypeHandle typeHandle, uint version)
-        {
-            return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
-        }
 
         /// <summary>
         /// Reports whether any of the data in dynamic buffer components in the chunk, of the type identified by
@@ -283,23 +242,6 @@ namespace Unity.Entities
         /// <returns>True, if the version number stored in the chunk for this component is more recent than the version
         /// passed to the <paramref name="version"/> parameter.</returns>
         public readonly bool DidChange<T>(ref BufferTypeHandle<T> bufferTypeHandle, uint version) where T : unmanaged, IBufferElementData
-        {
-            return ChangeVersionUtility.DidChange(GetChangeVersion(ref bufferTypeHandle), version);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="DidChange{T}(ref Unity.Entities.BufferTypeHandle{T},uint)"/> instead.
-        /// </summary>
-        /// <param name="bufferTypeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetBufferTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <param name="version">The version to compare. In a system, this parameter should be set to the
-        /// current <see cref="ComponentSystemBase.LastSystemVersion"/> at the time the job is run or
-        /// scheduled.</param>
-        /// <typeparam name="T">The data type of the elements in the dynamic buffer.</typeparam>
-        /// <returns>True, if the version number stored in the chunk for this component is more recent than the version
-        /// passed to the <paramref name="version"/> parameter.</returns>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool DidChange<T>(BufferTypeHandle<T> bufferTypeHandle, uint version) where T : unmanaged, IBufferElementData
         {
             return ChangeVersionUtility.DidChange(GetChangeVersion(ref bufferTypeHandle), version);
         }
@@ -356,20 +298,6 @@ namespace Unity.Entities
         {
             return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="DidChange(ref DynamicSharedComponentTypeHandle,uint)"/>
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <param name="version">The version to compare. In a system, this parameter should be set to the
-        /// current <see cref="ComponentSystemBase.LastSystemVersion"/>.</param>
-        /// <returns>True, if the version number stored in the chunk for this component is more recent than the version
-        /// passed to the <paramref name="version"/></returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool DidChange(DynamicSharedComponentTypeHandle typeHandle, uint version)
-        {
-            return ChangeVersionUtility.DidChange(GetChangeVersion(ref typeHandle), version);
-        }
 
         /// <summary>
         /// Gets the change version number assigned to the specified type of component in this chunk.
@@ -410,22 +338,6 @@ namespace Unity.Entities
 
             return Archetype.Archetype->Chunks.GetChangeVersion(typeIndexInArchetype, m_Chunk.ListIndex);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetChangeVersion{T}(ref Unity.Entities.ComponentTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of component T.</typeparam>
-        /// <returns>The current version number of the specified component, which is the version set the last time a system
-        /// accessed a component of that type in this chunk with write privileges. Returns 0 if the chunk does not contain
-        /// a component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly uint GetChangeVersion<T>(ComponentTypeHandle<T> typeHandle)
-            where T : IComponentData
-        {
-            return GetChangeVersion(ref typeHandle);
-        }
 
         /// <summary>
         /// Gets the change version number assigned to the specified type of component in this chunk.
@@ -459,20 +371,6 @@ namespace Unity.Entities
             if (Hint.Unlikely(typeIndexInArchetype == -1)) return 0;
 
             return Archetype.Archetype->Chunks.GetChangeVersion(typeIndexInArchetype, m_Chunk.ListIndex);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetChangeVersion(ref Unity.Entities.DynamicComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicComponentTypeHandle"/>. Pass the object to a job using
-        /// a public field you define as part of the job struct.</param>
-        /// <returns>The current version number of the specified component, which is the version set the last time a system
-        /// accessed a component of that type in this chunk with write privileges. Returns 0 if the chunk does not contain
-        /// a component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly uint GetChangeVersion(DynamicComponentTypeHandle typeHandle)
-        {
-            return GetChangeVersion(ref typeHandle);
         }
 
         /// <summary>
@@ -513,22 +411,6 @@ namespace Unity.Entities
             if (Hint.Unlikely(typeIndexInArchetype == -1)) return 0;
 
             return Archetype.Archetype->Chunks.GetChangeVersion(typeIndexInArchetype, m_Chunk.ListIndex);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetChangeVersion{T}(ref Unity.Entities.BufferTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="bufferTypeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetBufferTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of component T.</typeparam>
-        /// <returns>The current version number of the specified dynamic buffer type, which is the version set the last time a system
-        /// accessed a buffer component of that type in this chunk with write privileges. Returns 0 if the chunk does not contain
-        /// a buffer component of the specified type.</returns>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly uint GetChangeVersion<T>(BufferTypeHandle<T> bufferTypeHandle)
-            where T : unmanaged, IBufferElementData
-        {
-            return GetChangeVersion(ref bufferTypeHandle);
         }
 
         /// <summary>
@@ -582,19 +464,6 @@ namespace Unity.Entities
             if (Hint.Unlikely(typeIndexInArchetype == -1)) return 0;
 
             return Archetype.Archetype->Chunks.GetChangeVersion(typeIndexInArchetype, m_Chunk.ListIndex);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetChangeVersion(ref DynamicSharedComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <returns>The current version number of the specified shared component, which is the version set the last time a system
-        /// accessed a component of that type in this chunk with write privileges. Returns 0 if the chunk does not contain
-        /// a shared component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly uint GetChangeVersion(DynamicSharedComponentTypeHandle typeHandle)
-        {
-            return GetChangeVersion(ref typeHandle);
         }
 
         /// <summary>
@@ -663,27 +532,6 @@ namespace Unity.Entities
 
             return m_EntityComponentStore->IsComponentEnabled(m_Chunk, entityIndexInChunk, typeIndexInArchetype);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="IsComponentEnabled{T}(ref Unity.Entities.ComponentTypeHandle{T},int)"/> instead.
-        /// </summary>
-        /// <typeparam name="T">The component type whose enabled status should be checked. This type must implement the
-        /// <see cref="IEnableableComponent"/> interface.</typeparam>
-        /// <param name="typeHandle">A type handle for the component type that will be queried.</param>
-        /// <param name="entityIndexInChunk">The index within this chunk of the entity whose component should be checked.</param>
-        /// <returns>True if the specified component is enabled, or false if it is disabled. Also returns false if the <typeparamref name="T"/>
-        /// is not present in this chunk.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool IsComponentEnabled<T>(ComponentTypeHandle<T> typeHandle, int entityIndexInChunk) where T :
-#if UNITY_DISABLE_MANAGED_COMPONENTS
-            struct,
-#endif
-            IComponentData, IEnableableComponent
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-            , new()
-#endif
-        {
-            return IsComponentEnabled(ref typeHandle, entityIndexInChunk);
-        }
 
         /// <summary>
         /// Checks whether a given <see cref="IBufferElementData"/> is enabled on the specified <see cref="Entity"/>. For the purposes
@@ -712,20 +560,6 @@ namespace Unity.Entities
                 return false;
 
             return m_EntityComponentStore->IsComponentEnabled(m_Chunk, entityIndexInChunk, typeIndexInArchetype);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="IsComponentEnabled{T}(ref Unity.Entities.BufferTypeHandle{T},int)"/> instead.
-        /// </summary>
-        /// <typeparam name="T">The buffer component type whose enabled status should be checked. This type must implement the
-        /// <see cref="IEnableableComponent"/> interface.</typeparam>
-        /// <param name="bufferTypeHandle">A type handle for the component type that will be queried.</param>
-        /// <param name="entityIndexInChunk">The index within this chunk of the entity whose component should be checked.</param>
-        /// <returns>True if the specified buffer component is enabled, or false if it is disabled. Also returns false if the <typeparamref name="T"/>
-        /// is not present in this chunk.</returns>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool IsComponentEnabled<T>(BufferTypeHandle<T> bufferTypeHandle, int entityIndexInChunk) where T : unmanaged, IBufferElementData, IEnableableComponent
-        {
-            return IsComponentEnabled(ref bufferTypeHandle, entityIndexInChunk);
         }
 
         /// <summary>
@@ -1100,26 +934,6 @@ namespace Unity.Entities
                 JournalAddRecordSetComponentEnabled(ref typeHandle, value);
 #endif
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="SetComponentEnabled{T}(ref Unity.Entities.ComponentTypeHandle{T},int,bool)"/> instead.
-        /// </summary>
-        /// <typeparam name="T">The component type to enable or disable. This type must implement the
-        /// <see cref="IEnableableComponent"/> interface.</typeparam>
-        /// <param name="typeHandle">A type handle for the component type that will be enabled or disabled.</param>
-        /// <param name="entityIndexInChunk">The index within this chunk of the entity whose component should be checked.</param>
-        /// <param name="value">True if the specified component should be enabled, or false if it should be disabled.</param>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly void SetComponentEnabled<T>(ComponentTypeHandle<T> typeHandle, int entityIndexInChunk, bool value) where T:
-#if UNITY_DISABLE_MANAGED_COMPONENTS
-            struct,
-#endif
-            IComponentData, IEnableableComponent
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-            , new()
-#endif
-        {
-            SetComponentEnabled(ref typeHandle, entityIndexInChunk, value);
-        }
 
         /// <summary>
         /// Enable or disable a <see cref="IBufferElementData"/> on the specified <see cref="Entity"/>. This operation does
@@ -1148,19 +962,6 @@ namespace Unity.Entities
             if (Hint.Unlikely(m_EntityComponentStore->m_RecordToJournal != 0))
                 JournalAddRecordSetComponentEnabled(ref bufferTypeHandle, value);
 #endif
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="SetComponentEnabled{T}(ref BufferTypeHandle{T},int,bool)"/> instead.
-        /// </summary>
-        /// <typeparam name="T">The buffer component type to enable or disable. This type must implement the
-        /// <see cref="IEnableableComponent"/> interface.</typeparam>
-        /// <param name="bufferTypeHandle">A type handle for the buffer component type that will be enabled or disabled.</param>
-        /// <param name="entityIndexInChunk">The index within this chunk of the entity whose buffer component should be checked.</param>
-        /// <param name="value">True if the specified buffer component should be enabled, or false if it should be disabled.</param>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly void SetComponentEnabled<T>(BufferTypeHandle<T> bufferTypeHandle, int entityIndexInChunk, bool value) where T : unmanaged, IBufferElementData, IEnableableComponent
-        {
-            SetComponentEnabled(ref bufferTypeHandle, entityIndexInChunk, value);
         }
 
         /// <summary>
@@ -1219,20 +1020,6 @@ namespace Unity.Entities
             UnsafeUtility.CopyPtrToStructure(ptr, out value);
             return value;
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetChunkComponentData{T}(ref Unity.Entities.ComponentTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of the chunk component.</typeparam>
-        /// <returns>A copy of the chunk component.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly T GetChunkComponentData<T>(ComponentTypeHandle<T> typeHandle)
-            where T : struct
-        {
-            return GetChunkComponentData(ref typeHandle);
-        }
 
         /// <summary>
         /// Sets the value of a chunk component.
@@ -1254,20 +1041,6 @@ namespace Unity.Entities
             m_EntityComponentStore->AssertEntityHasComponent(metaChunkEntity, typeHandle.m_TypeIndex);
             var ptr = m_EntityComponentStore->GetComponentDataWithTypeRW(metaChunkEntity, typeHandle.m_TypeIndex, typeHandle.GlobalSystemVersion);
             UnsafeUtility.CopyStructureToPtr(ref value, ptr);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="SetChunkComponentData{T}(ref Unity.Entities.ComponentTypeHandle{T},T)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of the chunk component.</typeparam>
-        /// <param name="value">A struct of type T containing the new values for the chunk component.</param>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly void SetChunkComponentData<T>(ComponentTypeHandle<T> typeHandle, T value)
-            where T : struct
-        {
-            SetChunkComponentData(ref typeHandle, value);
         }
 
         /// <summary>
@@ -1328,28 +1101,6 @@ namespace Unity.Entities
             return sharedComponentIndex;
         }
         /// <summary>
-        /// Obsolete. Use <see cref="GetSharedComponentIndex(ref DynamicSharedComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <returns>The index value, or -1 if the chunk does not contain a shared component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly int GetSharedComponentIndex(DynamicSharedComponentTypeHandle typeHandle)
-        {
-            return GetSharedComponentIndex(ref typeHandle);
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetSharedComponentManaged{T}"/> instead.</summary>
-        /// <param name="chunkSharedComponentData">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetSharedComponentTypeHandle{T}"/>.</param>
-        /// <param name="entityManager">An EntityManager instance.</param>
-        /// <typeparam name="T">The data type of the shared component.</typeparam>
-        /// <returns>The shared component value.</returns>
-        [Obsolete("Use GetSharedComponentManaged (UnityUpgradable) -> GetSharedComponentManaged<T>(*)", true)]
-        public T GetSharedComponentData<T>(SharedComponentTypeHandle<T> chunkSharedComponentData, EntityManager entityManager)
-            where T : struct, ISharedComponentData { return default; }
-
-        /// <summary>
         /// Gets the current value of a managed shared component.
         /// </summary>
         /// <remarks>You can't call this method inside a job.</remarks>
@@ -1362,18 +1113,6 @@ namespace Unity.Entities
             where T : struct, ISharedComponentData
         {
             return entityManager.GetSharedComponentManaged<T>(GetSharedComponentIndex(chunkSharedComponentData));
-        }
-
-        /// <summary> Obsolete. Use <see cref="GetSharedComponent{T}(SharedComponentTypeHandle{T})"/> instead.</summary>
-        /// <param name="chunkSharedComponentData">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetSharedComponentTypeHandle{T}"/>.</param>
-        /// <typeparam name="T">The data type of the shared component.</typeparam>
-        /// <returns>The shared component value.</returns>
-        [Obsolete("Use GetSharedComponent (UnityUpgradable) -> GetSharedComponent<T>(*)", true)]
-        public T GetSharedComponentDataUnmanaged<T>(SharedComponentTypeHandle<T> chunkSharedComponentData)
-            where T : unmanaged, ISharedComponentData
-        {
-            return default;
         }
 
         /// <summary>
@@ -1419,17 +1158,6 @@ namespace Unity.Entities
 
             return m_EntityComponentStore->GetSharedComponentDataAddr_Unmanaged(sharedComponentIndex, typeIndex);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetDynamicSharedComponentDataAddress(ref Unity.Entities.DynamicSharedComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <returns>A pointer to the shared component value.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly void* GetDynamicSharedComponentDataAddress(DynamicSharedComponentTypeHandle typeHandle)
-        {
-            return GetDynamicSharedComponentDataAddress(ref typeHandle);
-        }
 
         /// <summary>
         /// Gets the current value of a shared component.
@@ -1447,18 +1175,6 @@ namespace Unity.Entities
             return entityManager.GetSharedComponentDataBoxed(
                 GetSharedComponentIndex(ref typeHandle),
                 typeHandle.m_TypeIndex);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetSharedComponentDataBoxed(ref Unity.Entities.DynamicSharedComponentTypeHandle,Unity.Entities.EntityManager)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <param name="entityManager">An EntityManager instance.</param>
-        /// <returns>The shared component value.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly object GetSharedComponentDataBoxed(DynamicSharedComponentTypeHandle typeHandle, EntityManager entityManager)
-        {
-            return GetSharedComponentDataBoxed(ref typeHandle, entityManager);
         }
 
         /// <summary>
@@ -1492,28 +1208,6 @@ namespace Unity.Entities
             var typeIndexInArchetype = typeHandle.m_LookupCache.IndexInArchetype;
             return (typeIndexInArchetype != -1);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="Has{T}(ref Unity.Entities.ComponentTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.
-        /// </param>
-        /// <typeparam name="T">The data type of the component.</typeparam>
-        /// <returns>True, if this chunk contains an array of the specified component type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool Has<T>(ComponentTypeHandle<T> typeHandle)
-            where T :
-#if UNITY_DISABLE_MANAGED_COMPONENTS
-        struct,
-#endif
-            IComponentData
-#if !UNITY_DISABLE_MANAGED_COMPONENTS
-            , new()
-#endif
-        {
-            return Has(ref typeHandle);
-        }
 
         /// <summary>
         /// Reports whether this chunk contains the specified component type.
@@ -1540,16 +1234,6 @@ namespace Unity.Entities
             ChunkDataUtility.GetIndexInTypeArray(m_EntityComponentStore->GetArchetype(m_Chunk), typeHandle.m_TypeIndex, ref typeHandle.m_TypeLookupCache);
             return (typeHandle.m_TypeLookupCache != -1);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="Has(ref Unity.Entities.DynamicComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">Type handle for the component type to query.</param>
-        /// <returns>True, if this chunk contains an array of the specified component type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool Has(DynamicComponentTypeHandle typeHandle)
-        {
-            return Has(ref typeHandle);
-        }
 
         /// <summary>
         /// Reports whether this chunk contains a chunk component of the specified component type.
@@ -1574,21 +1258,6 @@ namespace Unity.Entities
             // TODO(DOTS-5748): use type handle's LookupCache here
             var typeIndexInArchetype = ChunkDataUtility.GetIndexInTypeArray(metaChunkArchetype, typeHandle.m_TypeIndex);
             return (typeIndexInArchetype != -1);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="HasChunkComponent{T}(ref Unity.Entities.ComponentTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.
-        /// </param>
-        /// <typeparam name="T">The data type of the chunk component.</typeparam>
-        /// <returns>True, if this chunk contains a chunk component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool HasChunkComponent<T>(ComponentTypeHandle<T> typeHandle)
-            where T : unmanaged, IComponentData
-        {
-            return HasChunkComponent(ref typeHandle);
         }
 
         /// <summary>
@@ -1646,21 +1315,6 @@ namespace Unity.Entities
                 ref typeHandle.m_cachedTypeIndexinArchetype);
             return (typeHandle.m_cachedTypeIndexinArchetype != -1);
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="Has(ref DynamicSharedComponentTypeHandle)"/> instead.
-        /// </summary>
-        /// <remarks>When an <see cref="EntityQuery"/> includes optional components used as shared
-        /// components (with <see cref="EntityQueryBuilder.WithAny{T}()"/>), some chunks returned by the query may have these shared
-        /// components and some may not. Use this function to determine whether or not the current chunk contains one of
-        /// these optional component types as a shared component.</remarks>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetDynamicSharedComponentTypeHandle"/>.</param>
-        /// <returns>True, if this chunk contains a shared component of the specified type.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool Has(DynamicSharedComponentTypeHandle typeHandle)
-        {
-            return Has(ref typeHandle);
-        }
 
         /// <summary>
         /// Reports whether this chunk contains a dynamic buffer containing the specified component type.
@@ -1684,20 +1338,6 @@ namespace Unity.Entities
             }
             var typeIndexInArchetype = bufferTypeHandle.m_LookupCache.IndexInArchetype;
             return (typeIndexInArchetype != -1);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="Has{T}(ref Unity.Entities.BufferTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="bufferTypeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetBufferTypeHandle{T}"/>. Pass the object to a job using a
-        /// public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of the component stored in the dynamic buffer.</typeparam>
-        /// <returns>True, if this chunk contains an array of the dynamic buffers containing the specified component type.</returns>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly bool Has<T>(BufferTypeHandle<T> bufferTypeHandle)
-            where T : unmanaged, IBufferElementData
-        {
-            return Has(ref bufferTypeHandle);
         }
 
         /// <summary>
@@ -1746,21 +1386,6 @@ namespace Unity.Entities
 
             return result;
         }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetNativeArray{T}(ref ComponentTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">An object containing type and job safety information. To create this
-        /// object, call <see cref="ComponentSystemBase.GetComponentTypeHandle{T}(bool)"/>. Pass the object to a job
-        /// using a public field you define as part of the job struct.</param>
-        /// <typeparam name="T">The data type of the component.</typeparam>
-        /// <returns>A native array containing the components in the chunk.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly NativeArray<T> GetNativeArray<T>(ComponentTypeHandle<T> typeHandle)
-            where T : unmanaged, IComponentData
-        {
-            return GetNativeArray(ref typeHandle);
-        }
-
 
         /// <summary>
         /// Provides an unsafe read-only interface to array of Entities stored in this chunk.
@@ -2116,22 +1741,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Obsolete. Use <see cref="GetDynamicComponentDataArrayReinterpret{T}(ref Unity.Entities.DynamicComponentTypeHandle,int)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">Type handle for the target component type</param>
-        /// <param name="expectedTypeSize">The expected size (in bytes) of the target component type. It is an error to
-        /// pass a size that does not match the target type's actual size.</param>
-        /// <typeparam name="T">The target component type</typeparam>
-        /// <returns>A NativeArray which aliases the chunk's component value array for type <typeparamref name="T"/>.
-        /// The array does not own this data, and does not need to be disposed when it goes out of scope.</returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly NativeArray<T> GetDynamicComponentDataArrayReinterpret<T>(DynamicComponentTypeHandle typeHandle, int expectedTypeSize)
-            where T : struct
-        {
-            return GetDynamicComponentDataArrayReinterpret<T>(ref typeHandle, expectedTypeSize);
-        }
-
-        /// <summary>
         /// Provides access to a chunk's array of component values for a specific managed component type.
         /// </summary>
         /// <param name="typeHandle">The type handle for the target component type.</param>
@@ -2169,19 +1778,6 @@ namespace Unity.Entities
 #endif
 
             return new ManagedComponentAccessor<T>(indexArray, manager);
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetManagedComponentAccessor{T}(ref Unity.Entities.ComponentTypeHandle{T},Unity.Entities.EntityManager)"/> instead.
-        /// </summary>
-        /// <param name="typeHandle">The type handle for the target component type.</param>
-        /// <param name="manager">The EntityManager which owns this chunk.</param>
-        /// <typeparam name="T">The target component type</typeparam>
-        /// <returns>An interface to this chunk's component values for type <typeparamref name="T"/></returns>
-        [Obsolete("The typeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly ManagedComponentAccessor<T> GetManagedComponentAccessor<T>(ComponentTypeHandle<T> typeHandle, EntityManager manager)
-            where T : class
-        {
-            return GetManagedComponentAccessor(ref typeHandle, manager);
         }
 
         /// <summary>
@@ -2273,18 +1869,6 @@ namespace Unity.Entities
 #else
             return new BufferAccessor<T>(ptr, length, stride, internalCapacity);
 #endif
-        }
-        /// <summary>
-        /// Obsolete. Use <see cref="GetBufferAccessor{T}(ref Unity.Entities.BufferTypeHandle{T})"/> instead.
-        /// </summary>
-        /// <param name="bufferTypeHandle">The type handle for the target component type.</param>
-        /// <typeparam name="T">The target component type, which must inherit <see cref="IBufferElementData"/>.</typeparam>
-        /// <returns>An interface to this chunk's component values for type <typeparamref name="T"/></returns>
-        [Obsolete("The bufferTypeHandle argument should now be passed by ref. (RemovedAfter Entities 1.0)", false)]
-        public readonly BufferAccessor<T> GetBufferAccessor<T>(BufferTypeHandle<T> bufferTypeHandle)
-            where T : unmanaged, IBufferElementData
-        {
-            return GetBufferAccessor(ref bufferTypeHandle);
         }
 
         /// <summary>

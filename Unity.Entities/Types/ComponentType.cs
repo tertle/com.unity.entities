@@ -42,25 +42,9 @@ namespace Unity.Entities
         /// </summary>
         public readonly bool IsBuffer => TypeIndex.IsBuffer;
         /// <summary>
-        /// Obsolete. Use <see cref="IsCleanupComponent"/> instead.
-        /// </summary>
-        /// <remarks> **Obsolete.** Use <see cref="IsCleanupComponent"/> instead.
-        ///
-        /// True if the component type is a <see cref="ICleanupComponentData"/></remarks>
-        [Obsolete("IsSystemStateComponent has been renamed to IsCleanupComponent. IsSystemStateComponent will be removed in a future package release. (UnityUpgradable) -> IsCleanupComponent", false)]
-        public bool IsSystemStateComponent => TypeIndex.IsCleanupComponent;
-        /// <summary>
         /// True if the component type is a <see cref="ICleanupComponentData"/>
         /// </summary>
         public readonly bool IsCleanupComponent => TypeIndex.IsCleanupComponent;
-        /// <summary>
-        /// Obsolete. Use <see cref="IsCleanupComponent"/> instead.
-        /// </summary>
-        /// <remarks> **Obsolete.** Use <see cref="IsCleanupComponent"/> instead.
-        ///
-        /// True if the component type is a <see cref="ICleanupSharedComponentData"/>.</remarks>
-        [Obsolete("IsSystemStateSharedComponent has been renamed to IsCleanupSharedComponent. IsSystemStateSharedComponent will be removed in a future package release. (UnityUpgradable) -> IsCleanupSharedComponent", false)]
-        public bool IsSystemStateSharedComponent => TypeIndex.IsCleanupSharedComponent;
         /// <summary>
         /// True if the component type is a <see cref="ICleanupSharedComponentData"/>
         /// </summary>

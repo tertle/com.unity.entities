@@ -20,89 +20,6 @@ namespace Unity.Entities
     [GenerateTestsForBurstCompatibility()]
     internal unsafe partial struct ChunkIterationUtility
     {
-        /// <summary>
-        /// Creates a NativeArray with all the chunks in a given archetype filtered by the provided EntityQueryFilter.
-        /// This function will not sync the needed types in the EntityQueryFilter so they have to be synced manually before calling this function.
-        /// </summary>
-        /// <param name="matchingArchetypes">List of matching archetypes.</param>
-        /// <param name="allocator">Allocator to use for the array.</param>
-        /// <param name="jobHandle">Handle to the GatherChunks job used to fill the output array.</param>
-        /// <param name="filter">Filter used to filter the resulting chunks</param>
-        /// <param name="dependsOn">All jobs spawned will depend on this JobHandle</param>
-        /// <returns>NativeArray of all the chunks in the matchingArchetypes list.</returns>
-        [Obsolete("Remove with CreateArchetypeChunkArrayAsync. (RemovedAfter Entities 1.0)")]
-        public static NativeArray<ArchetypeChunk> CreateArchetypeChunkArrayAsync(UnsafeMatchingArchetypePtrList matchingArchetypes,
-            AllocatorManager.AllocatorHandle allocator, out JobHandle jobHandle, ref EntityQueryFilter filter,
-            JobHandle dependsOn = default(JobHandle))
-        {
-            var archetypeCount = matchingArchetypes.Length;
-
-            var offsets =
-                new NativeArray<int>(archetypeCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var chunkCount = 0;
-            {
-                var ptrs = matchingArchetypes.Ptr;
-                for (int i = 0; i < archetypeCount; ++i)
-                {
-                    var archetype = ptrs[i]->Archetype;
-                    offsets[i] = chunkCount;
-                    chunkCount += archetype->Chunks.Count;
-                }
-            }
-
-            if (!filter.RequiresMatchesFilter)
-            {
-                var chunks = CollectionHelper.CreateNativeArray<ArchetypeChunk>(chunkCount, allocator, NativeArrayOptions.UninitializedMemory);
-                var gatherChunksJob = new GatherChunksToArrayJob
-                {
-                    MatchingArchetypes = matchingArchetypes.Ptr,
-                    entityComponentStore = matchingArchetypes.entityComponentStore,
-                    Offsets = offsets,
-                    Chunks = chunks
-                };
-                jobHandle = gatherChunksJob.Schedule(archetypeCount, 1, dependsOn);
-
-                return chunks;
-            }
-            else
-            {
-                var filteredCounts =  new NativeArray<int>(archetypeCount + 1, Allocator.TempJob);
-                var sparseChunks = new NativeArray<ArchetypeChunk>(chunkCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-                var gatherChunksJob = new GatherChunksToArrayWithFilteringJob
-                {
-                    MatchingArchetypes = matchingArchetypes.Ptr,
-                    Filter = filter,
-                    Offsets = offsets,
-                    FilteredCounts = filteredCounts,
-                    SparseChunks = sparseChunks,
-                    entityComponentStore = matchingArchetypes.entityComponentStore
-                };
-                gatherChunksJob.Schedule(archetypeCount, 1, dependsOn).Complete();
-
-                // accumulated filtered counts: filteredCounts[i] becomes the destination offset
-                int totalChunks = 0;
-                for (int i = 0; i < archetypeCount; ++i)
-                {
-                    int currentCount = filteredCounts[i];
-                    filteredCounts[i] = totalChunks;
-                    totalChunks += currentCount;
-                }
-                filteredCounts[archetypeCount] = totalChunks;
-
-                var joinedChunks = CollectionHelper.CreateNativeArray<ArchetypeChunk>(totalChunks, allocator, NativeArrayOptions.UninitializedMemory);
-
-                jobHandle = new JoinChunksJob
-                {
-                    DestinationOffsets = filteredCounts,
-                    SparseChunks = sparseChunks,
-                    Offsets = offsets,
-                    JoinedChunks = joinedChunks
-                }.Schedule(archetypeCount, 1);
-
-                return joinedChunks;
-            }
-        }
-
         private interface IChunkGatherer
         {
             void AddNoResize(ChunkIndex chunkIndex);
@@ -296,46 +213,6 @@ namespace Unity.Entities
             return entities;
         }
 
-
-        /// <summary>
-        ///  Obsolete. Use <see cref="CreateEntityListAsync"/> instead.
-        /// </summary>
-        /// <remarks> **Obsolete.** Use <see cref="CreateEntityListAsync"/> instead.
-        ///
-        /// Creates a NativeArray containing the entities in a given EntityQuery.</remarks>
-        /// <param name="matchingArchetypes">List of matching archetypes.</param>
-        /// <param name="allocator">Allocator to use for the array.</param>
-        /// <param name="typeHandle">An atomic safety handle required by GatherEntitiesJob so it can call GetNativeArray() on chunks.</param>
-        /// <param name="entityQuery">EntityQuery to gather entities from.</param>
-        /// <param name="entityCount">number of entities to reserve for the returned NativeArray.</param>
-        /// <param name="outJobHandle">Handle to the GatherEntitiesJob job used to fill the output array.</param>
-        /// <param name="dependsOn">Handle to a job this GatherEntitiesJob must wait on.</param>
-        /// <returns>NativeArray of the entities in a given EntityQuery.</returns>
-        [Obsolete("Use CreateEntityListAsync instead. (RemovedAfter Entities 1.0)")]
-        public static NativeArray<Entity> CreateEntityArrayAsync(UnsafeMatchingArchetypePtrList matchingArchetypes,
-            AllocatorManager.AllocatorHandle allocator,
-            EntityTypeHandle typeHandle,
-            EntityQuery entityQuery,
-            int entityCount,
-            out JobHandle outJobHandle,
-            JobHandle dependsOn)
-        {
-            var entities = CollectionHelper.CreateNativeArray<Entity>(entityCount, allocator, NativeArrayOptions.UninitializedMemory);
-
-            var chunkBaseEntityIndices =
-                entityQuery.CalculateBaseEntityIndexArrayAsync(Allocator.TempJob, dependsOn, out var baseIndexJob);
-
-            var job = new GatherEntitiesToArrayJob
-            {
-                ChunkBaseEntityIndices = chunkBaseEntityIndices,
-                EntityTypeHandle = typeHandle,
-                Entities = (byte*)entities.GetUnsafePtr()
-            };
-            outJobHandle = job.ScheduleParallel(entityQuery, baseIndexJob);
-
-            return entities;
-        }
-
         /// <summary>
         ///     Creates a NativeList containing the entities in a given EntityQuery.
         /// </summary>
@@ -435,48 +312,6 @@ namespace Unity.Entities
                 UnsafeUtility.MemCpy(copyDest, copySrc, copySize);
                 copyDest += copySize;
             }
-        }
-
-        /// <summary>
-        /// Obsolete. Use <see cref="CreateComponentDataListAsync"/> instead.
-        /// </summary>
-        /// <remarks>
-        /// **Obsolete.** Use <see cref="CreateComponentDataListAsync"/> instead.
-        ///
-        /// Creates a NativeArray with the value of a single component for all entities matching the provided query.
-        /// The job that schedules this method populates the NativeArray. This method
-        /// doesn't sync the needed types in the EntityQueryFilter, so you have to be sync them manually before calling this.
-        /// </remarks>
-        /// <param name="allocator">Allocator to use for the array.</param>
-        /// <param name="typeHandle">Type handle for the component whose values should be extracted.</param>
-        /// <param name="entityCount">Number of entities that match the query. Used as the output array size.</param>
-        /// <param name="entityQuery">Entities that match this query will be included in the output.</param>
-        /// <param name="outJobHandle">Handle to the job that will populate the output array. The caller must complete this job before the output array contents are valid.</param>
-        /// <param name="dependsOn">Input job dependencies for the array-populating job.</param>
-        /// <returns>NativeArray of all the chunks in the matchingArchetypes list.</returns>
-        [Obsolete("Use CreateComponentDataListAsync instead. (RemovedAfter Entities 1.0)")]
-        public static NativeArray<T> CreateComponentDataArrayAsync<T>(
-            AllocatorManager.AllocatorHandle allocator,
-            ref ComponentTypeHandle<T> typeHandle,
-            int entityCount,
-            EntityQuery entityQuery,
-            out JobHandle outJobHandle,
-            JobHandle dependsOn)
-            where T : unmanaged, IComponentData
-        {
-            var componentData = CollectionHelper.CreateNativeArray<T>(entityCount, allocator, NativeArrayOptions.UninitializedMemory);
-
-            var chunkBaseEntityIndices =
-                entityQuery.CalculateBaseEntityIndexArrayAsync(Allocator.TempJob, dependsOn, out var baseIndexJob);
-            var job = new GatherComponentDataToArrayJob
-            {
-                ComponentData = (byte*)componentData.GetUnsafePtr(),
-                TypeIndex = typeHandle.m_TypeIndex,
-                ChunkBaseEntityIndices = chunkBaseEntityIndices,
-            };
-            outJobHandle = job.ScheduleParallel(entityQuery, baseIndexJob);
-
-            return componentData;
         }
 
         /// <summary>
@@ -618,29 +453,6 @@ namespace Unity.Entities
                 UnsafeUtility.MemCpy(copyDest, copySrc, copySize);
                 copySrc += copySize;
             }
-        }
-
-        /// <summary> Obsolete. Use <see cref="CopyFromComponentDataListAsync"/> instead.</summary>
-        [Obsolete("Use CopyFromComponentDataListAsync instead. (RemovedAfter Entities 1.0)")]
-        public static void CopyFromComponentDataArrayAsync<T>(UnsafeMatchingArchetypePtrList matchingArchetypes,
-            NativeArray<T> componentDataArray,
-            ref ComponentTypeHandle<T> typeHandle,
-            EntityQuery entityQuery,
-            ref EntityQueryFilter filter,
-            out JobHandle jobHandle,
-            JobHandle dependsOn)
-            where T : unmanaged, IComponentData
-        {
-            var chunkBaseEntityIndices =
-                entityQuery.CalculateBaseEntityIndexArrayAsync(Allocator.TempJob, dependsOn, out var baseIndexJob);
-            var job = new CopyComponentArrayToChunksJob
-            {
-                ComponentData = (byte*)componentDataArray.GetUnsafePtr(),
-                TypeIndex = typeHandle.m_TypeIndex,
-                GlobalSystemVersion = typeHandle.GlobalSystemVersion,
-                ChunkBaseEntityIndices = chunkBaseEntityIndices,
-            };
-            jobHandle = job.ScheduleParallel(entityQuery, baseIndexJob);
         }
 
         [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(BurstCompatibleComponentData) })]

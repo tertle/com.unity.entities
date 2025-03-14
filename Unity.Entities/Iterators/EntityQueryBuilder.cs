@@ -211,23 +211,6 @@ namespace Unity.Entities
 #pragma warning restore CS0618
 
         /// <summary>
-        /// Obsolete. Use <see cref="WithAll"/> instead.
-        /// </summary>
-        /// <remarks>**Obsolete.** Use <see cref="WithAll"/> instead.
-        ///
-        /// Add an "all" matching type to the current query.</remarks>
-        /// <param name="t">The component type</param>
-        /// <returns>The builder object that invoked this method.</returns>
-        [Obsolete("Use WithAll<T,...> instead, or WithAll(INativeList) if component types are not known at compile time. (RemovedAfter Entities 1.0)", false)]
-        public EntityQueryBuilder AddAll(ComponentType t)
-        {
-            CheckBuilderPtr();
-
-            _builderDataPtr->_isFinalized = 0;
-            return WithAll(&t, 1);
-        }
-
-        /// <summary>
         /// Add required component types to the query.
         /// </summary>
         /// <remarks>
@@ -499,24 +482,6 @@ namespace Unity.Entities
             _builderDataPtr->_isFinalized = 0;
             return this;
         }
-
-        /// <summary>
-        /// Obsolete. Use <see cref="WithAny"/> instead.
-        /// </summary>
-        /// <remarks> **Obsolete.** Use <see cref="WithAny"/> instead.
-        ///
-        /// Add an "any" matching type to the current query.</remarks>
-        /// <param name="t">The component type</param>
-        /// <returns>The builder object that invoked this method.</returns>
-        [Obsolete("Use WithAny<T,...> instead, or WithAny(INativeList) if component types are not known at compile time. (RemovedAfter Entities 1.0)", false)]
-        public EntityQueryBuilder AddAny(ComponentType t)
-        {
-            CheckBuilderPtr();
-
-            _builderDataPtr->_isFinalized = 0;
-            return WithAny(&t, 1);
-        }
-
 
         /// <summary>
         /// Add optional component types to the query.
@@ -801,28 +766,6 @@ namespace Unity.Entities
 
             _builderDataPtr->_isFinalized = 0;
             return this;
-        }
-
-        /// <summary>
-        /// Obsolete. Use <see cref="WithNone"/> instead.
-        /// </summary>
-        /// <param name="t">The component type</param>
-        /// <remarks>**Obsolete.** Use <see cref="WithNone"/> instead.
-        ///
-        /// Add a "none" matching type to the current query. Types in the None list are never written to. If the AccessModeType field of the
-        /// provided component type is <see cref="ComponentType.AccessMode.ReadWrite"/>, will be forced to
-        /// <see cref="NativeArray{T}.ReadOnly"/> in the query.</remarks>
-        /// <returns>The builder object that invoked this method.</returns>
-        [Obsolete("Use WithNone<T,...> instead, or WithNone(INativeList) if component types are not known at compile time. (RemovedAfter Entities 1.0)", false)]
-        public EntityQueryBuilder AddNone(ComponentType t)
-        {
-            CheckBuilderPtr();
-
-            _builderDataPtr->_isFinalized = 0;
-            // The access mode of types in the None list is forced to ReadOnly; the query will not be accessing these
-            // types at all, and should not be requesting read/write access to them.
-            t.AccessModeType = ComponentType.AccessMode.ReadOnly;
-            return WithNone(&t, 1);
         }
 
         /// <summary>
@@ -1781,20 +1724,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Obsolete. Calling this method has no effect; it is temporarily provided for backwards compatibility.
-        /// </summary>
-        /// <remarks>**Obsolete.** You don't need to call this on EntityQueryBuilder.
-        /// If you want to build an EntityQuery with multiple query descriptions, call <see cref="AddAdditionalQuery"/>.</remarks>
-        /// <returns></returns>
-        [Obsolete("It is no longer necessary to call FinalizeQuery on every EntityQueryBuilder. " +
-                  "If you want to build an EntityQuery with multiple query descriptions, call AddAdditionalQuery " +
-                  "before each subsequent query description. (RemovedAfter Entities 1.0)", true)]
-        public EntityQueryBuilder FinalizeQuery()
-        {
-            return this;
-        }
-
-        /// <summary>
         /// Store the pending query constraints into the builder, and clear the pending state.
         /// </summary>
         /// <remarks>
@@ -2000,20 +1929,6 @@ namespace Unity.Entities
             }
 
             allComponentTypeIds.Dispose();
-        }
-    }
-
-    /// <summary> Obsolete. Use <see cref="EntityQueryBuilder"/> instead.</summary>
-    [Obsolete("Use EntityQueryBuilder (UnityUpgradable) -> EntityQueryBuilder")]
-    public struct EntityQueryDescBuilder
-    {
-        /// <summary> Obsolete. Use <see  cref="EntityQueryBuilder.WithOptions"/> instead.</summary>
-        /// <param name="options"><see cref="EntityQueryOptions"/> flags to set for the current query</param>
-        /// <returns>The builder object that invoked this method.</returns>
-        [Obsolete("Use WithOptions(EntityQueryOptions) (UnityUpgradable) -> EntityQueryBuilder.WithOptions(*)", false)]
-        public EntityQueryDescBuilder Options(EntityQueryOptions options)
-        {
-            return this;
         }
     }
 }
