@@ -897,7 +897,6 @@ namespace Unity.Entities
             m_ArchetypeChunkAllocator.Dispose();
             ManagedChangesTracker.Dispose();
             m_ManagedComponentFreeIndex.Dispose();
-            AspectTypeInfoManager.Dispose();
 
             for (int i = 0; i < m_UnmanagedSharedComponentsByType.Length; i++)
             {

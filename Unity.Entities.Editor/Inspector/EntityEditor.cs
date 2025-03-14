@@ -187,7 +187,6 @@ namespace Unity.Entities.Editor
                 Tabs = new ITabContent[]
                 {
                     new ComponentsTab(entityInspectorContext),
-                    new AspectsTab(entityInspectorContext),
                     new RelationshipsTab(entityInspectorContext)
                 };
             }

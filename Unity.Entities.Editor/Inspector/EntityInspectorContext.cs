@@ -23,8 +23,6 @@ namespace Unity.Entities.Editor
         internal Entity Entity => EntityContainer.Entity;
         internal bool IsReadOnly => EntityContainer.IsReadOnly;
 
-        internal EntityAspectsCollectionContainer AspectsCollectionContainer => new EntityAspectsCollectionContainer(World, Entity, IsReadOnly);
-
         internal void SetContext(EntitySelectionProxy proxy, bool forceWritable = false)
         {
             if (!proxy.Exists)

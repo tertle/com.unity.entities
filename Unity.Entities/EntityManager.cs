@@ -4361,34 +4361,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Look up an aspect for an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <typeparam name="T">The type of aspect to retrieve.</typeparam>
-        /// <returns>An aspect struct of type T representing the aspect on the entity.</returns>
-        /// <remarks>
-        /// T must implement the <see cref="IAspect"/> interface.
-        /// The given entity is assumed to have all the components required by the aspect type.
-        /// </remarks>
-        /// <remarks>
-        /// This method will create an instance of the aspect struct using
-        /// an internal SystemState.
-        /// </remarks>
-        /// <remarks>
-        /// When calling from an ISystem, use SystemAPI.GetAspect instead.
-        /// When calling from a SystemBase, use SystemBase.GetAspect instead.
-        /// Use this method when calling from outside the dots runtime, e.g. from the editor code.
-        /// </remarks>
-#pragma warning disable CS0618 // Disable Aspects obsolete warnings
-        [ExcludeFromBurstCompatTesting("This unfortunately needs access to the managed world for the ExternalAPIState.")]
-        public T GetAspect<T>(Entity entity) where T : struct, IAspect, IAspectCreate<T>
-        {
-            T aspect = default;
-            return aspect.CreateAspect(entity, ref *World.ExternalAPIState);
-        }
-#pragma warning restore CS0618
-
-        /// <summary>
         /// Completes the dependency chain required for this component to have read and write access.
         /// So it completes all write dependencies of the component to allow for reading,
         /// and it completes all read dependencies, so we can write to it.

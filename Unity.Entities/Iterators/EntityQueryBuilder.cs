@@ -194,23 +194,6 @@ namespace Unity.Entities
         }
 
         /// <summary>
-        /// Add component type requirement for a given aspect.
-        /// </summary>
-        /// <typeparam name="TAspect">The aspect to add to the query</typeparam>
-        /// <returns>The builder object that invoked this method.</returns>
-#pragma warning disable CS0618 // Disable Aspects obsolete warnings
-        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(BurstCompatibleAspect) })]
-        public EntityQueryBuilder WithAspect<TAspect>()
-            where TAspect : struct, IAspect, IAspectCreate<TAspect>
-        {
-            CheckBuilderPtr();
-            default(TAspect).AddComponentRequirementsTo(ref _builderDataPtr->_all);
-            _builderDataPtr->_isFinalized = 0;
-            return this;
-        }
-#pragma warning restore CS0618
-
-        /// <summary>
         /// Add required component types to the query.
         /// </summary>
         /// <remarks>

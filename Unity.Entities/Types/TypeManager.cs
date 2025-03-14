@@ -1507,8 +1507,6 @@ namespace Unity.Entities
                 InitializeSharedStatics();
 
                 EntityNameStorage.Initialize();
-
-                InitializeAspects();
             }
             catch
             {
@@ -1656,10 +1654,6 @@ namespace Unity.Entities
 
             ShutdownSharedStatics();
             EntityNameStorage.Shutdown();
-
-#if !UNITY_DOTSRUNTIME
-            ShutdownAspects();
-#endif
 
             FastEquality.Shutdown();
         }

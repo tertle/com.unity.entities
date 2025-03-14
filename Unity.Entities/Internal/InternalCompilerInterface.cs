@@ -18,14 +18,6 @@ namespace Unity.Entities.Internal
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static partial class InternalCompilerInterface
     {
-#pragma warning disable CS0618 // Disable Aspects obsolete warnings
-        public interface IAspectLookup<T> where T : IAspect
-        {
-            public void Update(ref SystemState state);
-            public T this[Entity entity] { get; }
-        }
-#pragma warning restore CS0618
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EntityStorageInfoLookup GetEntityStorageInfoLookup(
             ref EntityStorageInfoLookup entityStorageInfoLookup, ref SystemState state)
@@ -219,20 +211,6 @@ namespace Unity.Entities.Internal
             state.EntityManager.CompleteDependencyBeforeRW<T>();
             bufferLookup.SetBufferEnabled(entity, value);
         }
-#pragma warning disable CS0618 // Disable Aspects obsolete warnings
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetAspectAfterCompletingDependency<TLookup, T>(ref TLookup aspectLookup, ref SystemState state, bool isAspectReadOnly, Entity entity)
-            where TLookup : struct, IAspectLookup<T>
-            where T : struct, IAspect, IAspectCreate<T>
-        {
-            aspectLookup.Update(ref state);
-            if (isAspectReadOnly)
-                default(T).CompleteDependencyBeforeRO(ref state);
-            else
-                default(T).CompleteDependencyBeforeRW(ref state);
-            return aspectLookup[entity];
-        }
-#pragma warning restore CS0618
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ComponentTypeHandle<T> GetComponentTypeHandle<T>(ref ComponentTypeHandle<T> componentTypeHandle,
             ref SystemState state) where T : unmanaged, IComponentData

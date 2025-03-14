@@ -647,25 +647,6 @@ namespace Unity.Entities
         public static bool HasSingleton<T>() where T : unmanaged =>  throw Internal.InternalCompilerInterface.ThrowCodeGenException();
         #endregion
 
-        #region Aspect
-        /////////////////////////////////// Aspect Lookup Caching ///////////////////////////////////
-
-        /// <summary>
-        /// Look up an aspect for an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <typeparam name="T">The type of aspect to retrieve.</typeparam>
-        /// <returns>An aspect struct of type T representing the aspect on the entity.</returns>
-        /// <remarks>
-        /// T must implement the <see cref="IAspect"/> interface.
-        /// The given entity is assumed to have all the components required by the aspect type.
-        /// </remarks>
-        /// <remarks> Not working in IJobEntity, Utility methods, and Aspects</remarks>
-#pragma warning disable CS0618 // Disable Aspects obsolete warnings
-        public static T GetAspect<T>(Entity entity) where T : unmanaged, IAspect =>  throw Internal.InternalCompilerInterface.ThrowCodeGenException();
-#pragma warning restore CS0618
-        #endregion
-
         #region Handles
         /////////////////////////////////// TypeHandle Caching ///////////////////////////////////
 
