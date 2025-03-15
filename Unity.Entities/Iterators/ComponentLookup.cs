@@ -522,7 +522,7 @@ namespace Unity.Entities
                 outRef = default;
                 return false;
             }
-            void *ptr = ecs->GetOptionalComponentDataWithTypeRO(entity, m_TypeIndex, ref m_Cache);
+            void *ptr = ecs->GetOptionalComponentDataWithTypeRW(entity, m_TypeIndex, m_GlobalSystemVersion, ref m_Cache);
             if (ptr == null)
             {
                 outRef = default;
