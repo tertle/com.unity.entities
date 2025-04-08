@@ -133,6 +133,68 @@ namespace Unity.Entities.Editor
             return hashset.ToArray();
         }
 
+        public IEnumerable<ComponentViewData> GetJobDependencyForReadingSystems()
+        {
+            if (World == null || !World.IsCreated)
+            {
+                return Enumerable.Empty<ComponentViewData>();
+            }
+
+            if (!Valid)
+            {
+                return Enumerable.Empty<ComponentViewData>();
+            }
+
+            using var hashPool = PooledList<ComponentViewData>.Make();
+            var list = hashPool.List;
+
+            var ptr = StatePointer;
+            if (ptr != null && ptr->m_JobDependencyForReadingSystems.Length > 0)
+            {
+                var dependencies = ptr->m_JobDependencyForReadingSystems;
+                for (var i = 0; i < dependencies.Length; i++)
+                {
+                    var componentType = ComponentType.FromTypeIndex(dependencies[i]);
+                    var type = componentType.GetManagedType();
+                    var name = TypeUtility.GetTypeDisplayName(type);
+                    list.Add(new ComponentViewData(type, name, ComponentType.AccessMode.ReadOnly, ComponentsUtility.GetComponentKind(componentType)));
+                }
+            }
+
+            return list.ToArray();
+        }
+
+        public IEnumerable<ComponentViewData> GetJobDependencyForWritingSystems()
+        {
+            if (World == null || !World.IsCreated)
+            {
+                return Enumerable.Empty<ComponentViewData>();
+            }
+
+            if (!Valid)
+            {
+                return Enumerable.Empty<ComponentViewData>();
+            }
+
+            using var hashPool = PooledList<ComponentViewData>.Make();
+            var list = hashPool.List;
+
+            var ptr = StatePointer;
+            if (ptr != null && ptr->m_JobDependencyForWritingSystems.Length > 0)
+            {
+                var dependencies = ptr->m_JobDependencyForWritingSystems;
+                for (var i = 0; i < dependencies.Length; i++)
+                {
+                    var componentType = ComponentType.FromTypeIndex(dependencies[i]);
+                    var type = componentType.GetManagedType();
+                    var name = TypeUtility.GetTypeDisplayName(type);
+                    list.Add(new ComponentViewData(type, name, ComponentType.AccessMode.ReadWrite, ComponentsUtility.GetComponentKind(componentType)));
+                }
+            }
+
+            return list.ToArray();
+        }
+
         public bool Equals(SystemProxy other)
         {
             if (!other.Valid)
