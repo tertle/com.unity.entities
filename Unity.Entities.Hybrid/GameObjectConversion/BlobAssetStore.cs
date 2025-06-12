@@ -356,17 +356,6 @@ namespace Unity.Entities
 
         }
 
-        /// <summary>Obsolete. BlobAssetStore uses garbage collection and doesn't allow removing references anymore.</summary>
-        /// <param name="hash">The key associated with the BlobAssetReference</param>
-        /// <param name="releaseBlobAsset">If true the BlobAsset data will be released</param>
-        /// <typeparam name="T">The type of the BlobAsset</typeparam>
-        /// <returns>True if the BlobAsset was removed from the store, false if it wasn't found</returns>
-        [Obsolete("Obsolete. BlobAssetStore uses garbage collection and doesn't allow removing references anymore.")]
-        public bool TryRemove<T>(Hash128 hash, bool releaseBlobAsset)
-        {
-            return false;
-        }
-
         /// <summary>
         /// Calling dispose will reset the cache content and release all the BlobAssetReference that were stored
         /// </summary>

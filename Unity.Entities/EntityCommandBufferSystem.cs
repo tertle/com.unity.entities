@@ -353,24 +353,5 @@ namespace Unity.Entities
             s.SetPendingBufferList(ref pendingBuffers);
             s.SetAllocator(system.m_EntityCommandBufferAllocator.Allocator.ToAllocator);
         }
-
-        /// <summary>Obsolete. System entities are used for ECB component data, rather than entityName.</summary>
-        /// <param name="system">The managed EntityCommandBufferSystem that owns the Singleton</param>
-        /// <param name="pendingBuffers">The list of command buffers in the managed System to append to</param>
-        /// <param name="world">The world that this command buffer buffers changes for</param>
-        /// <param name="entityName">The name of the entity.</param>
-        /// <typeparam name="T">
-        /// The unmanaged Singleton type, that corresponds to the managed EntityCommandBufferSystem subclass
-        /// </typeparam>
-        [Obsolete("The entityName parameter is obsolete. System entities are now used for ECB component data.")]
-        public static void RegisterSingleton<T>(
-            this EntityCommandBufferSystem system,
-            ref UnsafeList<EntityCommandBuffer> pendingBuffers,
-            WorldUnmanaged world,
-            string entityName)
-            where T : unmanaged, IECBSingleton, IComponentData
-        {
-            RegisterSingleton<T>(system, ref pendingBuffers, world);
-        }
     }
 }
