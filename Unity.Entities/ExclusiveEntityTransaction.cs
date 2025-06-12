@@ -161,16 +161,6 @@ namespace Unity.Entities
             m_Manager.SetComponentData(entity, componentData);
         }
 
-        /// <summary> Obsolete. Use <see cref="GetSharedComponentManaged{T}"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <typeparam name="T">The type of entity</typeparam>
-        /// <returns></returns>
-        [Obsolete("Use GetSharedComponentManaged<T> (UnityUpgradable) -> GetSharedComponentManaged<T>(*)", true)]
-        public T GetSharedComponentData<T>(Entity entity) where T : struct, ISharedComponentData
-        {
-            return default;
-        }
-
         /// <inheritdoc cref="Unity.Entities.EntityManager.GetSharedComponentManaged{T}(Entity)"/>
         public T GetSharedComponentManaged<T>(Entity entity) where T : struct, ISharedComponentData
         {
@@ -181,15 +171,6 @@ namespace Unity.Entities
         public T GetSharedComponent<T>(Entity entity) where T : unmanaged, ISharedComponentData
         {
             return m_Manager.GetSharedComponent<T>(entity);
-        }
-
-        /// <summary> Obsolete. Use <see cref="SetSharedComponentManaged{T}"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="componentData">The data to set.</param>
-        /// <typeparam name="T">The component type.</typeparam>
-        [Obsolete("Use SetSharedComponentManaged<T> (UnityUpgradable) -> SetSharedComponentManaged<T>(*)", true)]
-        public void SetSharedComponentData<T>(Entity entity, T componentData) where T : struct, ISharedComponentData
-        {
         }
 
         /// <inheritdoc cref="Unity.Entities.EntityManager.SetSharedComponentManaged{T}(Entity,T)"/>
@@ -228,17 +209,6 @@ namespace Unity.Entities
             where T : unmanaged, ISharedComponentData
         {
             m_Manager.AddSharedComponent(chunks, componentData);
-        }
-
-        /// <summary> Obsolete. Use <see cref="AddSharedComponentManaged{T}(Entity,T)"/> instead.</summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="componentData">The shared component value to set.</param>
-        /// <typeparam name="T">The shared component type.</typeparam>
-        /// <returns>Returns false</returns>
-        [Obsolete("Use AddSharedComponentManaged<T> (UnityUpgradable) -> AddSharedComponentManaged<T>(*)", true)]
-        public bool AddSharedComponentData<T>(Entity entity, T componentData) where T : struct, ISharedComponentData
-        {
-            return false;
         }
 
         /// <inheritdoc cref="Unity.Entities.EntityManager.AddSharedComponentManaged{T}(Entity,T)"/>
