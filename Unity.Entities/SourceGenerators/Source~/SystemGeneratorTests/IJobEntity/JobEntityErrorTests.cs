@@ -21,16 +21,8 @@ public class JobEntityErrorTests
                 void Execute(Entity entity, float {|#0:invalidFloat|})
                 {
                 }
-            }
-
-            public partial class TestSystem : SystemBase
-            {
-                protected override void OnUpdate()
-                {
-                    Dependency = new WithInvalidValueTypeParameters().Schedule(Dependency);
-                }
             }";
-            var expected = VerifyCS.CompilerError(nameof(JobEntityGeneratorErrors.SGJE0003)).WithLocation(0);
+            var expected = VerifyCS.CompilerError(nameof(JobEntityGeneratorErrors.SGJE0010)).WithLocation(0);
             await VerifyCS.VerifySourceGeneratorAsync(source, expected);
     }
 
@@ -57,7 +49,7 @@ public class JobEntityErrorTests
                     translation.Value *= DeltaTime;
                 }
             }";
-            var expected = VerifyCS.CompilerError(nameof(JobEntityGeneratorErrors.SGJE0003)).WithLocation(0);
+            var expected = VerifyCS.CompilerError(nameof(JobEntityGeneratorErrors.SGJE0010)).WithLocation(0);
             await VerifyCS.VerifySourceGeneratorAsync(source, expected);
     }
 

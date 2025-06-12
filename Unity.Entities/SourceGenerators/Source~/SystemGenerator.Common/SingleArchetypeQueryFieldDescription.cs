@@ -92,14 +92,44 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             writer.WriteLine("entityQueryBuilder");
             writer.Indent++;
 
-            var requiredTypes = _archetype.All.Concat(_changeFilterTypes).Except(_archetype.Disabled);
-            var presentComponentTypes = new List<Query>(capacity: 8);
-
+            // Build a list of types required by the query, including those implicitly required due to active change filters.
+            var requiredTypes = _archetype.All.Concat(_changeFilterTypes).ToList();
+            // Explicitly Disabled types are removed from the requiredTypes list; we don't want to generate an explicit WithAll<T>() constraint for them.
+            foreach (var comp in _archetype.Disabled)
+            {
+                writer.WriteLine(comp.IsReadOnly
+                    ? $".WithDisabled<{comp.TypeSymbol.ToFullName()}>()"
+                    : $".WithDisabledRW<{comp.TypeSymbol.ToFullName()}>()");
+                var requiredTypesIndex =
+                    requiredTypes.FindIndex(q => SymbolEqualityComparer.Default.Equals(q.TypeSymbol, comp.TypeSymbol));
+                if (requiredTypesIndex != -1)
+                    requiredTypes.RemoveAtSwapBack(requiredTypesIndex);
+            }
+            // Explicitly Present types are removed from the requiredTypes list; we don't want to generate an explicit WithAll<T>() constraint for them.
+            foreach (var comp in _archetype.Present)
+            {
+                writer.WriteLine(comp.IsReadOnly
+                    ? $".WithPresent<{comp.TypeSymbol.ToFullName()}>()"
+                    : $".WithPresentRW<{comp.TypeSymbol.ToFullName()}>()");
+                var requiredTypesIndex =
+                    requiredTypes.FindIndex(q => SymbolEqualityComparer.Default.Equals(q.TypeSymbol, comp.TypeSymbol));
+                if (requiredTypesIndex != -1)
+                    requiredTypes.RemoveAtSwapBack(requiredTypesIndex);
+            }
+            // Anything left in the requiredTypes list that isn't an Aspect goes into the withAllComponentTypes list,
+            // and gets a WithAll<T>() constraint.
+            var withAllComopnentTypes = new List<Query>(requiredTypes.Count);
             foreach (var comp in requiredTypes)
                 if (comp.TypeSymbol.IsAspect())
                     codeAspect.Add($".WithAspect<{comp.TypeSymbol.ToFullName()}>()");
                 else
-                    presentComponentTypes.Add(comp);
+                    withAllComopnentTypes.Add(comp);
+            var distinctWithAllTypeNames = GetDistinctRequiredTypeNames(withAllComopnentTypes);
+            foreach (var ro in distinctWithAllTypeNames.readOnlyTypeNames)
+                writer.WriteLine($".WithAll<{ro}>()");
+            foreach (var rw in distinctWithAllTypeNames.readWriteTypeNames)
+                writer.WriteLine($".WithAllRW<{rw}>()");
+
 
             foreach (var comp in _archetype.Any)
             {
@@ -117,27 +147,8 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
                     // usages require read-write access. Since `.WithNoneRW` is not available as part of the `EntityQueryBuilder` public API, we can use `.WithDisabledRW` instead.
                     : $".WithDisabledRW<{comp.TypeSymbol.ToFullName()}>()");
             }
-            foreach (var comp in _archetype.Disabled)
-            {
-                writer.WriteLine(comp.IsReadOnly
-                    ? $".WithDisabled<{comp.TypeSymbol.ToFullName()}>()"
-                    : $".WithDisabledRW<{comp.TypeSymbol.ToFullName()}>()");
-            }
-            foreach (var comp in _archetype.Present)
-            {
-                writer.WriteLine(comp.IsReadOnly
-                    ? $".WithPresent<{comp.TypeSymbol.ToFullName()}>()"
-                    : $".WithPresentRW<{comp.TypeSymbol.ToFullName()}>()");
-            }
             foreach (var comp in _archetype.Absent)
                 writer.WriteLine($".WithAbsent<{comp.TypeSymbol.ToFullName()}>()");
-
-            var distinctPresentTypeNames = GetDistinctRequiredTypeNames(presentComponentTypes);
-            foreach (var ro in distinctPresentTypeNames.readOnlyTypeNames)
-                writer.WriteLine($".WithAll<{ro}>()");
-
-            foreach (var ro in distinctPresentTypeNames.readWriteTypeNames)
-                writer.WriteLine($".WithAllRW<{ro}>()");
 
             // Append all ".WithAspect" calls. They must be done after all "WithAll", "WithAny" and "WithNone" calls to avoid component aliasing
             foreach (var code in codeAspect)

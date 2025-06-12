@@ -198,7 +198,7 @@ namespace Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations
                 success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithNone", QueryType.None, out var withNoneTypes);
                 success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithDisabled", QueryType.Disabled, out var withDisabledTypes);
                 success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithAbsent", QueryType.Absent, out var withAbsentTypes);
-                success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithPresent", QueryType.Absent, out var withPresentTypes);
+                success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithPresent", QueryType.Present, out var withPresentTypes);
                 success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithChangeFilter", QueryType.ChangeFilter, out var withChangeFilterTypes);
                 success &= TryGetAllTypeArgumentSymbolsOfMethod(systemDescription, candidate, bulkOperationQueryMethodInvocations, "WithSharedComponentFilter", QueryType.All, out var withSharedComponentFilterTypes);
 
@@ -209,8 +209,8 @@ namespace Unity.Entities.SourceGen.SystemGenerator.EntityQueryBulkOperations
                             withAnyTypes,
                             withNoneTypes,
                             withDisabledTypes,
-                            withPresentTypes,
-                            withAbsentTypes),
+                            withAbsentTypes,
+                            withPresentTypes),
                         changeFilterTypes: withChangeFilterTypes);
 
                 var generatedQueryFieldName = systemDescription.QueriesAndHandles.GetOrCreateQueryField(queryDescription);
