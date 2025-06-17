@@ -108,9 +108,9 @@ namespace Unity.Scenes.Editor
                         break;
                     case ObjectChangeKind.ChangeScene:
                     {
-                        stream.GetChangeSceneEvent(i, out var evt);
+                        /*stream.GetChangeSceneEvent(i, out var evt);
                         if (evt.scene.IsValid())
-                            GetLiveConversion(evt.scene)?.RequestCleanConversion();
+                            GetLiveConversion(evt.scene)?.RequestCleanConversion();*/
                         break;
                     }
                     case ObjectChangeKind.CreateGameObjectHierarchy:
