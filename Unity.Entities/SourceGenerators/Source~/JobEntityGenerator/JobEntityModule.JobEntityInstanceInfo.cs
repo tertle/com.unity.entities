@@ -38,6 +38,9 @@ public partial class JobEntityModule
                 case ObjectCreationExpressionSyntax objectCreationExpressionSyntax:
                     jobEntityInstance = objectCreationExpressionSyntax;
                     break;
+                case InvocationExpressionSyntax invocationExpressionSyntax:
+                    jobEntityInstance = invocationExpressionSyntax;
+                    break;
             }
 
             if (jobEntityInstance == null)
@@ -60,8 +63,7 @@ public partial class JobEntityModule
             return true;
         }
 
-        public (bool Success, ObjectCreationExpressionSyntax? ObjectCreationExpressionSyntax, IdentifierNameSyntax? IdentifierNameSyntax, int JobArgumentIndexInExtensionMethod)
-            TryGetJobArgumentUsedInSchedulingInvocation()
+        public (bool Success, ObjectCreationExpressionSyntax? ObjectCreationExpressionSyntax, IdentifierNameSyntax? IdentifierNameSyntax, InvocationExpressionSyntax? InvocationExpressionSyntax, int JobArgumentIndexInExtensionMethod)            TryGetJobArgumentUsedInSchedulingInvocation()
         {
             var result = Candidate.MemberAccessExpressionSyntax.Expression;
 
@@ -75,16 +77,18 @@ public partial class JobEntityModule
                 result = Candidate.Invocation.ArgumentList.Arguments[jobDataArgumentIndex].Expression;
                 return result switch
                 {
-                    ObjectCreationExpressionSyntax objectCreationExpressionSyntax => (true, objectCreationExpressionSyntax, null, jobDataArgumentIndex),
-                    IdentifierNameSyntax identifierNameSyntax => (true, null, identifierNameSyntax, jobDataArgumentIndex),
+                    ObjectCreationExpressionSyntax objectCreationExpressionSyntax => (true, objectCreationExpressionSyntax, null, null, jobDataArgumentIndex),
+                    IdentifierNameSyntax identifierNameSyntax => (true, null, identifierNameSyntax, null, jobDataArgumentIndex),
+                    InvocationExpressionSyntax invocationExpressionSyntax => (true, null, null, invocationExpressionSyntax, jobDataArgumentIndex),
                     _ => default
                 };
             }
 
             return result switch
             {
-                ObjectCreationExpressionSyntax objectCreationExpressionSyntax => (true, objectCreationExpressionSyntax, null, -1),
-                IdentifierNameSyntax identifierNameSyntax => (true, null, identifierNameSyntax, -1),
+                ObjectCreationExpressionSyntax objectCreationExpressionSyntax => (true, objectCreationExpressionSyntax, null, null, -1),
+                IdentifierNameSyntax identifierNameSyntax => (true, null, identifierNameSyntax, null, -1),
+                InvocationExpressionSyntax invocationExpressionSyntax => (true, null, null, invocationExpressionSyntax, -1),
                 _ => default
             };
         }

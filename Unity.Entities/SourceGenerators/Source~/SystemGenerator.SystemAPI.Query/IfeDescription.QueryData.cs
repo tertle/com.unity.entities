@@ -38,6 +38,9 @@ public partial class IfeDescription
         foreach (var typeSyntax in QueryCandidate.QueryTypeNodes)
         {
             var typeSymbol = SystemDescription.SemanticModel.GetTypeInfo(typeSyntax).Type;
+            if (typeSymbol == null)
+                return false;
+
             var typeParameterSymbol = default(ITypeSymbol);
 
             var genericNameCandidate = typeSyntax;
@@ -133,6 +136,9 @@ public partial class IfeDescription
 
                 // `MyResult` is `RefRO<T>`, `RefRW<T>`, `EnabledRefRW<T>`, `EnabledRefRO<T>` or `DynamicBuffer<T>`
                 case INamedTypeSymbol namedTypeSymbol:
+                    if(namedTypeSymbol.TypeArguments.IsEmpty)
+                        return (QueryType.Invalid, false);
+
                     // `typeArgument` refers to `T` in `RefRO<T>`, `RefRW<T>`, `EnabledRefRW<T>`, `EnabledRefRO<T>` or `DynamicBuffer<T>`
                     var typeArgument = namedTypeSymbol.TypeArguments[0];
 

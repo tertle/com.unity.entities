@@ -50,6 +50,47 @@ public class SystemAPIErrorTests
     }
 
     [TestMethod]
+    public async Task NO_SGICE_BUT_HAS_CSHARP_COMPILE_ERRORS_3()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+
+            partial struct SomeSystem : ISystem {
+                struct Foo : IComponentData { }
+
+                public void OnUpdate(ref SystemState state)
+                {
+                    foreach (var (a, b) in SystemAPI.{|#0:Query<Entity, RefRO<Foo>>|}().WithAll<Foo>())
+                    {
+                    }
+                }
+            }";
+        var expectedA = VerifyCS.CompilerError("CS0315").WithLocation(0);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expectedA);
+    }
+
+    [TestMethod]
+    public async Task NO_SGICE_BUT_HAS_CSHARP_COMPILE_ERRORS_4()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Entities.Tests;
+
+            partial struct SomeSystem : ISystem {
+                struct Foo : IComponentData { }
+
+                public void OnUpdate(ref SystemState state)
+                {
+                    {|#0:SystemAPI.Query<>|}();
+                }
+            }";
+        var expectedA = VerifyCS.CompilerError("CS0305").WithLocation(0);
+        var expectedB = VerifyCS.CompilerError("CS7003").WithLocation(0);
+        await VerifyCS.VerifySourceGeneratorAsync(source, expectedA, expectedB);
+    }
+
+    [TestMethod]
     public async Task SGSA0001()
     {
         const string source = @"
