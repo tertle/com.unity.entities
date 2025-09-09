@@ -2646,7 +2646,8 @@ namespace Unity.Entities
                     if (!isAssemblyRelevant)
                         continue;
 
-
+                    if(assembly.IsDefined(typeof(DisableAutoTypeRegistrationAttribute)))
+                        continue;
 
                     var assemblyTypes = assembly.GetTypes();
 
