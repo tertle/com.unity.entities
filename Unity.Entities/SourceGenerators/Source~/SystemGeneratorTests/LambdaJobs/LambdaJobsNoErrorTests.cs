@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS =
     Unity.Entities.SourceGenerators.Test.CSharpSourceGeneratorVerifier<
@@ -303,4 +303,41 @@ public class LambdaJobsNoErrorTests
             }";
         await VerifyCS.VerifySourceGeneratorAsync(source);
     }
+
+    [TestMethod]
+    public async Task SGICE002OnlySystem()
+    {
+        const string source = @"
+            using Unity.Entities;
+            using Unity.Mathematics;
+
+            class EndSimulationEntityCommandBufferSystem : EntityCommandBufferSystem
+            {
+                protected override void OnUpdate() {}
+            }
+
+            public struct GridData : IComponentData
+            {
+            }
+            public struct Parent : IComponentData
+            {
+                public Entity Value;
+            }
+
+            public partial class SGICE002OnlySystem : SystemBase
+            {
+                protected override void OnUpdate()
+                {
+                    Entities
+                        .WithDeferredPlaybackSystem<EndSimulationEntityCommandBufferSystem>()
+                        .ForEach((ref Parent parent, EntityCommandBuffer ecb) =>
+                        {
+                            var gridData = SystemAPI.GetComponent<GridData>(parent.Value);
+                        }).ScheduleParallel();
+                }
+            }";
+        await VerifyCS.VerifySourceGeneratorAsync(source);
+    }
+
+
 }

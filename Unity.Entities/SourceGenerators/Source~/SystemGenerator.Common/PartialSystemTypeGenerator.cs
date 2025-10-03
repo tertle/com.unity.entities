@@ -166,29 +166,30 @@ namespace Unity.Entities.SourceGen.SystemGenerator.Common
             }
 
             var uniqueModifiersEnumerator = uniqueModifiers.GetEnumerator();
-            if (uniqueModifiersEnumerator.MoveNext())
+            var hasPartial = false;
+            bool first = true;
+
+            while (uniqueModifiersEnumerator.MoveNext())
             {
-                // writes modifiers in order, where the first always has no space before it
-                // and the rest have a space before them. Note: It will delay partial to the end
-                var hasPartial = uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword;
-                var firstHasPartial = hasPartial;
-                if (!hasPartial)
-                    writer.Write($"{SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current)}");
-                while (uniqueModifiersEnumerator.MoveNext())
+                if (uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword)
                 {
-                    if (uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword)
-                    {
-                        if (uniqueModifiersEnumerator.Current == (int)SyntaxKind.PartialKeyword)
-                            hasPartial = true;
-                        continue;
-                    }
-                    writer.Write($" {SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current)}");
+                    hasPartial = true;
+                    continue;
                 }
 
-                if (hasPartial)
-                    writer.Write(firstHasPartial ? "partial" : " partial");
+                if (first)
+                {
+                    writer.Write(SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current));
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(" " + SyntaxFacts.GetText((SyntaxKind)uniqueModifiersEnumerator.Current));
+                }
             }
-
+            if (hasPartial)
+                writer.Write(first ? "partial" : " partial");
+            
             switch (originalSyntax)
             {
                 case StructDeclarationSyntax _:
