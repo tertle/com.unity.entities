@@ -13,6 +13,7 @@ using Unity.Profiling.Editor;
 
 namespace Unity.Entities.Editor
 {
+    [Serializable]
     [ProfilerModuleMetadata("Entities Memory", IconPath = "Profiler.Memory")]
     partial class MemoryProfilerModule : ProfilerModule
     {

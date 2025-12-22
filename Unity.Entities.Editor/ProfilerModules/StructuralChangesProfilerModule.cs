@@ -13,6 +13,7 @@ using Unity.Profiling.Editor;
 
 namespace Unity.Entities.Editor
 {
+    [Serializable]
     [ProfilerModuleMetadata("Entities Structural Changes", IconPath = "Profiler.CPU")]
     partial class StructuralChangesProfilerModule : ProfilerModule
     {
